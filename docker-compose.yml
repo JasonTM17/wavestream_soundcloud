@@ -1,0 +1,131 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wavestream-db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-wavestream}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-wavestream_secret}
+      POSTGRES_DB: ${DB_NAME:-wavestream}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-wavestream}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: wavestream-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: wavestream-minio
+    restart: unless-stopped
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-wavestream}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-wavestream_secret}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: wavestream-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-wavestream} $${MINIO_ROOT_PASSWORD:-wavestream_secret};
+      mc mb --ignore-existing local/wavestream-audio;
+      mc mb --ignore-existing local/wavestream-images;
+      mc anonymous set download local/wavestream-audio;
+      mc anonymous set download local/wavestream-images;
+      echo 'MinIO buckets initialized';
+      exit 0;
+      "
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    container_name: wavestream-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-wavestream}
+      DB_PASSWORD: ${DB_PASSWORD:-wavestream_secret}
+      DB_NAME: ${DB_NAME:-wavestream}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-wavestream}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-wavestream_secret}
+      MINIO_USE_SSL: "false"
+      MINIO_PUBLIC_URL: http://localhost:${MINIO_API_PORT:-9000}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret-32chars}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret-32chars}
+      FRONTEND_URL: http://localhost:${WEB_PORT:-3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    container_name: wavestream-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-4000}
+      NEXT_PUBLIC_MINIO_URL: http://localhost:${MINIO_API_PORT:-9000}
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    name: wavestream-postgres-data
+  redis_data:
+    name: wavestream-redis-data
+  minio_data:
+    name: wavestream-minio-data
