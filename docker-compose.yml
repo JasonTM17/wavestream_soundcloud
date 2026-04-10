@@ -36,7 +36,7 @@ services:
     container_name: wavestream-db
     restart: unless-stopped
     ports:
-      - '${DB_PORT:-5432}:5432'
+      - '${POSTGRES_HOST_PORT:-5433}:5432'
     environment:
       POSTGRES_USER: ${DB_USER:-wavestream}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-wavestream_secret}
@@ -182,7 +182,7 @@ services:
           'CMD',
           'node',
           '-e',
-          "fetch('http://127.0.0.1:3000').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "fetch('http://' + process.env.HOSTNAME + ':3000').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
       interval: 15s
       timeout: 5s

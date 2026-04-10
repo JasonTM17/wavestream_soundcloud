@@ -19,6 +19,13 @@ WaveStream is a production-minded music streaming demo built as a pnpm monorepo 
    - API health: `http://localhost:4000/api/health`
    - Mailpit inbox: `http://localhost:8025`
    - MinIO console: `http://localhost:9001`
+   - PostgreSQL host port: `localhost:5433` by default so it does not collide with an existing local Postgres instance
+
+## Demo Accounts
+
+- Admin: `admin@wavestream.local` / `Admin123!`
+- Creator example: `solis@wavestream.demo` / `DemoPass123!`
+- Listener example: `ivy@wavestream.demo` / `DemoPass123!`
 
 ## Local Services
 
@@ -32,6 +39,7 @@ WaveStream is a production-minded music streaming demo built as a pnpm monorepo 
 Required variables live in `.env.example`. The most important ones are:
 
 - `DB_*` for PostgreSQL
+- `POSTGRES_HOST_PORT` if your machine already uses `5432`
 - `REDIS_*` for Redis
 - `MINIO_*` for object storage
 - `JWT_*` for access and refresh tokens
@@ -40,12 +48,21 @@ Required variables live in `.env.example`. The most important ones are:
 
 ## Validation
 
-For a fast smoke check of the repo infrastructure:
+For a full local verification pass:
 
 ```bash
 pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
 pnpm build
-docker compose config
+docker compose up --build -d
+```
+
+To reset the local stack and seeded database:
+
+```bash
+docker compose down -v --remove-orphans
 ```
 
 ## Notes
