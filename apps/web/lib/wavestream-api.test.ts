@@ -217,4 +217,205 @@ describe("wavestream api helpers", () => {
     expect("genre" in payload).toBe(false);
     expect("status" in payload).toBe(false);
   });
+
+  it("builds playlist helpers against the expected endpoints and payloads", async () => {
+    const basePlaylist = makePlaylist({
+      id: "playlist-1",
+      slug: "night-sets",
+      title: "Night Sets",
+      description: "Late hour selections",
+      isPublic: true,
+      tracks: [{ id: "entry-1", position: 1, track: makeTrack(), addedAt: "2026-04-10T00:00:00.000Z" }],
+    });
+    const updatedPlaylist = makePlaylist({
+      ...basePlaylist,
+      title: "Night Sets Revised",
+      description: "Updated late hour selections",
+      isPublic: false,
+    });
+    const playlistWithSecondTrack = makePlaylist({
+      ...updatedPlaylist,
+      trackCount: 2,
+      totalDuration: 620,
+      tracks: [
+        { id: "entry-1", position: 1, track: makeTrack(), addedAt: "2026-04-10T00:00:00.000Z" },
+        {
+          id: "entry-2",
+          position: 2,
+          track: makeTrack({ id: "track-2", slug: "afterglow", title: "Afterglow" }),
+          addedAt: "2026-04-10T00:30:00.000Z",
+        },
+      ],
+    });
+    const reorderedPlaylist = makePlaylist({
+      ...playlistWithSecondTrack,
+      tracks: [
+        {
+          id: "entry-2",
+          position: 1,
+          track: makeTrack({ id: "track-2", slug: "afterglow", title: "Afterglow" }),
+          addedAt: "2026-04-10T00:30:00.000Z",
+        },
+        { id: "entry-1", position: 2, track: makeTrack(), addedAt: "2026-04-10T00:00:00.000Z" },
+      ],
+    });
+    const playlistAfterRemoval = makePlaylist({
+      ...playlistWithSecondTrack,
+      trackCount: 1,
+      totalDuration: 245,
+      tracks: [
+        {
+          id: "entry-2",
+          position: 1,
+          track: makeTrack({ id: "track-2", slug: "afterglow", title: "Afterglow" }),
+          addedAt: "2026-04-10T00:30:00.000Z",
+        },
+      ],
+    });
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+      const method = init?.method ?? "GET";
+
+      if (url.endsWith("/api/playlists/me") && method === "GET") {
+        return new Response(JSON.stringify({ data: [basePlaylist] }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists") && method === "POST") {
+        return new Response(JSON.stringify({ success: true, data: basePlaylist }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists/playlist-1") && method === "PATCH") {
+        return new Response(JSON.stringify({ success: true, data: updatedPlaylist }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists/playlist-1/tracks") && method === "POST") {
+        return new Response(JSON.stringify({ success: true, data: playlistWithSecondTrack }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists/playlist-1/tracks/track-1") && method === "DELETE") {
+        return new Response(JSON.stringify({ success: true, data: playlistAfterRemoval }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists/playlist-1/tracks/reorder") && method === "PATCH") {
+        return new Response(JSON.stringify({ success: true, data: reorderedPlaylist }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      if (url.endsWith("/api/playlists/playlist-1") && method === "DELETE") {
+        return new Response(JSON.stringify({ success: true, data: { deleted: true } }), {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+      }
+
+      throw new Error(`Unexpected request: ${method} ${url}`);
+    });
+
+    await expect(apiModule.getMyPlaylists()).resolves.toEqual([basePlaylist]);
+    await expect(
+      apiModule.createPlaylist({
+        title: "Night Sets",
+        description: "Late hour selections",
+        isPublic: true,
+      }),
+    ).resolves.toEqual(basePlaylist);
+    await expect(
+      apiModule.updatePlaylist("playlist-1", {
+        title: "Night Sets Revised",
+        description: "Updated late hour selections",
+        isPublic: false,
+      }),
+    ).resolves.toEqual(updatedPlaylist);
+    await expect(
+      apiModule.addTrackToPlaylist("playlist-1", { trackId: "track-2" }),
+    ).resolves.toEqual(playlistWithSecondTrack);
+    await expect(apiModule.removeTrackFromPlaylist("playlist-1", "track-1")).resolves.toEqual(
+      playlistAfterRemoval,
+    );
+    await expect(
+      apiModule.reorderPlaylistTracks("playlist-1", {
+        trackIds: ["track-2", "track-1"],
+      }),
+    ).resolves.toEqual(reorderedPlaylist);
+    await expect(apiModule.deletePlaylist("playlist-1")).resolves.toEqual({ deleted: true });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(7);
+
+    const [listCall, createCall, updateCall, addCall, removeCall, reorderCall, deleteCall] =
+      fetchSpy.mock.calls;
+
+    expect(listCall[0]).toBe("https://api.wavestream.test/api/playlists/me");
+    expect(new Headers(listCall[1]?.headers).get("authorization")).toBeNull();
+
+    expect(createCall[0]).toBe("https://api.wavestream.test/api/playlists");
+    expect(createCall[1]?.method).toBe("POST");
+    expect(JSON.parse(String(createCall[1]?.body))).toEqual({
+      title: "Night Sets",
+      description: "Late hour selections",
+      isPublic: true,
+    });
+
+    expect(updateCall[0]).toBe("https://api.wavestream.test/api/playlists/playlist-1");
+    expect(updateCall[1]?.method).toBe("PATCH");
+    expect(JSON.parse(String(updateCall[1]?.body))).toEqual({
+      title: "Night Sets Revised",
+      description: "Updated late hour selections",
+      isPublic: false,
+    });
+
+    expect(addCall[0]).toBe("https://api.wavestream.test/api/playlists/playlist-1/tracks");
+    expect(addCall[1]?.method).toBe("POST");
+    expect(JSON.parse(String(addCall[1]?.body))).toEqual({ trackId: "track-2" });
+
+    expect(removeCall[0]).toBe("https://api.wavestream.test/api/playlists/playlist-1/tracks/track-1");
+    expect(removeCall[1]?.method).toBe("DELETE");
+    expect(removeCall[1]?.body).toBeUndefined();
+
+    expect(reorderCall[0]).toBe("https://api.wavestream.test/api/playlists/playlist-1/tracks/reorder");
+    expect(reorderCall[1]?.method).toBe("PATCH");
+    expect(JSON.parse(String(reorderCall[1]?.body))).toEqual({
+      trackIds: ["track-2", "track-1"],
+    });
+
+    expect(deleteCall[0]).toBe("https://api.wavestream.test/api/playlists/playlist-1");
+    expect(deleteCall[1]?.method).toBe("DELETE");
+    expect(deleteCall[1]?.body).toBeUndefined();
+  });
 });

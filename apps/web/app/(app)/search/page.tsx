@@ -94,6 +94,7 @@ export default function SearchPage() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              aria-label="Search catalog"
               className="pl-11"
               placeholder="Search tracks, creators, playlists, genres"
               value={query}
