@@ -15,6 +15,12 @@ export interface UploadPayload {
   contentType: string;
 }
 
+export interface GetObjectPayload {
+  bucket: string;
+  key: string;
+  range?: string;
+}
+
 @Injectable()
 export class StorageService {
   private readonly client: S3Client;
@@ -60,11 +66,12 @@ export class StorageService {
     );
   }
 
-  async getObject(bucket: string, key: string) {
+  async getObject(payload: GetObjectPayload) {
     return this.client.send(
       new GetObjectCommand({
-        Bucket: bucket,
-        Key: key,
+        Bucket: payload.bucket,
+        Key: payload.key,
+        Range: payload.range,
       }),
     );
   }
