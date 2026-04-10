@@ -6,10 +6,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 @Entity('reposts')
 @Index(['userId', 'trackId'], { unique: true })
 export class RepostEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.reposts, {

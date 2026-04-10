@@ -16,7 +16,7 @@ export class PlaylistEntity extends SoftDeleteEntity {
   @Column()
   slug!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   ownerId!: string;
 
   @Column()

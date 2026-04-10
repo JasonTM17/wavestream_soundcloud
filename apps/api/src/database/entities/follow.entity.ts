@@ -5,10 +5,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 @Entity('follows')
 @Index(['followerId', 'followingId'], { unique: true })
 export class FollowEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   followerId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   followingId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.following, {

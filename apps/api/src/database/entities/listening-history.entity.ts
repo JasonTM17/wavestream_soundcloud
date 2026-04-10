@@ -5,10 +5,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('listening_history')
 export class ListeningHistoryEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
   @Column({ type: 'timestamp' })

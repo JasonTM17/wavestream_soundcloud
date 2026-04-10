@@ -5,7 +5,7 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('notifications')
 export class NotificationEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @Column({ type: 'varchar' })

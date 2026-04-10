@@ -6,10 +6,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 @Entity('likes')
 @Index(['userId', 'trackId'], { unique: true })
 export class LikeEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.likes, {

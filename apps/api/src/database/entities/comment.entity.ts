@@ -5,10 +5,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('comments')
 export class CommentEntity extends SoftDeleteEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
   @Column({ type: 'text' })
@@ -17,7 +17,7 @@ export class CommentEntity extends SoftDeleteEntity {
   @Column({ type: 'int', nullable: true })
   timestampSeconds!: number | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   parentId!: string | null;
 
   @Column({ default: false })

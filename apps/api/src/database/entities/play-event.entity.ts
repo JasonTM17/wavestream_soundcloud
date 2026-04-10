@@ -5,10 +5,10 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('play_events')
 export class PlayEventEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   userId!: string | null;
 
   @Column({ type: 'int', default: 0 })

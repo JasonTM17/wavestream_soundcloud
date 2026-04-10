@@ -6,10 +6,10 @@ import { TrackEntity } from 'src/database/entities/track.entity';
 @Entity('playlist_tracks')
 @Index(['playlistId', 'trackId'], { unique: true })
 export class PlaylistTrackEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   playlistId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   trackId!: string;
 
   @Column({ type: 'int' })

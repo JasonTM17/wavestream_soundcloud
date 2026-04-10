@@ -4,7 +4,7 @@ import { TrackEntity } from 'src/database/entities/track.entity';
 
 @Entity('track_files')
 export class TrackFileEntity extends AppBaseEntity {
-  @Column({ unique: true })
+  @Column({ type: 'uuid', unique: true })
   trackId!: string;
 
   @Column()

@@ -14,7 +14,7 @@ export class AuditLogEntity extends AppBaseEntity {
   @Column({ type: 'varchar', length: 80 })
   entityType!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   entityId!: string | null;
 
   @Column({ type: 'simple-json', nullable: true })

@@ -5,7 +5,7 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('reports')
 export class ReportEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   reporterId!: string;
 
   @Column({ type: 'varchar' })
@@ -23,7 +23,7 @@ export class ReportEntity extends AppBaseEntity {
   @Column({ type: 'varchar', default: ReportStatus.PENDING })
   status!: ReportStatus;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   resolvedById!: string | null;
 
   @Column({ type: 'timestamp', nullable: true })

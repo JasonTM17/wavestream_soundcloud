@@ -4,7 +4,7 @@ import { UserEntity } from 'src/database/entities/user.entity';
 
 @Entity('refresh_tokens')
 export class RefreshTokenEntity extends AppBaseEntity {
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @Column({ type: 'text' })

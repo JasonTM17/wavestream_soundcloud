@@ -27,7 +27,7 @@ export class TrackEntity extends SoftDeleteEntity {
   @Column()
   slug!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   artistId!: string;
 
   @Column()
@@ -78,7 +78,7 @@ export class TrackEntity extends SoftDeleteEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   hiddenReason!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   genreId!: string | null;
 
   @ManyToOne(() => UserEntity, (user) => user.tracks, {
