@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { AuthSessionDto, UserDto } from "@wavestream/shared";
 
+import { useAuthActions, useAuthSession } from "@/components/auth/auth-provider";
+import { ApiError } from "@/lib/api";
 import {
   canIgnoreApiError,
   getCurrentUser,
@@ -33,16 +36,67 @@ import { apiRequest } from "@/lib/api";
 
 const keepPreviousData = <T,>(data: T) => data;
 
+const toAuthenticatedUser = (user: UserSummary): AuthSessionDto["user"] => ({
+  id: user.id,
+  email: user.email,
+  username: user.username,
+  displayName: user.displayName,
+  bio: user.bio ?? null,
+  avatarUrl: user.avatarUrl ?? null,
+  role: user.role as UserDto["role"],
+  isVerified: Boolean(user.isVerified),
+  followerCount: user.followerCount ?? 0,
+  followingCount: user.followingCount ?? 0,
+  trackCount: user.trackCount ?? 0,
+  playlistCount: user.playlistCount ?? 0,
+  profile: user.profile
+    ? {
+        id: user.id,
+        bio: user.profile.bio ?? null,
+        avatarUrl: user.profile.avatarUrl ?? null,
+        bannerUrl: user.profile.bannerUrl ?? null,
+        websiteUrl: user.profile.websiteUrl ?? null,
+        location: user.profile.location ?? null,
+      }
+    : null,
+  createdAt: user.createdAt ?? new Date().toISOString(),
+});
+
 export function useCurrentUserQuery() {
-  return useQuery({
+  const { accessToken, isAuthenticated } = useAuthSession();
+  const { clearSession, setAuthenticatedSession } = useAuthActions();
+  const query = useQuery({
     queryKey: ["auth", "me"],
     queryFn: async () => getCurrentUser(),
     staleTime: 60_000,
     retry: false,
+    enabled: isAuthenticated,
   });
+
+  React.useEffect(() => {
+    if (query.data && accessToken) {
+      setAuthenticatedSession({
+        tokens: { accessToken },
+        user: toAuthenticatedUser(query.data),
+      });
+    }
+  }, [accessToken, query.data, setAuthenticatedSession]);
+
+  React.useEffect(() => {
+    if (
+      query.error instanceof ApiError &&
+      [401, 403].includes(query.error.status)
+    ) {
+      clearSession();
+    }
+  }, [clearSession, query.error]);
+
+  return query;
 }
 
 export function useNotificationsQuery() {
+  const { isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: ["notifications"],
     queryFn: async (): Promise<NotificationSummary[]> => {
@@ -57,10 +111,13 @@ export function useNotificationsQuery() {
     },
     staleTime: 15_000,
     retry: false,
+    enabled: isAuthenticated,
   });
 }
 
 export function useListeningHistoryQuery() {
+  const { isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: ["me", "history"],
     queryFn: async (): Promise<ListeningHistoryItem[]> => {
@@ -75,10 +132,13 @@ export function useListeningHistoryQuery() {
     },
     staleTime: 15_000,
     retry: false,
+    enabled: isAuthenticated,
   });
 }
 
 export function useMyUploadsQuery() {
+  const { isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: ["me", "uploads"],
     queryFn: async (): Promise<TrackSummary[]> => {
@@ -93,6 +153,7 @@ export function useMyUploadsQuery() {
     },
     staleTime: 15_000,
     retry: false,
+    enabled: isAuthenticated,
   });
 }
 
@@ -216,7 +277,8 @@ export function usePlaylistQuery(idOrSlug: string) {
 }
 
 export function usePlaylistsQuery(ownerId?: string) {
-  const enabled = Boolean(ownerId);
+  const { isAuthenticated } = useAuthSession();
+  const enabled = Boolean(ownerId) && isAuthenticated;
 
   return useQuery({
     queryKey: ["playlists", ownerId ?? "all"],
@@ -246,6 +308,9 @@ export function useArtistProfileQuery(username: string) {
 }
 
 export function useCreatorDashboardQuery() {
+  const { isAuthenticated, user } = useAuthSession();
+  const isCreator = user?.role === "creator" || user?.role === "admin";
+
   return useQuery({
     queryKey: ["me", "dashboard"],
     queryFn: async () => {
@@ -260,10 +325,14 @@ export function useCreatorDashboardQuery() {
     },
     staleTime: 20_000,
     retry: false,
+    enabled: isAuthenticated && isCreator,
   });
 }
 
 export function useTrackAnalyticsQuery(trackId: string) {
+  const { isAuthenticated, user } = useAuthSession();
+  const isCreator = user?.role === "creator" || user?.role === "admin";
+
   return useQuery({
     queryKey: ["me", "tracks", trackId, "analytics"],
     queryFn: async () => {
@@ -276,7 +345,7 @@ export function useTrackAnalyticsQuery(trackId: string) {
         throw error;
       }
     },
-    enabled: Boolean(trackId),
+    enabled: Boolean(trackId) && isAuthenticated && isCreator,
     staleTime: 20_000,
     retry: false,
   });

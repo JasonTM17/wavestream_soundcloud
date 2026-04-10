@@ -1,4 +1,4 @@
-import { ApiError, apiRequest } from "@/lib/api";
+import { ApiError, apiRequest, type RequestAuthMode } from "@/lib/api";
 
 export type ApiPaginationMeta = {
   page?: number;
@@ -299,8 +299,8 @@ export const toComment = (comment: CommentSummary): CommentSummary => ({
   replies: comment.replies?.map(toComment) ?? [],
 });
 
-export async function apiGet<T>(path: string) {
-  return apiRequest<T>(path, { method: "GET" });
+export async function apiGet<T>(path: string, auth: RequestAuthMode = "optional") {
+  return apiRequest<T>(path, { method: "GET", auth });
 }
 
 export async function apiGetOrNull<T>(path: string) {
@@ -315,12 +315,13 @@ export async function apiGetOrNull<T>(path: string) {
 }
 
 export async function getCurrentUser() {
-  return apiGetOrNull<UserSummary>("/api/auth/me");
+  return apiGet<UserSummary>("/api/auth/me", "required");
 }
 
 export async function getNotifications() {
   const response = await apiGet<NotificationSummary[] | { data?: NotificationSummary[] }>(
     "/api/notifications?limit=12",
+    "required",
   );
   return getArrayPayload<NotificationSummary>(response, "data");
 }
@@ -328,6 +329,7 @@ export async function getNotifications() {
 export async function getListeningHistory() {
   const response = await apiGet<ListeningHistoryItem[] | { data?: ListeningHistoryItem[] }>(
     "/api/tracks/me/history",
+    "required",
   );
   return getArrayPayload<ListeningHistoryItem>(response, "data");
 }
@@ -335,6 +337,7 @@ export async function getListeningHistory() {
 export async function getMyUploads() {
   const response = await apiGet<TrackSummary[] | { data?: TrackSummary[] }>(
     "/api/tracks/me/uploads",
+    "required",
   );
   return getArrayPayload<TrackSummary>(response, "data");
 }
@@ -358,18 +361,19 @@ export async function getTracks(query: {
 }
 
 export async function getTrack(idOrSlug: string) {
-  return apiGet<TrackSummary>(`/api/tracks/${encodeURIComponent(idOrSlug)}`);
+  return apiGet<TrackSummary>(`/api/tracks/${encodeURIComponent(idOrSlug)}`, "optional");
 }
 
 export async function getTrackComments(idOrSlug: string) {
   const response = await apiGet<CommentSummary[] | { data?: CommentSummary[] }>(
     `/api/tracks/${encodeURIComponent(idOrSlug)}/comments`,
+    "optional",
   );
   return getArrayPayload<CommentSummary>(response, "data");
 }
 
 export async function getPlaylist(idOrSlug: string) {
-  return apiGet<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}`);
+  return apiGet<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}`, "optional");
 }
 
 export async function getPlaylists(query: { ownerId?: string; limit?: number } = {}) {
@@ -386,6 +390,7 @@ export async function getPlaylists(query: { ownerId?: string; limit?: number } =
 export async function getUserProfile(username: string) {
   return apiGet<{ user: UserSummary; isFollowing?: boolean }>(
     `/api/users/${encodeURIComponent(username)}`,
+    "optional",
   );
 }
 
@@ -458,11 +463,12 @@ export async function getRelatedTracks(idOrSlug: string) {
 }
 
 export async function getCreatorDashboard() {
-  return apiGet<CreatorDashboardSummary>("/api/me/dashboard");
+  return apiGet<CreatorDashboardSummary>("/api/me/dashboard", "required");
 }
 
 export async function getTrackAnalytics(idOrSlug: string) {
   return apiGet<TrackAnalyticsSummary>(
     `/api/me/tracks/${encodeURIComponent(idOrSlug)}/analytics`,
+    "required",
   );
 }

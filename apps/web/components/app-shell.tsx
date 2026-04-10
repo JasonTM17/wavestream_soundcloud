@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,7 +15,9 @@ import {
   UserCircle2,
   WandSparkles,
 } from "lucide-react";
+import { toast } from "sonner";
 
+import { useAuthActions, useAuthSession } from "@/components/auth/auth-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,10 +39,26 @@ const navigation = [
 export function AppShell({ children }: React.PropsWithChildren) {
   const pathname = usePathname();
   const queueLength = usePlayerStore((state) => state.queue.length);
+  const [isLoggingOut, startLogoutTransition] = React.useTransition();
+  const { isAuthenticated, isBooting, user: sessionUser } = useAuthSession();
+  const { logout } = useAuthActions();
   const currentUser = useCurrentUserQuery();
   const notifications = useNotificationsQuery();
-  const user = currentUser.data ?? null;
+  const user = sessionUser ?? currentUser.data ?? null;
   const unreadCount = (notifications.data ?? []).filter((item) => !item.read).length;
+
+  const signInHref = `/sign-in?next=${encodeURIComponent(pathname)}`;
+
+  const handleLogout = React.useCallback(() => {
+    startLogoutTransition(async () => {
+      try {
+        await logout();
+        toast.success("Signed out of WaveStream.");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Unable to sign out right now.");
+      }
+    });
+  }, [logout]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_hsla(195,92%,42%,0.12),transparent_28%),radial-gradient(circle_at_top_right,_hsla(44,92%,56%,0.14),transparent_26%),linear-gradient(180deg,var(--background),color-mix(in_hsl,var(--background),white_6%))] text-foreground">
@@ -126,15 +145,23 @@ export function AppShell({ children }: React.PropsWithChildren) {
                 </div>
               ) : (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Sign in to unlock your queue, notifications, and creator analytics.
-                  </p>
-                  <Button asChild variant="outline" className="w-full justify-start rounded-2xl">
-                    <Link href="/sign-in">
-                      <LogOut className="h-4 w-4" />
-                      Sign in
-                    </Link>
-                  </Button>
+                  {isBooting ? (
+                    <p className="text-sm text-muted-foreground">
+                      Restoring your secure session and queue context.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        Sign in to unlock your queue, notifications, and creator analytics.
+                      </p>
+                      <Button asChild variant="outline" className="w-full justify-start rounded-2xl">
+                        <Link href={signInHref}>
+                          <LogOut className="h-4 w-4" />
+                          Sign in
+                        </Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -158,7 +185,7 @@ export function AppShell({ children }: React.PropsWithChildren) {
               <div className="flex items-center gap-2">
                 <ThemeToggle />
                 <Button asChild variant="outline" size="icon" aria-label="Profile menu">
-                  <Link href={user ? `/artist/${user.username}` : "/sign-in"}>
+                  <Link href={user ? `/artist/${user.username}` : signInHref}>
                     <UserCircle2 className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -206,7 +233,7 @@ export function AppShell({ children }: React.PropsWithChildren) {
                 <Button asChild className="w-full justify-start rounded-2xl">
                   <Link href="/creator">
                     <Upload className="h-4 w-4" />
-                    Upload a track
+                    {isAuthenticated ? "Upload a track" : "Creator dashboard"}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-start rounded-2xl">
@@ -223,7 +250,7 @@ export function AppShell({ children }: React.PropsWithChildren) {
                 <div>
                   <p className="text-sm font-semibold">Account</p>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    {user ? "Signed in" : "Guest mode"}
+                    {isBooting ? "Restoring session" : user ? "Signed in" : "Guest mode"}
                   </p>
                 </div>
                 <DropdownMenu>
@@ -242,15 +269,21 @@ export function AppShell({ children }: React.PropsWithChildren) {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {user ? (
-                      <DropdownMenuItem asChild>
-                        <Link href={`/artist/${user.username}`}>
-                          <UserCircle2 className="mr-2 h-4 w-4" />
-                          View profile
-                        </Link>
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/artist/${user.username}`}>
+                            <UserCircle2 className="mr-2 h-4 w-4" />
+                            View profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={handleLogout} disabled={isLoggingOut}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          {isLoggingOut ? "Signing out..." : "Sign out"}
+                        </DropdownMenuItem>
+                      </>
                     ) : (
                       <DropdownMenuItem asChild>
-                        <Link href="/sign-in">
+                        <Link href={signInHref}>
                           <LogOut className="mr-2 h-4 w-4" />
                           Sign in
                         </Link>
