@@ -236,6 +236,24 @@ export interface CreatorDashboardDto {
   }>;
 }
 
+export interface TrackAnalyticsDto {
+  track: TrackDto;
+  totalPlays: number;
+  totalLikes: number;
+  totalReposts: number;
+  totalComments: number;
+  recentListeners: Array<{
+    trackId: string;
+    trackTitle: string;
+    username: string;
+    listenedAt: string;
+  }>;
+  dailyPlays: Array<{
+    date: string;
+    plays: number;
+  }>;
+}
+
 export interface AdminOverviewDto {
   userCount: number;
   trackCount: number;

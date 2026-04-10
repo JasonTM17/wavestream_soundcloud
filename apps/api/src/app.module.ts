@@ -9,6 +9,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ApiResponseInterceptor } from 'src/common/interceptors/api-response.interceptor';
 import { DatabaseModule } from 'src/database/database.module';
 import { MailModule } from 'src/mail/mail.module';
+import { AnalyticsModule } from 'src/modules/analytics/analytics.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { DiscoveryModule } from 'src/modules/discovery/discovery.module';
 import { HealthModule } from 'src/modules/health/health.module';
@@ -34,6 +35,7 @@ import { StorageModule } from 'src/storage/storage.module';
     StorageModule,
     MailModule,
     HealthModule,
+    AnalyticsModule,
     AuthModule,
     DiscoveryModule,
     NotificationsModule,
