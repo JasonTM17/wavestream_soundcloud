@@ -14,7 +14,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({
-    origin: env.frontendUrl,
+    origin: env.frontendOrigins,
     credentials: true,
   });
   app.useGlobalPipes(

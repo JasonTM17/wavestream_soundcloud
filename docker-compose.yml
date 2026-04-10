@@ -20,7 +20,7 @@ x-api-env: &api-env
   JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret-32chars}
   JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
   JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
-  FRONTEND_URL: http://localhost:${WEB_PORT:-3000}
+  FRONTEND_URL: http://localhost:${WEB_PORT:-3000},http://127.0.0.1:3101
   SMTP_HOST: ${SMTP_HOST:-mailpit}
   SMTP_PORT: ${SMTP_PORT:-1025}
   SMTP_FROM: ${SMTP_FROM:-WaveStream <noreply@wavestream.local>}
