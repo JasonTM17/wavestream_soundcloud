@@ -10,6 +10,7 @@ import { ApiResponseInterceptor } from 'src/common/interceptors/api-response.int
 import { DatabaseModule } from 'src/database/database.module';
 import { MailModule } from 'src/mail/mail.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { DiscoveryModule } from 'src/modules/discovery/discovery.module';
 import { HealthModule } from 'src/modules/health/health.module';
 import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 import { PlaylistsModule } from 'src/modules/playlists/playlists.module';
@@ -34,6 +35,7 @@ import { StorageModule } from 'src/storage/storage.module';
     MailModule,
     HealthModule,
     AuthModule,
+    DiscoveryModule,
     NotificationsModule,
     PlaylistsModule,
     TracksModule,
