@@ -40,10 +40,9 @@ describe("apiRequest", () => {
     expect(url).toBe("https://api.wavestream.test/api/ping");
     expect(init?.credentials).toBe("include");
     expect(init?.cache).toBe("no-store");
-    expect(init?.headers).toMatchObject({
-      "Content-Type": "application/json",
-      Authorization: "Bearer test-token",
-    });
+    const headers = new Headers(init?.headers);
+    expect(headers.get("content-type")).toBe("application/json");
+    expect(headers.get("authorization")).toBe("Bearer test-token");
     expect(init?.body).toBe(JSON.stringify({ hello: "world" }));
   });
 

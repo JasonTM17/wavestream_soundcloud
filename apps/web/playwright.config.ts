@@ -21,6 +21,10 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm exec next dev --hostname 127.0.0.1 --port ${PORT}`,
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:4000',
+    },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
