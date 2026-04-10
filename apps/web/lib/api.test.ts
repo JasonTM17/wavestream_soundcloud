@@ -60,6 +60,35 @@ describe("apiRequest", () => {
     expect(result).toBe("pong");
   });
 
+  it("preserves multipart form data without forcing a JSON content type", async () => {
+    const response = new Response(JSON.stringify({ success: true, data: { ok: true } }), {
+      status: 200,
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
+    const formData = new FormData();
+    formData.append("title", "Midnight Static");
+    formData.append(
+      "audioFile",
+      new File(["demo-audio"], "midnight-static.wav", { type: "audio/wav" }),
+    );
+
+    const result = await apiModule.apiRequest<{ ok: boolean }>("/api/tracks", {
+      method: "POST",
+      auth: "required",
+      body: formData,
+    });
+
+    expect(result).toEqual({ ok: true });
+
+    const [, init] = fetchSpy.mock.calls[0];
+    const headers = new Headers(init?.headers);
+    expect(headers.get("content-type")).toBeNull();
+    expect(init?.body).toBe(formData);
+  });
+
   it("throws a structured ApiError for non-ok responses and network failures", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ message: "Invalid credentials" }), {

@@ -1,3 +1,5 @@
+import { TrackPrivacy, TrackStatus } from "@wavestream/shared";
+
 import { ApiError, apiRequest, type RequestAuthMode } from "@/lib/api";
 
 export type ApiPaginationMeta = {
@@ -208,6 +210,34 @@ export type TrackAnalyticsSummary = {
     date: string;
     plays: number;
   }>;
+};
+
+export type CreateTrackInput = {
+  audioFile: File;
+  coverImage?: File | null;
+  title: string;
+  description?: string | null;
+  genre?: string | null;
+  tags?: string[];
+  privacy?: TrackPrivacy;
+  status?: TrackStatus;
+  allowDownloads?: boolean;
+  commentsEnabled?: boolean;
+};
+
+export type UpdateTrackInput = {
+  title?: string;
+  description?: string | null;
+  genre?: string | null;
+  tags?: string[];
+  privacy?: TrackPrivacy;
+  status?: TrackStatus;
+  allowDownloads?: boolean;
+  commentsEnabled?: boolean;
+};
+
+export type DeleteTrackResult = {
+  deleted: boolean;
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -471,4 +501,60 @@ export async function getTrackAnalytics(idOrSlug: string) {
     `/api/me/tracks/${encodeURIComponent(idOrSlug)}/analytics`,
     "required",
   );
+}
+
+const appendOptionalField = (
+  formData: FormData,
+  key: string,
+  value: string | number | boolean | null | undefined,
+) => {
+  if (value === undefined || value === null) {
+    return;
+  }
+
+  formData.append(key, String(value));
+};
+
+const appendTags = (formData: FormData, tags?: string[]) => {
+  tags?.forEach((tag) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag) {
+      formData.append("tags", trimmedTag);
+    }
+  });
+};
+
+export function buildCreateTrackFormData(input: CreateTrackInput) {
+  const formData = new FormData();
+
+  formData.append("audioFile", input.audioFile);
+  if (input.coverImage) {
+    formData.append("coverImage", input.coverImage);
+  }
+
+  formData.append("title", input.title);
+  appendOptionalField(formData, "description", input.description);
+  appendOptionalField(formData, "genre", input.genre);
+  appendTags(formData, input.tags);
+  appendOptionalField(formData, "privacy", input.privacy);
+  appendOptionalField(formData, "status", input.status);
+  appendOptionalField(formData, "allowDownloads", input.allowDownloads);
+  appendOptionalField(formData, "commentsEnabled", input.commentsEnabled);
+
+  return formData;
+}
+
+export function buildUpdateTrackPayload(input: UpdateTrackInput) {
+  const payload: Record<string, unknown> = {};
+
+  if (input.title !== undefined) payload.title = input.title;
+  if (input.description !== undefined) payload.description = input.description;
+  if (input.genre !== undefined) payload.genre = input.genre;
+  if (input.tags !== undefined) payload.tags = input.tags;
+  if (input.privacy !== undefined) payload.privacy = input.privacy;
+  if (input.status !== undefined) payload.status = input.status;
+  if (input.allowDownloads !== undefined) payload.allowDownloads = input.allowDownloads;
+  if (input.commentsEnabled !== undefined) payload.commentsEnabled = input.commentsEnabled;
+
+  return payload;
 }

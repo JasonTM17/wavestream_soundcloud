@@ -55,12 +55,13 @@ const isAuthEndpoint = (path: string) => path.startsWith(AUTH_ENDPOINT_PREFIX);
 
 const requestWithAuth = async (path: string, options: RequestOptions) => {
   const headers = new Headers(options.headers ?? {});
+  const isFormDataBody = options.body instanceof FormData;
   const body =
-    options.body === undefined || options.body instanceof FormData
+    options.body === undefined || isFormDataBody
       ? (options.body as BodyInit | undefined)
       : JSON.stringify(options.body);
 
-  if (body !== undefined && !headers.has("Content-Type")) {
+  if (body !== undefined && !isFormDataBody && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 

@@ -7,6 +7,8 @@ import type { AuthSessionDto, UserDto } from "@wavestream/shared";
 import { useAuthActions, useAuthSession } from "@/components/auth/auth-provider";
 import { ApiError } from "@/lib/api";
 import {
+  buildCreateTrackFormData,
+  buildUpdateTrackPayload,
   canIgnoreApiError,
   getCurrentUser,
   getCreatorDashboard,
@@ -24,12 +26,15 @@ import {
   getTrackComments,
   getTracks,
   getUserProfile,
+  type CreateTrackInput,
   type DiscoveryResults,
+  type DeleteTrackResult,
   type ListeningHistoryItem,
   type NotificationSummary,
   type PlaylistSummary,
   type SearchResults,
   type TrackSummary,
+  type UpdateTrackInput,
   type UserSummary,
 } from "@/lib/wavestream-api";
 import { apiRequest } from "@/lib/api";
@@ -348,6 +353,82 @@ export function useTrackAnalyticsQuery(trackId: string) {
     enabled: Boolean(trackId) && isAuthenticated && isCreator,
     staleTime: 20_000,
     retry: false,
+  });
+}
+
+const invalidateTrackMutationQueries = async (
+  queryClient: ReturnType<typeof useQueryClient>,
+  trackIdOrSlug?: string,
+) => {
+  const invalidations = [
+    queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
+    queryClient.invalidateQueries({ queryKey: ["me", "uploads"] }),
+    queryClient.invalidateQueries({ queryKey: ["me", "dashboard"] }),
+    queryClient.invalidateQueries({ queryKey: ["me", "tracks"] }),
+    queryClient.invalidateQueries({ queryKey: ["discovery", "home"] }),
+    queryClient.invalidateQueries({ queryKey: ["track"] }),
+    queryClient.invalidateQueries({ queryKey: ["tracks"] }),
+    queryClient.invalidateQueries({ queryKey: ["playlist"] }),
+    queryClient.invalidateQueries({ queryKey: ["playlists"] }),
+    queryClient.invalidateQueries({ queryKey: ["artist"] }),
+  ];
+
+  if (trackIdOrSlug) {
+    invalidations.push(
+      queryClient.invalidateQueries({ queryKey: ["track", trackIdOrSlug] }),
+      queryClient.invalidateQueries({
+        queryKey: ["me", "tracks", trackIdOrSlug, "analytics"],
+      }),
+    );
+  }
+
+  await Promise.all(invalidations);
+};
+
+export function useCreateTrackMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateTrackInput): Promise<TrackSummary> =>
+      apiRequest<TrackSummary>("/api/tracks", {
+        method: "POST",
+        auth: "required",
+        body: buildCreateTrackFormData(input),
+      }),
+    onSuccess: async (track) => {
+      await invalidateTrackMutationQueries(queryClient, track.id);
+    },
+  });
+}
+
+export function useUpdateTrackMutation(trackIdOrSlug: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpdateTrackInput): Promise<TrackSummary> =>
+      apiRequest<TrackSummary>(`/api/tracks/${encodeURIComponent(trackIdOrSlug)}`, {
+        method: "PATCH",
+        auth: "required",
+        body: buildUpdateTrackPayload(input),
+      }),
+    onSuccess: async (track) => {
+      await invalidateTrackMutationQueries(queryClient, track.id ?? trackIdOrSlug);
+    },
+  });
+}
+
+export function useDeleteTrackMutation(trackIdOrSlug: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (): Promise<DeleteTrackResult> =>
+      apiRequest<DeleteTrackResult>(`/api/tracks/${encodeURIComponent(trackIdOrSlug)}`, {
+        method: "DELETE",
+        auth: "required",
+      }),
+    onSuccess: async () => {
+      await invalidateTrackMutationQueries(queryClient, trackIdOrSlug);
+    },
   });
 }
 

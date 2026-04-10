@@ -1,3 +1,4 @@
+import { TrackPrivacy, TrackStatus } from "@wavestream/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PlaylistSummary, TrackSummary } from "./wavestream-api";
@@ -167,5 +168,53 @@ describe("wavestream api helpers", () => {
     expect(discovery.featuredPlaylists).toHaveLength(1);
     expect(discovery.featuredArtists).toHaveLength(1);
     expect(discovery.featuredArtists[0]?.username).toBe("luna");
+  });
+
+  it("builds multipart track upload form data with optional fields and repeated tags", () => {
+    const formData = apiModule.buildCreateTrackFormData({
+      audioFile: new File(["audio"], "midnight-static.wav", { type: "audio/wav" }),
+      coverImage: new File(["cover"], "midnight-static.png", { type: "image/png" }),
+      title: "Midnight Static",
+      description: "Late night synth pulse",
+      genre: "Electronic",
+      tags: ["night", " synth ", ""],
+      privacy: TrackPrivacy.UNLISTED,
+      status: TrackStatus.DRAFT,
+      allowDownloads: false,
+      commentsEnabled: true,
+    });
+
+    expect(formData.get("title")).toBe("Midnight Static");
+    expect(formData.get("description")).toBe("Late night synth pulse");
+    expect(formData.get("genre")).toBe("Electronic");
+    expect(formData.getAll("tags")).toEqual(["night", "synth"]);
+    expect(formData.get("privacy")).toBe(TrackPrivacy.UNLISTED);
+    expect(formData.get("status")).toBe(TrackStatus.DRAFT);
+    expect(formData.get("allowDownloads")).toBe("false");
+    expect(formData.get("commentsEnabled")).toBe("true");
+    expect(formData.get("audioFile")).toBeInstanceOf(File);
+    expect(formData.get("coverImage")).toBeInstanceOf(File);
+  });
+
+  it("builds partial update payloads without leaking undefined fields", () => {
+    const payload = apiModule.buildUpdateTrackPayload({
+      title: "Afterglow",
+      description: null,
+      tags: ["late-night", "demo"],
+      allowDownloads: true,
+      commentsEnabled: false,
+      privacy: TrackPrivacy.PRIVATE,
+    });
+
+    expect(payload).toEqual({
+      title: "Afterglow",
+      description: null,
+      tags: ["late-night", "demo"],
+      allowDownloads: true,
+      commentsEnabled: false,
+      privacy: TrackPrivacy.PRIVATE,
+    });
+    expect("genre" in payload).toBe(false);
+    expect("status" in payload).toBe(false);
   });
 });
