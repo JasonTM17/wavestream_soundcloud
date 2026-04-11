@@ -100,6 +100,8 @@ The canonical environment template is `.env.example`. The main groups are:
 
 ## Further Reading
 
+- [Project blurbs for CV and LinkedIn](./docs/PROJECT-BLURBS.md)
+- [Project blurbs for CV and LinkedIn - Vietnamese](./docs/PROJECT-BLURBS.vi.md)
 - [Project summary](./docs/PROJECT-SUMMARY.md)
 - [Project summary - Vietnamese](./docs/PROJECT-SUMMARY.vi.md)
 - [Portfolio case study](./docs/CASE-STUDY.md)
