@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -22,8 +18,7 @@ import { LoginDto } from 'src/modules/auth/dto/login.dto';
 import { RegisterDto } from 'src/modules/auth/dto/register.dto';
 import { ResetPasswordDto } from 'src/modules/auth/dto/reset-password.dto';
 
-const hashToken = (value: string) =>
-  createHash('sha256').update(value).digest('hex');
+const hashToken = (value: string) => createHash('sha256').update(value).digest('hex');
 
 const parseDurationToMs = (value: string) => {
   const match = value.match(/^(\d+)([smhd])$/);
@@ -111,11 +106,7 @@ export class AuthService {
     return this.issueSession(user, userAgent, ipAddress);
   }
 
-  async refresh(
-    refreshToken: string | undefined,
-    userAgent?: string,
-    ipAddress?: string,
-  ) {
+  async refresh(refreshToken: string | undefined, userAgent?: string, ipAddress?: string) {
     if (!refreshToken) {
       throw new UnauthorizedException('Missing refresh token');
     }
@@ -188,11 +179,7 @@ export class AuthService {
       relations: { user: true },
     });
 
-    if (
-      !tokenRecord ||
-      tokenRecord.usedAt ||
-      tokenRecord.expiresAt.getTime() < Date.now()
-    ) {
+    if (!tokenRecord || tokenRecord.usedAt || tokenRecord.expiresAt.getTime() < Date.now()) {
       throw new BadRequestException('Reset token is invalid or expired');
     }
 
@@ -222,11 +209,7 @@ export class AuthService {
     return mapUser(user, true);
   }
 
-  private async issueSession(
-    user: UserEntity,
-    userAgent?: string,
-    ipAddress?: string,
-  ) {
+  private async issueSession(user: UserEntity, userAgent?: string, ipAddress?: string) {
     const accessToken = await this.jwtService.signAsync(
       {
         sub: user.id,
@@ -236,16 +219,12 @@ export class AuthService {
       {
         secret: this.configService.getOrThrow<string>('app.jwtAccessSecret'),
         expiresIn:
-          parseDurationToMs(
-            this.configService.getOrThrow<string>('app.jwtAccessExpiry'),
-          ) / 1000,
+          parseDurationToMs(this.configService.getOrThrow<string>('app.jwtAccessExpiry')) / 1000,
       },
     );
 
     const rawRefreshToken = randomBytes(40).toString('hex');
-    const refreshExpiry = this.configService.getOrThrow<string>(
-      'app.jwtRefreshExpiry',
-    );
+    const refreshExpiry = this.configService.getOrThrow<string>('app.jwtRefreshExpiry');
     const refreshToken = this.refreshTokensRepository.create({
       userId: user.id,
       tokenHash: hashToken(rawRefreshToken),

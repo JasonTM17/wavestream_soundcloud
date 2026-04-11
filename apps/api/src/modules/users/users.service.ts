@@ -1,20 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotificationType } from '@wavestream/shared';
 import { Repository } from 'typeorm';
 import { mapUser } from 'src/common/utils/mappers';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
-import {
-  sanitizePlainText,
-  sanitizeRichText,
-} from 'src/common/utils/text.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
+import { sanitizePlainText, sanitizeRichText } from 'src/common/utils/text.util';
 import { FollowEntity } from 'src/database/entities/follow.entity';
 import { ProfileEntity } from 'src/database/entities/profile.entity';
 import { UserEntity } from 'src/database/entities/user.entity';
@@ -73,8 +63,7 @@ export class UsersService {
     user.profile.avatarUrl = dto.avatarUrl ?? user.profile.avatarUrl;
     user.profile.bannerUrl = dto.bannerUrl ?? user.profile.bannerUrl;
     user.profile.websiteUrl = dto.websiteUrl ?? user.profile.websiteUrl;
-    user.profile.location =
-      sanitizePlainText(dto.location) ?? user.profile.location;
+    user.profile.location = sanitizePlainText(dto.location) ?? user.profile.location;
 
     await this.usersRepository.save(user);
     await this.profilesRepository.save(user.profile);
@@ -118,15 +107,11 @@ export class UsersService {
     targetUser.followerCount += 1;
     await this.usersRepository.save([currentUser, targetUser]);
 
-    await this.notificationsService.createNotification(
-      targetUserId,
-      NotificationType.FOLLOW,
-      {
-        followerId: currentUser.id,
-        followerUsername: currentUser.username,
-        followerDisplayName: currentUser.displayName,
-      },
-    );
+    await this.notificationsService.createNotification(targetUserId, NotificationType.FOLLOW, {
+      followerId: currentUser.id,
+      followerUsername: currentUser.username,
+      followerDisplayName: currentUser.displayName,
+    });
 
     return { following: true };
   }

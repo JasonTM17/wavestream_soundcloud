@@ -1,8 +1,4 @@
-import {
-  DEFAULT_PAGE_SIZE,
-  MAX_PAGE_SIZE,
-  PaginationMeta,
-} from '@wavestream/shared';
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, PaginationMeta } from '@wavestream/shared';
 
 export interface PaginationParams {
   page?: number;
@@ -11,10 +7,7 @@ export interface PaginationParams {
 
 export const normalizePagination = (params: PaginationParams) => {
   const page = Math.max(1, Number(params.page) || 1);
-  const limit = Math.min(
-    MAX_PAGE_SIZE,
-    Math.max(1, Number(params.limit) || DEFAULT_PAGE_SIZE),
-  );
+  const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(params.limit) || DEFAULT_PAGE_SIZE));
 
   return {
     page,

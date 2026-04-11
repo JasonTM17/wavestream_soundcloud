@@ -34,8 +34,7 @@ describe('PlaylistsService', () => {
   };
 
   it('rejects reorder requests that do not match the playlist items', async () => {
-    const { service, playlistsRepository, playlistTracksRepository } =
-      createService();
+    const { service, playlistsRepository, playlistTracksRepository } = createService();
     const owner = {
       id: 'user-1',
       role: UserRole.CREATOR,
@@ -91,9 +90,9 @@ describe('PlaylistsService', () => {
     });
     usersRepository.findOneBy.mockResolvedValue(owner);
 
-    await expect(
-      service.deletePlaylist('playlist-1', owner as never),
-    ).resolves.toEqual({ deleted: true });
+    await expect(service.deletePlaylist('playlist-1', owner as never)).resolves.toEqual({
+      deleted: true,
+    });
 
     expect(playlistsRepository.softDelete).toHaveBeenCalledWith('playlist-1');
     expect(usersRepository.save).toHaveBeenCalledWith({

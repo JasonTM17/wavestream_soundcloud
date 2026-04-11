@@ -51,10 +51,7 @@ export const mapTag = (tag: TagEntity) => ({
   slug: tag.slug,
 });
 
-export const mapTrack = (
-  track: TrackEntity,
-  overrides?: Partial<TrackDto>,
-): TrackDto => ({
+export const mapTrack = (track: TrackEntity, overrides?: Partial<TrackDto>): TrackDto => ({
   id: track.id,
   slug: track.slug,
   title: track.title,
@@ -79,9 +76,7 @@ export const mapTrack = (
         sizeBytes: Number(track.file.sizeBytes),
         durationSeconds: track.file.durationSeconds,
         streamUrl: `/api/tracks/${track.id}/stream`,
-        downloadUrl: track.allowDownloads
-          ? `/api/tracks/${track.id}/download`
-          : null,
+        downloadUrl: track.allowDownloads ? `/api/tracks/${track.id}/download` : null,
       }
     : undefined,
   createdAt: track.createdAt.toISOString(),
@@ -100,10 +95,7 @@ export const mapComment = (comment: CommentEntity): CommentDto => ({
   createdAt: comment.createdAt.toISOString(),
 });
 
-export const mapPlaylist = (
-  playlist: PlaylistEntity,
-  includeTracks = true,
-): PlaylistDto => ({
+export const mapPlaylist = (playlist: PlaylistEntity, includeTracks = true): PlaylistDto => ({
   id: playlist.id,
   slug: playlist.slug,
   title: playlist.title,

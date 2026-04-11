@@ -92,15 +92,7 @@ export interface SeedNotificationSpec {
   data: Record<string, unknown>;
 }
 
-export const SEED_GENRES = [
-  'Electronic',
-  'Lo-fi',
-  'House',
-  'Ambient',
-  'Indie',
-  'Hip-Hop',
-  'R&B',
-];
+export const SEED_GENRES = ['Electronic', 'Lo-fi', 'House', 'Ambient', 'Indie', 'Hip-Hop', 'R&B'];
 
 export const SEED_USERS: SeedUserSpec[] = [
   {
@@ -317,8 +309,7 @@ export const SEED_TRACKS: SeedTrackSpec[] = [
     slug: 'balcony-sunrise',
     artistUsername: 'aria-voss',
     title: 'Balcony Sunrise',
-    description:
-      'Tape-soft chords and brushed drums made for slow starts and second coffees.',
+    description: 'Tape-soft chords and brushed drums made for slow starts and second coffees.',
     genre: 'Lo-fi',
     tags: ['morning', 'study', 'tape'],
     privacy: TrackPrivacy.PUBLIC,
@@ -383,8 +374,7 @@ export const SEED_TRACKS: SeedTrackSpec[] = [
     slug: 'afterimage',
     artistUsername: 'luka-bayne',
     title: 'Afterimage',
-    description:
-      'An indie-pop scratch take with roomy drums and a chorus that lands immediately.',
+    description: 'An indie-pop scratch take with roomy drums and a chorus that lands immediately.',
     genre: 'Indie',
     tags: ['indie', 'hook', 'demo'],
     privacy: TrackPrivacy.PUBLIC,
@@ -427,8 +417,7 @@ export const SEED_TRACKS: SeedTrackSpec[] = [
     slug: 'open-water-demo',
     artistUsername: 'aria-voss',
     title: 'Open Water Demo',
-    description:
-      'Unlisted ambient guitar wash shared for close listeners and playlist editors.',
+    description: 'Unlisted ambient guitar wash shared for close listeners and playlist editors.',
     genre: 'Ambient',
     tags: ['unlisted', 'guitar', 'wash'],
     privacy: TrackPrivacy.UNLISTED,
@@ -449,8 +438,7 @@ export const SEED_TRACKS: SeedTrackSpec[] = [
     slug: 'private-draft-session',
     artistUsername: 'miko-lane',
     title: 'Private Draft Session',
-    description:
-      'A rough private build with kick placement ideas and a placeholder drop section.',
+    description: 'A rough private build with kick placement ideas and a placeholder drop section.',
     genre: 'House',
     tags: ['draft', 'private', 'work-in-progress'],
     privacy: TrackPrivacy.PRIVATE,
@@ -493,8 +481,7 @@ export const SEED_TRACKS: SeedTrackSpec[] = [
     slug: 'neon-courtyard',
     artistUsername: 'luka-bayne',
     title: 'Neon Courtyard',
-    description:
-      'A bright top-line demo currently hidden while metadata is under review.',
+    description: 'A bright top-line demo currently hidden while metadata is under review.',
     genre: 'Electronic',
     tags: ['hidden', 'demo', 'topline'],
     privacy: TrackPrivacy.PUBLIC,
@@ -519,8 +506,7 @@ export const SEED_PLAYLISTS: SeedPlaylistSpec[] = [
     slug: 'night-shift-warmup',
     ownerUsername: 'ivy-hart',
     title: 'Night Shift Warmup',
-    description:
-      'Warm loops and low-light grooves for late design passes and one more deploy.',
+    description: 'Warm loops and low-light grooves for late design passes and one more deploy.',
     isPublic: true,
     trackSlugs: ['midnight-static', 'soft-signal', 'tape-bloom', 'echo-relay'],
     daysAgo: 1,
@@ -534,8 +520,7 @@ export const SEED_PLAYLISTS: SeedPlaylistSpec[] = [
     slug: 'city-loop-reposts',
     ownerUsername: 'dev-patel',
     title: 'City Loop Reposts',
-    description:
-      'The kind of repost chain that keeps a commute moving quickly.',
+    description: 'The kind of repost chain that keeps a commute moving quickly.',
     isPublic: true,
     trackSlugs: ['midnight-static', 'southbound-lights', 'afterimage'],
     daysAgo: 2,
@@ -549,15 +534,9 @@ export const SEED_PLAYLISTS: SeedPlaylistSpec[] = [
     slug: 'sunday-edit-mode',
     ownerUsername: 'aria-voss',
     title: 'Sunday Edit Mode',
-    description:
-      'My current folder of gentle textures, space, and a few near-finished ideas.',
+    description: 'My current folder of gentle textures, space, and a few near-finished ideas.',
     isPublic: true,
-    trackSlugs: [
-      'balcony-sunrise',
-      'soft-signal',
-      'afterimage',
-      'open-water-demo',
-    ],
+    trackSlugs: ['balcony-sunrise', 'soft-signal', 'afterimage', 'open-water-demo'],
     daysAgo: 4,
     palette: {
       background: '#1f2937',
@@ -569,8 +548,7 @@ export const SEED_PLAYLISTS: SeedPlaylistSpec[] = [
     slug: 'skyline-commute',
     ownerUsername: 'mia-tran',
     title: 'Skyline Commute',
-    description:
-      'Fast starts, polished hooks, and a little lift before the inbox opens.',
+    description: 'Fast starts, polished hooks, and a little lift before the inbox opens.',
     isPublic: true,
     trackSlugs: ['balcony-sunrise', 'southbound-lights', 'echo-relay'],
     daysAgo: 3,

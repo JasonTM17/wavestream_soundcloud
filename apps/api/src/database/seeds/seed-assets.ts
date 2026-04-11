@@ -73,8 +73,7 @@ export const createArtworkSvg = (options: ArtworkOptions) => {
   const wavePath = Array.from({ length: 7 }, (_value, index) => {
     const x = 30 + index * ((options.width - 60) / 6);
     const y =
-      options.height * 0.54 +
-      Math.sin((options.shapeSeed + index) * 0.9) * options.height * 0.14;
+      options.height * 0.54 + Math.sin((options.shapeSeed + index) * 0.9) * options.height * 0.14;
 
     return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(' ');
@@ -128,13 +127,9 @@ export const createWaveAudioBuffer = (options: AudioOptions) => {
 
   for (let index = 0; index < totalSamples; index += 1) {
     const time = index / sampleRate;
-    const envelope =
-      Math.min(1, time / 0.6) *
-      Math.min(1, (options.durationSeconds - time) / 0.8);
+    const envelope = Math.min(1, time / 0.6) * Math.min(1, (options.durationSeconds - time) / 0.8);
     const base = Math.sin(2 * Math.PI * options.baseFrequency * time);
-    const harmony = Math.sin(
-      2 * Math.PI * (options.baseFrequency * 1.5) * time,
-    );
+    const harmony = Math.sin(2 * Math.PI * (options.baseFrequency * 1.5) * time);
     const pulse = Math.sin(2 * Math.PI * options.pulseFrequency * time);
     const sample = (base * 0.58 + harmony * 0.24 + pulse * 0.18) * envelope;
     const clamped = Math.max(-1, Math.min(1, sample));

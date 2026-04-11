@@ -7,10 +7,7 @@ import { AnalyticsService } from 'src/modules/analytics/analytics.service';
 import { TracksModule } from 'src/modules/tracks/tracks.module';
 
 @Module({
-  imports: [
-    TracksModule,
-    TypeOrmModule.forFeature([TrackEntity, PlayEventEntity]),
-  ],
+  imports: [TracksModule, TypeOrmModule.forFeature([TrackEntity, PlayEventEntity])],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
   exports: [AnalyticsService],

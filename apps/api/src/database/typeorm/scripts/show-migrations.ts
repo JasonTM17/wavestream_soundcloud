@@ -6,9 +6,7 @@ async function main() {
     const hasPendingMigrations = await dataSource.showMigrations();
 
     console.log(
-      hasPendingMigrations
-        ? 'Pending migrations are available.'
-        : 'No pending migrations.',
+      hasPendingMigrations ? 'Pending migrations are available.' : 'No pending migrations.',
     );
   } finally {
     if (dataSource.isInitialized) {

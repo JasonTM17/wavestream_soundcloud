@@ -1,12 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-  IsBoolean,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
 
 const toBoolean = ({ value }: { value: unknown }) =>
   value === true || value === 'true' || value === '1';

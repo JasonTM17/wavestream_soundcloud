@@ -47,8 +47,7 @@ describe('buildAdminReportTargetPreview', () => {
 
   it('builds playlist, user, and comment previews from existing relations', () => {
     const maps = baseMaps();
-    const commentBody =
-      'This mix is absolutely huge and really polished from start to finish.';
+    const commentBody = 'This mix is absolutely huge and really polished from start to finish.';
     maps.playlists.set('playlist-1', {
       id: 'playlist-1',
       title: 'Late Night Set',

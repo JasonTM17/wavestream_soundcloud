@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -39,11 +31,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const session = await this.authService.register(
-      dto,
-      getUserAgent(request),
-      request.ip,
-    );
+    const session = await this.authService.register(dto, getUserAgent(request), request.ip);
     this.setRefreshCookie(response, session.refreshToken);
 
     return {
@@ -62,11 +50,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const session = await this.authService.login(
-      dto,
-      getUserAgent(request),
-      request.ip,
-    );
+    const session = await this.authService.login(dto, getUserAgent(request), request.ip);
     this.setRefreshCookie(response, session.refreshToken);
 
     return {
@@ -80,10 +64,7 @@ export class AuthController {
   @Public()
   @HttpCode(200)
   @Post('refresh')
-  async refresh(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
     const session = await this.authService.refresh(
       getRefreshToken(request),
       getUserAgent(request),
@@ -102,10 +83,7 @@ export class AuthController {
   @HttpCode(200)
   @Public()
   @Post('logout')
-  async logout(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
     await this.authService.logout(getRefreshToken(request));
     response.clearCookie(REFRESH_COOKIE);
 

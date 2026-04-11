@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserEntity } from 'src/database/entities/user.entity';
@@ -20,18 +11,12 @@ export class UsersController {
 
   @Public()
   @Get(':username')
-  getProfile(
-    @Param('username') username: string,
-    @CurrentUser() user?: UserEntity,
-  ) {
+  getProfile(@Param('username') username: string, @CurrentUser() user?: UserEntity) {
     return this.usersService.getProfile(username, user?.id);
   }
 
   @Patch('me')
-  updateProfile(
-    @CurrentUser() user: UserEntity,
-    @Body() dto: UpdateProfileDto,
-  ) {
+  updateProfile(@CurrentUser() user: UserEntity, @Body() dto: UpdateProfileDto) {
     return this.usersService.updateProfile(user.id, dto);
   }
 

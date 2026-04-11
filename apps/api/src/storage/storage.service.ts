@@ -35,14 +35,11 @@ export class StorageService {
       region: 'us-east-1',
       forcePathStyle: true,
       credentials: {
-        accessKeyId:
-          this.configService.getOrThrow<string>('app.minioAccessKey'),
-        secretAccessKey:
-          this.configService.getOrThrow<string>('app.minioSecretKey'),
+        accessKeyId: this.configService.getOrThrow<string>('app.minioAccessKey'),
+        secretAccessKey: this.configService.getOrThrow<string>('app.minioSecretKey'),
       },
     });
-    this.publicBaseUrl =
-      this.configService.getOrThrow<string>('app.minioPublicUrl');
+    this.publicBaseUrl = this.configService.getOrThrow<string>('app.minioPublicUrl');
   }
 
   async upload(payload: UploadPayload) {
@@ -59,11 +56,9 @@ export class StorageService {
   }
 
   async getSignedDownloadUrl(bucket: string, key: string, expiresIn = 60) {
-    return getSignedUrl(
-      this.client,
-      new GetObjectCommand({ Bucket: bucket, Key: key }),
-      { expiresIn },
-    );
+    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: bucket, Key: key }), {
+      expiresIn,
+    });
   }
 
   async getObject(payload: GetObjectPayload) {

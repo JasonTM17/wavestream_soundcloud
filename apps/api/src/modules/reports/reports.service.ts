@@ -1,19 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReportStatus, ReportableType } from '@wavestream/shared';
 import { Repository } from 'typeorm';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
-import {
-  sanitizePlainText,
-  sanitizeRichText,
-} from 'src/common/utils/text.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
+import { sanitizePlainText, sanitizeRichText } from 'src/common/utils/text.util';
 import { CommentEntity } from 'src/database/entities/comment.entity';
 import { PlaylistEntity } from 'src/database/entities/playlist.entity';
 import { ReportEntity } from 'src/database/entities/report.entity';
@@ -47,9 +37,7 @@ export class ReportsService {
     });
 
     if (existingPending) {
-      throw new BadRequestException(
-        'You already have an open report for this item',
-      );
+      throw new BadRequestException('You already have an open report for this item');
     }
 
     const report = this.reportsRepository.create({
@@ -94,19 +82,12 @@ export class ReportsService {
     };
   }
 
-  private async assertReportableExists(
-    reportableType: ReportableType,
-    reportableId: string,
-  ) {
+  private async assertReportableExists(reportableType: ReportableType, reportableId: string) {
     const existsByType = {
-      [ReportableType.TRACK]: () =>
-        this.tracksRepository.existsBy({ id: reportableId }),
-      [ReportableType.COMMENT]: () =>
-        this.commentsRepository.existsBy({ id: reportableId }),
-      [ReportableType.USER]: () =>
-        this.usersRepository.existsBy({ id: reportableId }),
-      [ReportableType.PLAYLIST]: () =>
-        this.playlistsRepository.existsBy({ id: reportableId }),
+      [ReportableType.TRACK]: () => this.tracksRepository.existsBy({ id: reportableId }),
+      [ReportableType.COMMENT]: () => this.commentsRepository.existsBy({ id: reportableId }),
+      [ReportableType.USER]: () => this.usersRepository.existsBy({ id: reportableId }),
+      [ReportableType.PLAYLIST]: () => this.playlistsRepository.existsBy({ id: reportableId }),
     };
 
     const exists = await existsByType[reportableType]();

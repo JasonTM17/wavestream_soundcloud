@@ -21,15 +21,9 @@ import { Readable } from 'stream';
 import { In, IsNull, Repository } from 'typeorm';
 import { isUuid } from 'src/common/utils/is-uuid.util';
 import { mapComment, mapTrack } from 'src/common/utils/mappers';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
 import { createUniqueSlug, slugify } from 'src/common/utils/slug.util';
-import {
-  sanitizePlainText,
-  sanitizeRichText,
-} from 'src/common/utils/text.util';
+import { sanitizePlainText, sanitizeRichText } from 'src/common/utils/text.util';
 import { CommentEntity } from 'src/database/entities/comment.entity';
 import { GenreEntity } from 'src/database/entities/genre.entity';
 import { LikeEntity } from 'src/database/entities/like.entity';
@@ -177,10 +171,7 @@ export class TracksService {
       this.validateImageFile(coverImage);
     }
 
-    const audioMetadata = await parseBuffer(
-      audioFile.buffer,
-      audioFile.mimetype,
-    );
+    const audioMetadata = await parseBuffer(audioFile.buffer, audioFile.mimetype);
     const duration = Math.round(audioMetadata.format.duration ?? 0);
 
     const audioKey = `tracks/${artist.id}/${createUniqueSlug(dto.title)}${extname(audioFile.originalname) || '.mp3'}`;
@@ -217,9 +208,7 @@ export class TracksService {
       allowDownloads: dto.allowDownloads ?? false,
       commentsEnabled: dto.commentsEnabled ?? true,
       publishedAt:
-        (dto.status ?? TrackStatus.PUBLISHED) === TrackStatus.PUBLISHED
-          ? new Date()
-          : null,
+        (dto.status ?? TrackStatus.PUBLISHED) === TrackStatus.PUBLISHED ? new Date() : null,
       genreId: genre?.id ?? null,
       genre,
       tags,
@@ -270,9 +259,7 @@ export class TracksService {
     if (dto.status) {
       track.status = dto.status;
       track.publishedAt =
-        dto.status === TrackStatus.PUBLISHED
-          ? (track.publishedAt ?? new Date())
-          : null;
+        dto.status === TrackStatus.PUBLISHED ? (track.publishedAt ?? new Date()) : null;
     }
     if (dto.allowDownloads !== undefined) {
       track.allowDownloads = dto.allowDownloads;
@@ -301,11 +288,7 @@ export class TracksService {
     return { deleted: true };
   }
 
-  async streamTrack(
-    idOrSlug: string,
-    viewer: UserEntity | undefined,
-    range?: string,
-  ) {
+  async streamTrack(idOrSlug: string, viewer: UserEntity | undefined, range?: string) {
     const track = await this.findTrackOrFail(idOrSlug);
     this.assertCanAccess(track, viewer);
 
@@ -368,16 +351,12 @@ export class TracksService {
     await this.tracksRepository.save(track);
 
     if (track.artistId !== user.id) {
-      await this.notificationsService.createNotification(
-        track.artistId,
-        NotificationType.LIKE,
-        {
-          trackId: track.id,
-          trackTitle: track.title,
-          userId: user.id,
-          username: user.username,
-        },
-      );
+      await this.notificationsService.createNotification(track.artistId, NotificationType.LIKE, {
+        trackId: track.id,
+        trackTitle: track.title,
+        userId: user.id,
+        username: user.username,
+      });
     }
 
     return { liked: true, likeCount: track.likeCount };
@@ -424,16 +403,12 @@ export class TracksService {
     await this.tracksRepository.save(track);
 
     if (track.artistId !== user.id) {
-      await this.notificationsService.createNotification(
-        track.artistId,
-        NotificationType.REPOST,
-        {
-          trackId: track.id,
-          trackTitle: track.title,
-          userId: user.id,
-          username: user.username,
-        },
-      );
+      await this.notificationsService.createNotification(track.artistId, NotificationType.REPOST, {
+        trackId: track.id,
+        trackTitle: track.title,
+        userId: user.id,
+        username: user.username,
+      });
     }
 
     return { reposted: true, repostCount: track.repostCount };
@@ -483,9 +458,8 @@ export class TracksService {
       .map((comment) => ({
         ...mapComment(comment),
         replies:
-          comment.replies
-            ?.filter((reply) => !reply.isHidden)
-            .map((reply) => mapComment(reply)) ?? [],
+          comment.replies?.filter((reply) => !reply.isHidden).map((reply) => mapComment(reply)) ??
+          [],
       }));
   }
 
@@ -520,17 +494,13 @@ export class TracksService {
     await this.tracksRepository.save(track);
 
     if (track.artistId !== user.id) {
-      await this.notificationsService.createNotification(
-        track.artistId,
-        NotificationType.COMMENT,
-        {
-          trackId: track.id,
-          trackTitle: track.title,
-          userId: user.id,
-          username: user.username,
-          commentId: saved.id,
-        },
-      );
+      await this.notificationsService.createNotification(track.artistId, NotificationType.COMMENT, {
+        trackId: track.id,
+        trackTitle: track.title,
+        userId: user.id,
+        username: user.username,
+        commentId: saved.id,
+      });
     }
 
     const fullComment = await this.commentsRepository.findOneOrFail({
@@ -541,11 +511,7 @@ export class TracksService {
     return mapComment(fullComment);
   }
 
-  async recordPlay(
-    idOrSlug: string,
-    viewer: UserEntity | undefined,
-    dto: RecordPlayDto,
-  ) {
+  async recordPlay(idOrSlug: string, viewer: UserEntity | undefined, dto: RecordPlayDto) {
     const track = await this.findTrackOrFail(idOrSlug);
     this.assertCanAccess(track, viewer);
 
@@ -598,9 +564,7 @@ export class TracksService {
 
   private async findTrackOrFail(idOrSlug: string) {
     const track = await this.tracksRepository.findOne({
-      where: isUuid(idOrSlug)
-        ? [{ id: idOrSlug }, { slug: idOrSlug }]
-        : { slug: idOrSlug },
+      where: isUuid(idOrSlug) ? [{ id: idOrSlug }, { slug: idOrSlug }] : { slug: idOrSlug },
       relations: {
         artist: { profile: true },
         genre: true,
@@ -616,10 +580,7 @@ export class TracksService {
     return track;
   }
 
-  private async mapTrackWithViewerState(
-    track: TrackEntity,
-    viewer?: UserEntity,
-  ) {
+  private async mapTrackWithViewerState(track: TrackEntity, viewer?: UserEntity) {
     if (!viewer) {
       return mapTrack(track);
     }
@@ -662,11 +623,9 @@ export class TracksService {
     const isOwner = viewer && track.artistId === viewer.id;
     const isAdmin = viewer?.role === UserRole.ADMIN;
     const isPublicTrack =
-      track.status === TrackStatus.PUBLISHED &&
-      track.privacy === TrackPrivacy.PUBLIC;
+      track.status === TrackStatus.PUBLISHED && track.privacy === TrackPrivacy.PUBLIC;
     const isUnlisted =
-      track.status === TrackStatus.PUBLISHED &&
-      track.privacy === TrackPrivacy.UNLISTED;
+      track.status === TrackStatus.PUBLISHED && track.privacy === TrackPrivacy.UNLISTED;
 
     if (!isOwner && !isAdmin && !isPublicTrack && !isUnlisted) {
       throw new ForbiddenException('Track is not available');
@@ -675,20 +634,10 @@ export class TracksService {
 
   private validateAudioFile(file: Express.Multer.File) {
     const extension = extname(file.originalname).toLowerCase();
-    const allowedExtensions = [
-      '.mp3',
-      '.wav',
-      '.ogg',
-      '.flac',
-      '.aac',
-      '.m4a',
-      '.webm',
-    ];
+    const allowedExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.webm'];
 
     if (
-      !AUDIO_MIME_TYPES.includes(
-        file.mimetype as (typeof AUDIO_MIME_TYPES)[number],
-      ) ||
+      !AUDIO_MIME_TYPES.includes(file.mimetype as (typeof AUDIO_MIME_TYPES)[number]) ||
       !allowedExtensions.includes(extension)
     ) {
       throw new BadRequestException('Unsupported audio format');
@@ -701,19 +650,10 @@ export class TracksService {
 
   private validateImageFile(file: Express.Multer.File) {
     const extension = extname(file.originalname).toLowerCase();
-    const allowedExtensions = [
-      '.jpg',
-      '.jpeg',
-      '.png',
-      '.gif',
-      '.webp',
-      '.svg',
-    ];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
 
     if (
-      !IMAGE_MIME_TYPES.includes(
-        file.mimetype as (typeof IMAGE_MIME_TYPES)[number],
-      ) ||
+      !IMAGE_MIME_TYPES.includes(file.mimetype as (typeof IMAGE_MIME_TYPES)[number]) ||
       !allowedExtensions.includes(extension)
     ) {
       throw new BadRequestException('Unsupported image format');

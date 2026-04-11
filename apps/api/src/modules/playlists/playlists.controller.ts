@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserEntity } from 'src/database/entities/user.entity';
@@ -44,10 +35,7 @@ export class PlaylistsController {
   }
 
   @Post()
-  createPlaylist(
-    @CurrentUser() user: UserEntity,
-    @Body() dto: CreatePlaylistDto,
-  ) {
+  createPlaylist(@CurrentUser() user: UserEntity, @Body() dto: CreatePlaylistDto) {
     return this.playlistsService.createPlaylist(user, dto);
   }
 
@@ -66,11 +54,7 @@ export class PlaylistsController {
   }
 
   @Post(':id/tracks')
-  addTrack(
-    @Param('id') id: string,
-    @CurrentUser() user: UserEntity,
-    @Body() dto: AddTrackDto,
-  ) {
+  addTrack(@Param('id') id: string, @CurrentUser() user: UserEntity, @Body() dto: AddTrackDto) {
     return this.playlistsService.addTrack(id, user, dto);
   }
 

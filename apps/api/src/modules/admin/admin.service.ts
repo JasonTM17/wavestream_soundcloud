@@ -14,10 +14,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
 import { sanitizePlainText } from 'src/common/utils/text.util';
 import { AuditLogEntity } from 'src/database/entities/audit-log.entity';
 import { CommentEntity } from 'src/database/entities/comment.entity';
@@ -50,23 +47,18 @@ export class AdminService {
   ) {}
 
   async getOverview() {
-    const [
-      userCount,
-      trackCount,
-      playlistCount,
-      reportCount,
-      flaggedCommentCount,
-    ] = await Promise.all([
-      this.usersRepository.count(),
-      this.tracksRepository.count(),
-      this.playlistsRepository.count(),
-      this.reportsRepository.count({
-        where: { status: ReportStatus.PENDING },
-      }),
-      this.commentsRepository.count({
-        where: { isHidden: true },
-      }),
-    ]);
+    const [userCount, trackCount, playlistCount, reportCount, flaggedCommentCount] =
+      await Promise.all([
+        this.usersRepository.count(),
+        this.tracksRepository.count(),
+        this.playlistsRepository.count(),
+        this.reportsRepository.count({
+          where: { status: ReportStatus.PENDING },
+        }),
+        this.commentsRepository.count({
+          where: { isHidden: true },
+        }),
+      ]);
 
     return {
       userCount,
@@ -230,13 +222,9 @@ export class AdminService {
     ]);
 
     const trackMap = new Map(tracks.map((track) => [track.id, track]));
-    const playlistMap = new Map(
-      playlists.map((playlist) => [playlist.id, playlist]),
-    );
+    const playlistMap = new Map(playlists.map((playlist) => [playlist.id, playlist]));
     const userMap = new Map(users.map((user) => [user.id, user]));
-    const commentMap = new Map(
-      comments.map((comment) => [comment.id, comment]),
-    );
+    const commentMap = new Map(comments.map((comment) => [comment.id, comment]));
 
     return {
       data: items.map((report) => ({
@@ -342,15 +330,9 @@ export class AdminService {
     track.hiddenReason = sanitizePlainText(dto.reason) ?? null;
     await this.tracksRepository.save(track);
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.HIDE_TRACK,
-      'track',
-      track.id,
-      {
-        reason: track.hiddenReason,
-      },
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.HIDE_TRACK, 'track', track.id, {
+      reason: track.hiddenReason,
+    });
 
     return { hidden: true };
   }
@@ -365,22 +347,12 @@ export class AdminService {
     track.hiddenReason = null;
     await this.tracksRepository.save(track);
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.RESTORE_TRACK,
-      'track',
-      track.id,
-      null,
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.RESTORE_TRACK, 'track', track.id, null);
 
     return { hidden: false };
   }
 
-  async hideComment(
-    admin: UserEntity,
-    commentId: string,
-    dto: ModerationNoteDto,
-  ) {
+  async hideComment(admin: UserEntity, commentId: string, dto: ModerationNoteDto) {
     const comment = await this.commentsRepository.findOneBy({ id: commentId });
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -389,13 +361,9 @@ export class AdminService {
     comment.isHidden = true;
     await this.commentsRepository.save(comment);
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.HIDE_COMMENT,
-      'comment',
-      comment.id,
-      { reason: sanitizePlainText(dto.reason) ?? null },
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.HIDE_COMMENT, 'comment', comment.id, {
+      reason: sanitizePlainText(dto.reason) ?? null,
+    });
 
     return { hidden: true };
   }
@@ -420,11 +388,7 @@ export class AdminService {
     return { hidden: false };
   }
 
-  async deletePlaylist(
-    admin: UserEntity,
-    playlistId: string,
-    dto: ModerationNoteDto,
-  ) {
+  async deletePlaylist(admin: UserEntity, playlistId: string, dto: ModerationNoteDto) {
     const playlist = await this.playlistsRepository.findOne({
       where: { id: playlistId },
       withDeleted: true,
@@ -438,22 +402,14 @@ export class AdminService {
       await this.playlistsRepository.softDelete(playlist.id);
     }
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.DELETE_PLAYLIST,
-      'playlist',
-      playlist.id,
-      { reason: sanitizePlainText(dto.reason) ?? null },
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.DELETE_PLAYLIST, 'playlist', playlist.id, {
+      reason: sanitizePlainText(dto.reason) ?? null,
+    });
 
     return { deleted: true };
   }
 
-  async updateUserRole(
-    admin: UserEntity,
-    userId: string,
-    dto: UpdateUserRoleDto,
-  ) {
+  async updateUserRole(admin: UserEntity, userId: string, dto: UpdateUserRoleDto) {
     if (admin.id === userId && dto.role !== UserRole.ADMIN) {
       throw new ForbiddenException('You cannot remove your own admin role');
     }
@@ -466,28 +422,16 @@ export class AdminService {
     user.role = dto.role;
     await this.usersRepository.save(user);
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.UPDATE_USER_ROLE,
-      'user',
-      user.id,
-      { role: dto.role },
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.UPDATE_USER_ROLE, 'user', user.id, {
+      role: dto.role,
+    });
 
     return { id: user.id, role: user.role };
   }
 
-  async resolveReport(
-    admin: UserEntity,
-    reportId: string,
-    dto: ResolveReportDto,
-  ) {
+  async resolveReport(admin: UserEntity, reportId: string, dto: ResolveReportDto) {
     if (
-      ![
-        ReportStatus.RESOLVED,
-        ReportStatus.DISMISSED,
-        ReportStatus.REVIEWED,
-      ].includes(dto.status)
+      ![ReportStatus.RESOLVED, ReportStatus.DISMISSED, ReportStatus.REVIEWED].includes(dto.status)
     ) {
       throw new BadRequestException('Unsupported report status');
     }
@@ -505,13 +449,10 @@ export class AdminService {
     report.resolvedAt = new Date();
     await this.reportsRepository.save(report);
 
-    await this.writeAuditLog(
-      admin.id,
-      AdminActionType.RESOLVE_REPORT,
-      'report',
-      report.id,
-      { status: dto.status, note: sanitizePlainText(dto.note) ?? null },
-    );
+    await this.writeAuditLog(admin.id, AdminActionType.RESOLVE_REPORT, 'report', report.id, {
+      status: dto.status,
+      note: sanitizePlainText(dto.note) ?? null,
+    });
 
     await this.notificationsService.createNotification(
       report.reporterId,

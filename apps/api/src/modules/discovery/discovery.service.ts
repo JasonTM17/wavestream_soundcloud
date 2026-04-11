@@ -3,12 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TrackPrivacy, TrackStatus, UserRole } from '@wavestream/shared';
 import { Repository } from 'typeorm';
 import { isUuid } from 'src/common/utils/is-uuid.util';
-import {
-  mapGenre,
-  mapPlaylist,
-  mapTrack,
-  mapUser,
-} from 'src/common/utils/mappers';
+import { mapGenre, mapPlaylist, mapTrack, mapUser } from 'src/common/utils/mappers';
 import { GenreEntity } from 'src/database/entities/genre.entity';
 import { PlaylistEntity } from 'src/database/entities/playlist.entity';
 import { TrackEntity } from 'src/database/entities/track.entity';
@@ -99,14 +94,9 @@ export class DiscoveryService {
             .leftJoinAndSelect('track.genre', 'genre')
             .leftJoinAndSelect('track.tags', 'tag')
             .leftJoinAndSelect('track.file', 'file')
-            .innerJoin(
-              'artist.followers',
-              'follow',
-              'follow.followerId = :viewerId',
-              {
-                viewerId: viewer.id,
-              },
-            )
+            .innerJoin('artist.followers', 'follow', 'follow.followerId = :viewerId', {
+              viewerId: viewer.id,
+            })
             .where('track.status = :status', { status: TrackStatus.PUBLISHED })
             .andWhere('track.privacy = :privacy', {
               privacy: TrackPrivacy.PUBLIC,
@@ -121,9 +111,7 @@ export class DiscoveryService {
       trending: trending.map((track) => mapTrack(track)),
       newReleases: newReleases.map((track) => mapTrack(track)),
       featuredArtists: featuredArtists.map((artist) => mapUser(artist)),
-      popularPlaylists: popularPlaylists.map((playlist) =>
-        mapPlaylist(playlist, false),
-      ),
+      popularPlaylists: popularPlaylists.map((playlist) => mapPlaylist(playlist, false)),
       recentUploads: recentUploads.map((track) => mapTrack(track)),
       genres: genres.map((genre) => mapGenre(genre)).filter(Boolean),
       followingFeed: followingFeed.map((track) => mapTrack(track)),
@@ -182,12 +170,9 @@ export class DiscoveryService {
         .createQueryBuilder('playlist')
         .leftJoinAndSelect('playlist.owner', 'owner')
         .leftJoinAndSelect('owner.profile', 'ownerProfile')
-        .where(
-          '(playlist.title ILIKE :term OR playlist.description ILIKE :term)',
-          {
-            term: searchTerm,
-          },
-        )
+        .where('(playlist.title ILIKE :term OR playlist.description ILIKE :term)', {
+          term: searchTerm,
+        })
         .andWhere(
           viewer?.role === UserRole.ADMIN
             ? 'playlist.deletedAt IS NULL'
@@ -225,9 +210,7 @@ export class DiscoveryService {
 
   async getRelatedTracksById(idOrSlug: string) {
     const track = await this.tracksRepository.findOne({
-      where: isUuid(idOrSlug)
-        ? [{ id: idOrSlug }, { slug: idOrSlug }]
-        : { slug: idOrSlug },
+      where: isUuid(idOrSlug) ? [{ id: idOrSlug }, { slug: idOrSlug }] : { slug: idOrSlug },
     });
 
     if (!track) {

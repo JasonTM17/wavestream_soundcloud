@@ -30,17 +30,9 @@ import { StorageModule } from 'src/storage/storage.module';
 import { StorageService } from 'src/storage/storage.service';
 
 class InMemoryStorageService {
-  private readonly objects = new Map<
-    string,
-    { body: Buffer; contentType: string }
-  >();
+  private readonly objects = new Map<string, { body: Buffer; contentType: string }>();
 
-  upload(payload: {
-    bucket: string;
-    key: string;
-    body: Buffer;
-    contentType: string;
-  }) {
+  upload(payload: { bucket: string; key: string; body: Buffer; contentType: string }) {
     this.objects.set(`${payload.bucket}/${payload.key}`, {
       body: payload.body,
       contentType: payload.contentType,
@@ -110,10 +102,8 @@ const configureTestEnvironment = () => {
   process.env.MINIO_SECRET_KEY = 'wavestream_secret';
   process.env.MINIO_USE_SSL = 'false';
   process.env.MINIO_PUBLIC_URL = 'http://localhost:9000';
-  process.env.JWT_ACCESS_SECRET =
-    'test-access-secret-that-is-long-enough-123456';
-  process.env.JWT_REFRESH_SECRET =
-    'test-refresh-secret-that-is-long-enough-12345';
+  process.env.JWT_ACCESS_SECRET = 'test-access-secret-that-is-long-enough-123456';
+  process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-that-is-long-enough-12345';
   process.env.JWT_ACCESS_EXPIRY = '15m';
   process.env.JWT_REFRESH_EXPIRY = '7d';
   process.env.FRONTEND_URL = 'http://localhost:3000';

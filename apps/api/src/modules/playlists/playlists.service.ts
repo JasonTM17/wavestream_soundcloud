@@ -1,22 +1,12 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRole } from '@wavestream/shared';
 import { Repository } from 'typeorm';
 import { isUuid } from 'src/common/utils/is-uuid.util';
 import { mapPlaylist } from 'src/common/utils/mappers';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
 import { createUniqueSlug } from 'src/common/utils/slug.util';
-import {
-  sanitizePlainText,
-  sanitizeRichText,
-} from 'src/common/utils/text.util';
+import { sanitizePlainText, sanitizeRichText } from 'src/common/utils/text.util';
 import { PlaylistEntity } from 'src/database/entities/playlist.entity';
 import { PlaylistTrackEntity } from 'src/database/entities/playlist-track.entity';
 import { TrackEntity } from 'src/database/entities/track.entity';
@@ -39,12 +29,7 @@ export class PlaylistsService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  async listPlaylists(
-    page?: number,
-    limit?: number,
-    ownerId?: string,
-    viewer?: UserEntity,
-  ) {
+  async listPlaylists(page?: number, limit?: number, ownerId?: string, viewer?: UserEntity) {
     const pagination = normalizePagination({ page, limit });
     if (ownerId && !isUuid(ownerId)) {
       return {
@@ -68,12 +53,9 @@ export class PlaylistsService {
     }
 
     if (!viewer || viewer.role !== UserRole.ADMIN) {
-      qb.andWhere(
-        '(playlist.isPublic = true OR playlist.ownerId = :viewerId)',
-        {
-          viewerId: viewer?.id ?? '',
-        },
-      );
+      qb.andWhere('(playlist.isPublic = true OR playlist.ownerId = :viewerId)', {
+        viewerId: viewer?.id ?? '',
+      });
     }
 
     const [items, total] = await qb.getManyAndCount();
@@ -119,11 +101,7 @@ export class PlaylistsService {
     return mapPlaylist(fullPlaylist);
   }
 
-  async updatePlaylist(
-    idOrSlug: string,
-    actor: UserEntity,
-    dto: UpdatePlaylistDto,
-  ) {
+  async updatePlaylist(idOrSlug: string, actor: UserEntity, dto: UpdatePlaylistDto) {
     const playlist = await this.findPlaylistOrFail(idOrSlug);
     this.assertOwnership(playlist, actor);
 
@@ -235,10 +213,7 @@ export class PlaylistsService {
 
     await this.playlistTracksRepository.remove(entry);
     playlist.trackCount = Math.max(0, playlist.trackCount - 1);
-    playlist.totalDuration = Math.max(
-      0,
-      playlist.totalDuration - entry.track.duration,
-    );
+    playlist.totalDuration = Math.max(0, playlist.totalDuration - entry.track.duration);
     await this.playlistsRepository.update(playlist.id, {
       trackCount: playlist.trackCount,
       totalDuration: playlist.totalDuration,
@@ -260,11 +235,7 @@ export class PlaylistsService {
     return mapPlaylist(fullPlaylist);
   }
 
-  async reorderTracks(
-    idOrSlug: string,
-    actor: UserEntity,
-    dto: ReorderPlaylistDto,
-  ) {
+  async reorderTracks(idOrSlug: string, actor: UserEntity, dto: ReorderPlaylistDto) {
     const playlist = await this.findPlaylistOrFail(idOrSlug);
     this.assertOwnership(playlist, actor);
 
@@ -295,9 +266,7 @@ export class PlaylistsService {
 
   private async findPlaylistOrFail(idOrSlug: string) {
     const playlist = await this.playlistsRepository.findOne({
-      where: isUuid(idOrSlug)
-        ? [{ id: idOrSlug }, { slug: idOrSlug }]
-        : { slug: idOrSlug },
+      where: isUuid(idOrSlug) ? [{ id: idOrSlug }, { slug: idOrSlug }] : { slug: idOrSlug },
       relations: {
         owner: { profile: true },
         tracks: {
@@ -331,9 +300,7 @@ export class PlaylistsService {
 
   private assertCanAccess(playlist: PlaylistEntity, viewer?: UserEntity) {
     const canAccess =
-      playlist.isPublic ||
-      playlist.ownerId === viewer?.id ||
-      viewer?.role === UserRole.ADMIN;
+      playlist.isPublic || playlist.ownerId === viewer?.id || viewer?.role === UserRole.ADMIN;
 
     if (!canAccess) {
       throw new ForbiddenException('Playlist is private');

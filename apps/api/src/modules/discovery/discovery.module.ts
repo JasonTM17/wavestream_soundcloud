@@ -10,14 +10,7 @@ import { RelatedTracksController } from 'src/modules/discovery/related-tracks.co
 import { SearchController } from 'src/modules/discovery/search.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      GenreEntity,
-      PlaylistEntity,
-      TrackEntity,
-      UserEntity,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([GenreEntity, PlaylistEntity, TrackEntity, UserEntity])],
   controllers: [DiscoveryController, SearchController, RelatedTracksController],
   providers: [DiscoveryService],
   exports: [DiscoveryService],

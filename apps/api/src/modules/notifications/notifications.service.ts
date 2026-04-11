@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotificationType } from '@wavestream/shared';
 import { Repository } from 'typeorm';
-import {
-  createPaginationMeta,
-  normalizePagination,
-} from 'src/common/utils/pagination.util';
+import { createPaginationMeta, normalizePagination } from 'src/common/utils/pagination.util';
 import { NotificationEntity } from 'src/database/entities/notification.entity';
 import { NotificationsGateway } from 'src/modules/notifications/notifications.gateway';
 
@@ -17,11 +14,7 @@ export class NotificationsService {
     private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
-  async createNotification(
-    userId: string,
-    type: NotificationType,
-    data: Record<string, unknown>,
-  ) {
+  async createNotification(userId: string, type: NotificationType, data: Record<string, unknown>) {
     const notification = this.notificationsRepository.create({
       userId,
       type,

@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { SoftDeleteEntity } from 'src/database/entities/base.entity';
 import { PlaylistTrackEntity } from 'src/database/entities/playlist-track.entity';
 import { UserEntity } from 'src/database/entities/user.entity';
@@ -43,9 +36,6 @@ export class PlaylistEntity extends SoftDeleteEntity {
   @JoinColumn({ name: 'ownerId' })
   owner!: UserEntity;
 
-  @OneToMany(
-    () => PlaylistTrackEntity,
-    (playlistTrack) => playlistTrack.playlist,
-  )
+  @OneToMany(() => PlaylistTrackEntity, (playlistTrack) => playlistTrack.playlist)
   tracks!: PlaylistTrackEntity[];
 }

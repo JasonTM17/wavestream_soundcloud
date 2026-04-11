@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TrackAnalyticsDto, UserRole } from '@wavestream/shared';
 import { In, Repository } from 'typeorm';
@@ -69,10 +65,7 @@ export class AnalyticsService {
     };
   }
 
-  async getTrackAnalytics(
-    actor: UserEntity,
-    trackId: string,
-  ): Promise<TrackAnalyticsDto> {
+  async getTrackAnalytics(actor: UserEntity, trackId: string): Promise<TrackAnalyticsDto> {
     const track = await this.tracksRepository.findOne({
       where: { id: trackId },
       relations: {
@@ -88,9 +81,7 @@ export class AnalyticsService {
     }
 
     if (track.artistId !== actor.id && actor.role !== UserRole.ADMIN) {
-      throw new ForbiddenException(
-        'You do not have access to this track analytics',
-      );
+      throw new ForbiddenException('You do not have access to this track analytics');
     }
 
     const recentListeners = await this.playEventsRepository.find({

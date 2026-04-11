@@ -31,10 +31,7 @@ export class TracksController {
 
   @Public()
   @Get()
-  listTracks(
-    @Query() query: TrackListQueryDto,
-    @CurrentUser() user?: UserEntity,
-  ) {
+  listTracks(@Query() query: TrackListQueryDto, @CurrentUser() user?: UserEntity) {
     return this.tracksService.listTracks(query, user);
   }
 
@@ -70,12 +67,7 @@ export class TracksController {
       coverImage?: Express.Multer.File[];
     },
   ) {
-    return this.tracksService.createTrack(
-      user,
-      dto,
-      files.audioFile?.[0],
-      files.coverImage?.[0],
-    );
+    return this.tracksService.createTrack(user, dto, files.audioFile?.[0], files.coverImage?.[0]);
   }
 
   @Patch(':id')
@@ -149,9 +141,7 @@ export class TracksController {
     const result = await this.tracksService.streamTrack(
       id,
       user,
-      typeof request.headers.range === 'string'
-        ? request.headers.range
-        : undefined,
+      typeof request.headers.range === 'string' ? request.headers.range : undefined,
     );
 
     response.status(result.contentRange ? 206 : 200);

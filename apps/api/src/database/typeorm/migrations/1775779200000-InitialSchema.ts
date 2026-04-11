@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 const primaryUuidColumn = {
   name: 'id',
@@ -214,9 +209,7 @@ export class InitialSchema1775779200000 implements MigrationInterface {
         ],
       }),
     );
-    await queryRunner.query(
-      'CREATE INDEX "IDX_track_tags_tagId" ON "track_tags" ("tagId")',
-    );
+    await queryRunner.query('CREATE INDEX "IDX_track_tags_tagId" ON "track_tags" ("tagId")');
 
     await queryRunner.createTable(
       new Table({

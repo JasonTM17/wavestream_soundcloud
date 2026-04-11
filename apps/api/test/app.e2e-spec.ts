@@ -1,9 +1,6 @@
 import request from 'supertest';
 import { UserRole } from '@wavestream/shared';
-import {
-  createArtworkSvg,
-  createWaveAudioBuffer,
-} from 'src/database/seeds/seed-assets';
+import { createArtworkSvg, createWaveAudioBuffer } from 'src/database/seeds/seed-assets';
 import { createTestApp, TestAppContext } from 'test/support/test-app.factory';
 
 jest.mock(
@@ -18,8 +15,7 @@ jest.mock(
   { virtual: true },
 );
 
-const unwrap = <T>(response: request.Response) =>
-  (response.body as { data: T }).data;
+const unwrap = <T>(response: request.Response) => (response.body as { data: T }).data;
 
 jest.setTimeout(30_000);
 
@@ -48,10 +44,7 @@ describe('WaveStream API (e2e)', () => {
       password: string;
     },
   ) => {
-    const response = await agent
-      .post('/api/auth/register')
-      .send(payload)
-      .expect(201);
+    const response = await agent.post('/api/auth/register').send(payload).expect(201);
 
     return unwrap<{
       user: { id: string; username: string; role: string };
@@ -66,10 +59,7 @@ describe('WaveStream API (e2e)', () => {
       password: string;
     },
   ) => {
-    const response = await agent
-      .post('/api/auth/login')
-      .send(payload)
-      .expect(200);
+    const response = await agent.post('/api/auth/login').send(payload).expect(200);
 
     return unwrap<{
       user: { id: string; username: string; role: string };
@@ -78,9 +68,7 @@ describe('WaveStream API (e2e)', () => {
   };
 
   it('supports register/login, upload, playback, social, playlist, and moderation flows', async () => {
-    const server = context.app.getHttpServer() as Parameters<
-      typeof request.agent
-    >[0];
+    const server = context.app.getHttpServer() as Parameters<typeof request.agent>[0];
     const creatorAgent = request.agent(server);
     const listenerAgent = request.agent(server);
     const adminAgent = request.agent(server);
@@ -345,9 +333,7 @@ describe('WaveStream API (e2e)', () => {
   });
 
   it('rotates refresh tokens and clears the cookie on logout', async () => {
-    const server = context.app.getHttpServer() as Parameters<
-      typeof request.agent
-    >[0];
+    const server = context.app.getHttpServer() as Parameters<typeof request.agent>[0];
     const agent = request.agent(server);
 
     const registration = await register(agent, {
@@ -367,9 +353,7 @@ describe('WaveStream API (e2e)', () => {
 
     expect(refreshedSession.tokens.accessToken).toBeTruthy();
     expect(refreshResponse.headers['set-cookie']).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('wavestream_refresh_token='),
-      ]),
+      expect.arrayContaining([expect.stringContaining('wavestream_refresh_token=')]),
     );
 
     const logoutResponse = await agent.post('/api/auth/logout').expect(200);
@@ -377,9 +361,7 @@ describe('WaveStream API (e2e)', () => {
       loggedOut: true,
     });
     expect(logoutResponse.headers['set-cookie']).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('wavestream_refresh_token=;'),
-      ]),
+      expect.arrayContaining([expect.stringContaining('wavestream_refresh_token=;')]),
     );
   });
 });

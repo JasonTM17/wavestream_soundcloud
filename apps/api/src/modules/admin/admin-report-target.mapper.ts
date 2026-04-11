@@ -20,9 +20,7 @@ interface BuildReportTargetPreviewInput {
   comments: Map<string, CommentEntity>;
 }
 
-const fallbackPreview = (
-  reportableType: ReportableType,
-): AdminReportTargetPreview => {
+const fallbackPreview = (reportableType: ReportableType): AdminReportTargetPreview => {
   const baseLabel = {
     [ReportableType.TRACK]: 'Deleted track',
     [ReportableType.PLAYLIST]: 'Deleted playlist',
@@ -77,15 +75,9 @@ export const buildAdminReportTargetPreview = ({
 
       return {
         label: playlist.title,
-        secondaryLabel: playlist.owner
-          ? `by ${playlist.owner.displayName}`
-          : null,
+        secondaryLabel: playlist.owner ? `by ${playlist.owner.displayName}` : null,
         href: `/playlist/${playlist.slug}`,
-        status: playlist.deletedAt
-          ? 'deleted'
-          : playlist.isPublic
-            ? 'public'
-            : 'private',
+        status: playlist.deletedAt ? 'deleted' : playlist.isPublic ? 'public' : 'private',
       };
     }
 
@@ -112,15 +104,9 @@ export const buildAdminReportTargetPreview = ({
       const track = tracks.get(comment.trackId);
       return {
         label: excerptText(comment.body),
-        secondaryLabel: track
-          ? `on ${track.title}`
-          : 'Parent track unavailable',
+        secondaryLabel: track ? `on ${track.title}` : 'Parent track unavailable',
         href: track ? `/track/${track.slug}` : null,
-        status: comment.deletedAt
-          ? 'deleted'
-          : comment.isHidden
-            ? 'hidden'
-            : 'visible',
+        status: comment.deletedAt ? 'deleted' : comment.isHidden ? 'hidden' : 'visible',
       };
     }
   }

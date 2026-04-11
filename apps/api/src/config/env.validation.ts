@@ -65,14 +65,8 @@ export const getValidatedEnv = (): AppEnvironment => {
     minioSecretKey: getEnv('MINIO_SECRET_KEY', 'wavestream_secret'),
     minioUseSsl: getEnv('MINIO_USE_SSL', 'false') === 'true',
     minioPublicUrl: getEnv('MINIO_PUBLIC_URL', 'http://localhost:9000'),
-    jwtAccessSecret: getEnv(
-      'JWT_ACCESS_SECRET',
-      'dev-access-secret-change-me-in-prod-32',
-    ),
-    jwtRefreshSecret: getEnv(
-      'JWT_REFRESH_SECRET',
-      'dev-refresh-secret-change-me-in-prod-32',
-    ),
+    jwtAccessSecret: getEnv('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-in-prod-32'),
+    jwtRefreshSecret: getEnv('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me-in-prod-32'),
     jwtAccessExpiry: getEnv('JWT_ACCESS_EXPIRY', '15m'),
     jwtRefreshExpiry: getEnv('JWT_REFRESH_EXPIRY', '7d'),
     frontendUrl: frontendOrigins[0] ?? 'http://localhost:3000',
@@ -86,7 +80,6 @@ export const getValidatedEnv = (): AppEnvironment => {
     adminPassword: getEnv('ADMIN_PASSWORD', 'Admin123!'),
     adminDisplayName: getEnv('ADMIN_DISPLAY_NAME', 'WaveStream Admin'),
     adminUsername: getEnv('ADMIN_USERNAME', 'wavestream-admin'),
-    defaultCreatorRole:
-      (process.env.DEFAULT_CREATOR_ROLE as UserRole) ?? UserRole.CREATOR,
+    defaultCreatorRole: (process.env.DEFAULT_CREATOR_ROLE as UserRole) ?? UserRole.CREATOR,
   };
 };

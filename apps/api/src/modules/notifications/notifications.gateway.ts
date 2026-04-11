@@ -32,12 +32,9 @@ export class NotificationsGateway implements OnGatewayConnection {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<{ sub: string }>(
-        token,
-        {
-          secret: this.configService.getOrThrow<string>('app.jwtAccessSecret'),
-        },
-      );
+      const payload = await this.jwtService.verifyAsync<{ sub: string }>(token, {
+        secret: this.configService.getOrThrow<string>('app.jwtAccessSecret'),
+      });
       await client.join(payload.sub);
     } catch {
       client.disconnect();

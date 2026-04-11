@@ -168,15 +168,8 @@ const run = async () => {
       auditLogs: dataSource.getRepository(AuditLogEntity),
     };
 
-    const adminUser = await upsertAdminUser(
-      env,
-      repositories.users,
-      repositories.profiles,
-      client,
-    );
-    const userMap = new Map<string, UserEntity>([
-      [adminUser.username, adminUser],
-    ]);
+    const adminUser = await upsertAdminUser(env, repositories.users, repositories.profiles, client);
+    const userMap = new Map<string, UserEntity>([[adminUser.username, adminUser]]);
 
     for (const userSpec of SEED_USERS) {
       const user = await upsertSeedUser(
@@ -213,9 +206,7 @@ const run = async () => {
 
     const seededUserIds = [...userMap.values()].map((user) => user.id);
     const seededTrackIds = [...trackMap.values()].map((track) => track.id);
-    const seededPlaylistIds = [...playlistMap.values()].map(
-      (playlist) => playlist.id,
-    );
+    const seededPlaylistIds = [...playlistMap.values()].map((playlist) => playlist.id);
 
     await clearSeedActivity(repositories, {
       adminId: adminUser.id,
@@ -233,12 +224,7 @@ const run = async () => {
     await seedFollows(SEED_FOLLOWS, userMap, repositories.follows);
     await seedLikes(SEED_LIKES, userMap, trackMap, repositories.likes);
     await seedReposts(SEED_REPOSTS, userMap, trackMap, repositories.reposts);
-    const commentIds = await seedComments(
-      SEED_COMMENTS,
-      userMap,
-      trackMap,
-      repositories.comments,
-    );
+    const commentIds = await seedComments(SEED_COMMENTS, userMap, trackMap, repositories.comments);
     const reportIds = await seedReports(
       adminUser,
       userMap,
@@ -247,24 +233,9 @@ const run = async () => {
       commentIds,
       repositories.reports,
     );
-    await seedPlayEvents(
-      userMap,
-      trackMap,
-      repositories.playEvents,
-      repositories.listeningHistory,
-    );
-    await seedNotifications(
-      userMap,
-      trackMap,
-      reportIds,
-      repositories.notifications,
-    );
-    await seedAuditLogs(
-      adminUser,
-      trackMap,
-      commentIds,
-      repositories.auditLogs,
-    );
+    await seedPlayEvents(userMap, trackMap, repositories.playEvents, repositories.listeningHistory);
+    await seedNotifications(userMap, trackMap, reportIds, repositories.notifications);
+    await seedAuditLogs(adminUser, trackMap, commentIds, repositories.auditLogs);
     await recalculateCounters(userMap, trackMap, playlistMap, repositories);
 
     console.log(
@@ -368,10 +339,7 @@ const upsertUserWithAssets = async (
   );
 
   let user = await usersRepository.findOne({
-    where: [
-      { email: userSpec.email.toLowerCase() },
-      { username: userSpec.username },
-    ],
+    where: [{ email: userSpec.email.toLowerCase() }, { username: userSpec.username }],
     relations: { profile: true },
     withDeleted: true,
   });
@@ -412,10 +380,7 @@ const upsertUserWithAssets = async (
   });
 };
 
-const upsertGenres = async (
-  names: string[],
-  genresRepository: Repository<GenreEntity>,
-) => {
+const upsertGenres = async (names: string[], genresRepository: Repository<GenreEntity>) => {
   const map = new Map<string, GenreEntity>();
 
   for (const name of names) {
@@ -550,21 +515,12 @@ const upsertTracks = async (
     trackFile.publicUrl = audioUrl;
     await repositories.trackFiles.save(trackFile);
 
-    const createdAt = daysAgo(
-      trackSpec.daysAgo,
-      9 + (trackSpec.durationSeconds % 5),
-    );
+    const createdAt = daysAgo(trackSpec.daysAgo, 9 + (trackSpec.durationSeconds % 5));
     const updatedAt = daysAgo(
       Math.max(trackSpec.daysAgo - 1, 0),
       14 + (trackSpec.durationSeconds % 4),
     );
-    await ensureTimestamp(
-      'tracks',
-      track.id,
-      createdAt,
-      updatedAt,
-      track.publishedAt,
-    );
+    await ensureTimestamp('tracks', track.id, createdAt, updatedAt, track.publishedAt);
 
     const fullTrack = await repositories.tracks.findOneOrFail({
       where: { id: track.id },
@@ -694,11 +650,7 @@ const clearSeedActivity = async (
     .where('userId IN (:...userIds)', { userIds: seedScope.userIds })
     .orWhere('trackId IN (:...trackIds)', { trackIds: seedScope.trackIds })
     .execute();
-  await deleteByIds(
-    repositories.playlistTracks,
-    'playlistId',
-    seedScope.playlistIds,
-  );
+  await deleteByIds(repositories.playlistTracks, 'playlistId', seedScope.playlistIds);
   await repositories.playEvents
     .createQueryBuilder()
     .delete()
@@ -747,9 +699,7 @@ const seedPlaylistTracks = async (
 
     playlist.trackCount = entries.length;
     playlist.totalDuration = entries.reduce(
-      (sum, entry) =>
-        sum +
-        (trackMap.get(playlistSpec.trackSlugs[entry.position])?.duration ?? 0),
+      (sum, entry) => sum + (trackMap.get(playlistSpec.trackSlugs[entry.position])?.duration ?? 0),
       0,
     );
     await playlistsRepository.save(playlist);
@@ -836,9 +786,7 @@ const seedComments = async (
       continue;
     }
 
-    const parentId = commentSpec.parentKey
-      ? (commentIds.get(commentSpec.parentKey) ?? null)
-      : null;
+    const parentId = commentSpec.parentKey ? (commentIds.get(commentSpec.parentKey) ?? null) : null;
     const saved = await commentsRepository.save(
       commentsRepository.create({
         userId: user.id,
@@ -910,14 +858,7 @@ const seedPlayEvents = async (
   playEventsRepository: Repository<PlayEventEntity>,
   listeningHistoryRepository: Repository<ListeningHistoryEntity>,
 ) => {
-  const listenerRotation = [
-    'ivy-hart',
-    'dev-patel',
-    'mia-tran',
-    'theo-cross',
-    'jules-park',
-    null,
-  ];
+  const listenerRotation = ['ivy-hart', 'dev-patel', 'mia-tran', 'theo-cross', 'jules-park', null];
 
   let offset = 4;
   for (const trackSpec of SEED_TRACKS) {
@@ -936,8 +877,7 @@ const seedPlayEvents = async (
             : 4;
 
     for (let index = 0; index < playCount; index += 1) {
-      const listenerUsername =
-        listenerRotation[(offset + index) % listenerRotation.length];
+      const listenerUsername = listenerRotation[(offset + index) % listenerRotation.length];
       const listener = listenerUsername ? userMap.get(listenerUsername) : null;
       const playedAt = hoursAgo(offset + index * 3);
 
@@ -1032,9 +972,7 @@ const seedAuditLogs = async (
     );
   }
 
-  for (const reportSpec of SEED_REPORTS.filter(
-    (report) => report.resolvedByAdmin,
-  )) {
+  for (const reportSpec of SEED_REPORTS.filter((report) => report.resolvedByAdmin)) {
     await auditLogsRepository.save(
       auditLogsRepository.create({
         adminId: adminUser.id,
@@ -1107,10 +1045,7 @@ const recalculateCounters = async (
       order: { position: 'ASC' },
     });
     playlist.trackCount = entries.length;
-    playlist.totalDuration = entries.reduce(
-      (sum, entry) => sum + (entry.track?.duration ?? 0),
-      0,
-    );
+    playlist.totalDuration = entries.reduce((sum, entry) => sum + (entry.track?.duration ?? 0), 0);
     await repositories.playlists.save(playlist);
   }
 };

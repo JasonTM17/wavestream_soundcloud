@@ -9,12 +9,7 @@ import { PlaylistsService } from 'src/modules/playlists/playlists.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PlaylistEntity,
-      PlaylistTrackEntity,
-      TrackEntity,
-      UserEntity,
-    ]),
+    TypeOrmModule.forFeature([PlaylistEntity, PlaylistTrackEntity, TrackEntity, UserEntity]),
   ],
   controllers: [PlaylistsController],
   providers: [PlaylistsService],

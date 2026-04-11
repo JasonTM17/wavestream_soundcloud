@@ -1,13 +1,6 @@
 import { TrackPrivacy, TrackStatus } from '@wavestream/shared';
 import { Transform } from 'class-transformer';
-import {
-  IsBoolean,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 const toBoolean = ({ value }: { value: unknown }) =>
   value === true || value === 'true' || value === '1';
