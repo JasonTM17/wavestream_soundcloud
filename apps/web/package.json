@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm exec next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "node ./scripts/free-playwright-port.mjs && node ./scripts/ensure-api-stack.mjs && pnpm exec next build && node ./scripts/prepare-playwright-server.mjs && pnpm exec playwright test"
   },
