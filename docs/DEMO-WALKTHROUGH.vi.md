@@ -2,7 +2,7 @@
 
 [English](./DEMO-WALKTHROUGH.md) | Tiếng Việt
 
-Đây là một kịch bản demo ngắn gọn trong 5 đến 10 phút, phù hợp cho buổi walkthrough portfolio.
+Đây là kịch bản demo ngắn gọn trong khoảng 5 đến 10 phút mà bạn có thể dùng cho portfolio walkthrough.
 
 ## Trước Khi Bắt Đầu
 
@@ -15,24 +15,24 @@
 
 ## Luồng Demo
 
-1. Bắt đầu ở landing page và chỉ ra các rail discovery công khai, featured artists và playlists.
-2. Đăng nhập bằng tài khoản creator và cho thấy session vẫn còn khi chuyển qua app shell với sticky player và navigation dành cho creator.
-3. Mở trang track, phát audio, rồi chỉ ra queue, progress bar, like, repost, comment và add-to-playlist.
-4. Vào trang library để show phần summary của creator dashboard, listening history và các playlist do mình sở hữu.
-5. Mở một playlist và minh họa các quyền edit, reorder, remove-track và delete của owner.
-6. Chuyển sang tài khoản listener và cho thấy public browsing vẫn hoạt động, trong khi các khu vực chỉ dành cho creator vẫn bị bảo vệ.
-7. Đăng nhập bằng tài khoản admin và mở moderation queue để show report previews, target labels và deep links.
-8. Mở Mailpit và show luồng reset mật khẩu chạy end-to-end.
+1. Bắt đầu từ landing page và giới thiệu các rail discovery công khai, featured artists và playlist.
+2. Đăng nhập bằng tài khoản creator và cho thấy session được giữ trong app shell cùng sticky player và điều hướng dành cho creator.
+3. Mở một trang track, phát audio và chỉ ra queue, progress bar, các thao tác like, repost, comment và add-to-playlist.
+4. Vào trang library để giới thiệu phần tóm tắt creator dashboard, listening history và owned playlists.
+5. Mở một playlist và demo các thao tác edit, reorder, remove-track và delete dành cho owner.
+6. Chuyển sang tài khoản listener và cho thấy public browsing vẫn hoạt động trong khi các khu vực chỉ dành cho creator vẫn được bảo vệ.
+7. Đăng nhập bằng tài khoản admin và mở moderation queue để xem report previews, target labels và deep links.
+8. Mở Mailpit và trình bày luồng email reset mật khẩu chạy end to end.
 
 ## Các Điểm Nên Nhấn Mạnh
 
-- Sản phẩm được xây như một monorepo thật, không phải mock frontend.
-- Audio playback an toàn khi chuyển route và được giữ bằng persistent player state.
-- Auth dùng refresh-cookie bootstrap nên trải nghiệm giống một app thật.
-- Media upload, playlist và moderation đều map sang các flow backend thật.
+- Sản phẩm được xây dựng như một monorepo thật, không phải mock frontend.
+- Audio playback an toàn khi chuyển route và được giữ bởi persistent player state.
+- Auth dùng refresh-cookie bootstrap để UI cho cảm giác như một app session thực tế.
+- Media upload, playlist và moderation actions đều đi qua backend flow thật.
 
-## Câu Kết
+## Câu Kết Gợi Ý
 
-Nếu cần một câu kết ngắn, có thể dùng:
+Nếu bạn muốn một câu kết ngắn gọn, có thể dùng:
 
-> WaveStream là một demo nền tảng âm nhạc theo hướng production, có auth thật, storage thật, playback thật, playlist thật, moderation thật và triển khai local bằng Docker.
+> WaveStream là một bản demo nền tảng âm nhạc theo hướng production, có auth thật, storage, playback, playlist, moderation và local deployment theo hướng Docker-first.

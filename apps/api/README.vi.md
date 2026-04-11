@@ -4,7 +4,7 @@
 
 WaveStream API là backend NestJS cho demo streaming nhạc. Package này cung cấp các endpoint cho auth, tracks, playlists, discovery, notifications, analytics và moderation.
 
-## Bắt đầu nhanh
+## Bắt Đầu Nhanh
 
 ```bash
 pnpm install
@@ -34,7 +34,7 @@ pnpm seed
 - `src/database/` giữ cấu hình TypeORM, entities, migrations và entrypoint cho seed.
 - `test/` chứa integration tests của API và phần thiết lập end-to-end.
 
-## Ghi chú
+## Ghi Chú
 
 - Cần cấu hình môi trường và các service ở cấp repo trong `docker-compose.yml`.
 - Khi server chạy, bạn có thể kiểm tra health và API docs từ service đang hoạt động.

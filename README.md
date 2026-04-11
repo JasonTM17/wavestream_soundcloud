@@ -1,8 +1,11 @@
 # WaveStream
 
+[![CI](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml)
+[![CD](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml)
+
 English | [Tiếng Việt](./README.vi.md)
 
-WaveStream is a portfolio-grade music streaming platform built as a pnpm monorepo. It combines a Next.js app router frontend, a NestJS API, PostgreSQL, Redis, MinIO, and Mailpit into a Docker-first local stack that feels close to a real product rather than a starter template.
+WaveStream is a portfolio-grade music streaming platform built as a pnpm monorepo. It combines a Next.js App Router frontend, a NestJS API, PostgreSQL, Redis, MinIO, and Mailpit into a Docker-first local stack that feels close to a real product rather than a starter template.
 
 ## Portfolio Note
 
@@ -57,6 +60,7 @@ pnpm test
 pnpm test:e2e
 pnpm db:migrate
 pnpm db:seed
+pnpm smoke:docker
 ```
 
 ## Docker Workflow
@@ -77,6 +81,14 @@ The canonical environment template is `.env.example`. The main groups are:
 - `ADMIN_*` for the seeded admin account.
 - `FRONTEND_URL`, `NEXT_PUBLIC_API_URL`, and `INTERNAL_API_URL` for web/API routing.
 
+## CI/CD
+
+- CI validates install, lint, typecheck, test, build, Playwright end-to-end coverage, and the Docker smoke path from `.github/workflows/ci.yml`.
+- CD publishes container images to GitHub Container Registry from `.github/workflows/cd.yml`.
+- Canonical image names:
+  - `ghcr.io/jasontm17/wavestream-web`
+  - `ghcr.io/jasontm17/wavestream-api`
+
 ## Suggested Demo Path
 
 1. Open the landing page and point out the public discovery rails.
@@ -88,7 +100,7 @@ The canonical environment template is `.env.example`. The main groups are:
 
 ## Further Reading
 
-- [Deployment guide](docs/DEPLOYMENT.md)
-- [Deployment guide - Vietnamese](docs/DEPLOYMENT.vi.md)
-- [Demo walkthrough](docs/DEMO-WALKTHROUGH.md)
-- [Demo walkthrough - Vietnamese](docs/DEMO-WALKTHROUGH.vi.md)
+- [Deployment guide](./docs/DEPLOYMENT.md)
+- [Deployment guide - Vietnamese](./docs/DEPLOYMENT.vi.md)
+- [Demo walkthrough](./docs/DEMO-WALKTHROUGH.md)
+- [Demo walkthrough - Vietnamese](./docs/DEMO-WALKTHROUGH.vi.md)

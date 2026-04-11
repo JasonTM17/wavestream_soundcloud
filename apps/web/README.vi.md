@@ -4,7 +4,7 @@
 
 WaveStream Web là frontend Next.js cho demo. Package này hiển thị landing page, auth, discovery, track detail, playlist, công cụ creator và shell player cố định.
 
-## Bắt đầu nhanh
+## Bắt Đầu Nhanh
 
 ```bash
 pnpm install
@@ -32,7 +32,7 @@ pnpm test:e2e
 - `lib/` chứa API client, runtime auth/session, query helpers và tiện ích frontend dùng chung.
 - `e2e/` cùng các file `vitest.*` bao phủ kiểm thử trình duyệt và kiểm thử component.
 
-## Ghi chú
+## Ghi Chú
 
 - Ứng dụng cần API và các service local từ repo gốc đang chạy.
 - `pnpm test:e2e` sẽ build ứng dụng trước khi chạy Playwright.
