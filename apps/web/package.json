@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "node ./scripts/free-playwright-port.mjs && pnpm build && node ./scripts/prepare-playwright-server.mjs && playwright test"
+    "test:e2e": "node ./scripts/free-playwright-port.mjs && node ./scripts/ensure-api-stack.mjs && pnpm exec next build && node ./scripts/prepare-playwright-server.mjs && pnpm exec playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

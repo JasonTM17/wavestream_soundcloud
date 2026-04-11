@@ -6,11 +6,19 @@ test("renders the marketing landing shell with public navigation", async ({ page
   await expect(page.getByRole("link", { name: "Discover", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Start free", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore discovery" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Create your account" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Join WaveStream" })).toBeVisible();
   await expect(page.getByRole("button", { name: /change theme/i })).toBeVisible();
 });
 
 test("switches the shell theme between light and dark modes", async ({ page }) => {
   await page.goto("/");
+
+  const startFree = page.getByRole("link", { name: "Start free", exact: true });
+  const exploreDiscovery = page.getByRole("link", { name: "Explore discovery" });
+  const createAccount = page.getByRole("link", { name: "Create your account" });
+  const joinWaveStream = page.getByRole("link", { name: "Join WaveStream" });
 
   const themeToggle = page.getByRole("button", { name: /change theme/i }).first();
   const lightBackground = await page.locator("html").evaluate((element) =>
@@ -21,6 +29,10 @@ test("switches the shell theme between light and dark modes", async ({ page }) =
   await page.getByRole("menuitem", { name: "Dark" }).click();
 
   await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(startFree).toBeVisible();
+  await expect(exploreDiscovery).toBeVisible();
+  await expect(createAccount).toBeVisible();
+  await expect(joinWaveStream).toBeVisible();
 
   const darkBackground = await page.locator("html").evaluate((element) =>
     getComputedStyle(element).getPropertyValue("--background").trim(),
@@ -31,6 +43,10 @@ test("switches the shell theme between light and dark modes", async ({ page }) =
   await page.getByRole("menuitem", { name: "Light" }).click();
 
   await expect(page.locator("html")).not.toHaveClass(/dark/);
+  await expect(startFree).toBeVisible();
+  await expect(exploreDiscovery).toBeVisible();
+  await expect(createAccount).toBeVisible();
+  await expect(joinWaveStream).toBeVisible();
 });
 
 test("shows client-side validation feedback on the sign-up form", async ({ page }) => {

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const port = process.env.PLAYWRIGHT_PORT ?? "3101";
+const protectedPids = new Set([String(process.pid), String(process.ppid)]);
 
 function run(command) {
   try {
@@ -17,7 +18,7 @@ function run(command) {
 
 function killPids(pids) {
   for (const pid of pids) {
-    if (!pid) {
+    if (!pid || protectedPids.has(String(pid))) {
       continue;
     }
 
@@ -32,7 +33,7 @@ function killPids(pids) {
 function killLingeringAppProcesses() {
   if (process.platform === "win32") {
     const output = run(
-      'powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { ($_.Name -in @(\'node.exe\', \'cmd.exe\')) -and $_.CommandLine -match \'next build|next dev --hostname 127\\\\.0\\\\.0\\\\.1 --port 3101|next start --hostname 127\\\\.0\\\\.0\\\\.1 --port 3101|\\\\.next/standalone/apps/web/server\\\\.js|node server\\\\.js|@playwright\\\\\\\\test\\\\\\\\cli\\\\.js|pnpm\\\\.cjs --filter web test:e2e\' } | Select-Object -ExpandProperty ProcessId"',
+      'powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq \'node.exe\' -and $_.CommandLine -match \'next build|next dev --hostname 127\\\\.0\\\\.0\\\\.1 --port 3101|next start --hostname 127\\\\.0\\\\.0\\\\.1 --port 3101|\\\\.next/standalone/apps/web/server\\\\.js|node server\\\\.js|@playwright\\\\\\\\test\\\\\\\\cli\\\\.js\' } | Select-Object -ExpandProperty ProcessId"',
     );
     killPids(output.split(/\r?\n/).filter(Boolean));
     return;
