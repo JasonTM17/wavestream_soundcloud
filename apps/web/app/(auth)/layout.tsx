@@ -45,10 +45,23 @@ export default function AuthLayout({
                 </p>
               </div>
 
-              <p className="text-sm text-white/55">
-                WaveStream is an original product concept. No SoundCloud branding, assets, or copy
-                are used here.
-              </p>
+              <div className="space-y-3 text-sm text-white/60">
+                <p>
+                  WaveStream is an original product concept. No SoundCloud branding, assets, or
+                  copy are used here.
+                </p>
+                <p>
+                  Portfolio project by Nguyễn Sơn. Built for learning, iteration, and product
+                  exploration. Feedback is welcome at{" "}
+                  <Link
+                    href="mailto:jasonbmt06@gmail.com"
+                    className="font-medium text-white underline decoration-white/30 underline-offset-4 transition hover:text-cyan-200"
+                  >
+                    jasonbmt06@gmail.com
+                  </Link>
+                  .
+                </p>
+              </div>
             </section>
 
             <section className="flex flex-col justify-center p-4 sm:p-6 lg:p-10">

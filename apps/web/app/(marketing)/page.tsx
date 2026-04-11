@@ -345,6 +345,19 @@ export default async function LandingPage() {
             </Button>
           </div>
         </div>
+
+        <div className="mt-6 flex flex-col gap-3 rounded-[2rem] border border-border/70 bg-background/70 px-5 py-4 text-sm text-muted-foreground shadow-[0_20px_60px_-35px_rgba(10,13,25,0.35)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="font-medium text-foreground">Portfolio project by Nguyễn Sơn</p>
+            <p>
+              WaveStream is built for learning and portfolio purposes, and thoughtful feedback is
+              always welcome.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link href="mailto:jasonbmt06@gmail.com">jasonbmt06@gmail.com</Link>
+          </Button>
+        </div>
       </section>
     </main>
   );

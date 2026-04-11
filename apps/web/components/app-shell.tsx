@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 
 import { useAuthActions, useAuthSession } from "@/components/auth/auth-provider";
+import { SiteCredits } from "@/components/site-credits";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -222,7 +223,10 @@ export function AppShell({ children }: React.PropsWithChildren) {
             </div>
           </header>
 
-          <main className="space-y-6">{children}</main>
+          <main className="space-y-6">
+            {children}
+            <SiteCredits />
+          </main>
         </div>
 
         <div className="hidden xl:block">
@@ -232,7 +236,7 @@ export function AppShell({ children }: React.PropsWithChildren) {
                 <div>
                   <p className="text-sm font-semibold">Quick actions</p>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    Demo shell
+                    Fast access
                   </p>
                 </div>
                 <Sparkles className="h-5 w-5 text-primary" />
