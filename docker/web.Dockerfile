@@ -18,6 +18,7 @@ RUN pnpm --filter @wavestream/shared build
 FROM shared-build AS build
 COPY apps/web/ ./apps/web/
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN mkdir -p ./apps/web/public
 RUN pnpm --filter web build
 
 # Production
