@@ -7,11 +7,13 @@ dist/
 .next/
 out/
 build/
+.vercel/
 
 # Environment
 .env
 .env.local
 .env.*.local
+next-env.d.ts
 
 # IDE
 .idea/
