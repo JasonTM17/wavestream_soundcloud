@@ -10,6 +10,7 @@ import {
   ListPlus,
   MessageSquare,
   Play,
+  Pause,
   Repeat,
   ShieldAlert,
   UserPlus2,
@@ -102,8 +103,14 @@ export default function TrackPage({ params }: TrackPageProps) {
   const commentsQuery = useTrackCommentsQuery(params.slug);
   const relatedQuery = useRelatedTracksQuery(params.slug);
   const myPlaylistsQuery = useMyPlaylistsQuery();
+  const playerCurrentTrack = usePlayerStore((state) => state.currentTrack);
+  const playerIsPlaying = usePlayerStore((state) => state.isPlaying);
+  const playerIsBuffering = usePlayerStore((state) => state.isBuffering);
+  const playerProgress = usePlayerStore((state) => state.progress);
+  const playerDuration = usePlayerStore((state) => state.duration);
   const setQueue = usePlayerStore((state) => state.setQueue);
   const playTrack = usePlayerStore((state) => state.playTrack);
+  const togglePlay = usePlayerStore((state) => state.togglePlay);
   const [liked, setLiked] = React.useState(false);
   const [reposted, setReposted] = React.useState(false);
   const [following, setFollowing] = React.useState(false);
@@ -182,8 +189,25 @@ export default function TrackPage({ params }: TrackPageProps) {
   const card = toTrackCard(currentTrack);
   const queue = [card, ...relatedTracks.filter((track) => track.id !== card.id).map(toTrackCard)];
   const isOwner = session.user?.id === currentTrack.artist.id;
+  const isActiveTrack = playerCurrentTrack?.id === card.id;
+  const activeProgress = isActiveTrack ? playerProgress : 0;
+  const activeDuration = isActiveTrack ? playerDuration : (card.durationSeconds ?? currentTrack.duration);
+  const progressPercent =
+    activeDuration > 0 ? Math.min((activeProgress / activeDuration) * 100, 100) : 0;
+  const playbackStatus = isActiveTrack
+    ? playerIsBuffering
+      ? "Buffering"
+      : playerIsPlaying
+        ? "Now playing"
+        : "Paused"
+    : "Ready to play";
 
   const playNow = () => {
+    if (isActiveTrack) {
+      togglePlay();
+      return;
+    }
+
     setQueue(queue);
     playTrack(card);
   };
@@ -324,27 +348,60 @@ export default function TrackPage({ params }: TrackPageProps) {
                   <p className="text-sm text-muted-foreground">{card.artistHandle}</p>
                 </div>
                 <div className="rounded-[1.8rem] border border-border/70 bg-background/70 p-5">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    <span>Progress preview</span>
-                    <span>Live API playback shell</span>
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    <span>Live playback</span>
+                    <span>{playbackStatus}</span>
                   </div>
-                  <div className="mt-4 space-y-3">
-                    <Progress value={54} />
-                    <div className="grid grid-cols-4 gap-2">
-                      {Array.from({ length: 18 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="h-12 rounded-full bg-gradient-to-b from-primary/70 via-primary/20 to-primary/5"
-                          style={{ opacity: index % 3 === 0 ? 1 : 0.55 }}
-                        />
-                      ))}
+                  <div className="mt-4 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {isActiveTrack ? "Synced to the global player" : "Ready to join the queue"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isActiveTrack
+                            ? "This track follows the current runtime session across route changes."
+                            : "Start playback here and the mini player will pick it up instantly."}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          {formatDuration(activeProgress)} / {formatDuration(activeDuration)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {Math.round(progressPercent)}% complete
+                        </p>
+                      </div>
+                    </div>
+                    <Progress value={progressPercent} aria-label="Track playback progress" />
+                    <div className="grid grid-cols-4 gap-2" aria-hidden="true">
+                      {Array.from({ length: 18 }).map((_, index) => {
+                        const barHeight = 28 + ((index * 7) % 28);
+                        const isAheadOfProgress = index / 17 <= progressPercent / 100;
+
+                        return (
+                          <div
+                            key={index}
+                            className="rounded-full bg-gradient-to-b from-primary/80 via-primary/40 to-primary/10 transition-all"
+                            style={{
+                              height: `${barHeight}px`,
+                              opacity: isAheadOfProgress ? 1 : 0.42,
+                              transform: isActiveTrack && playerIsPlaying ? "scaleY(1)" : "scaleY(0.92)",
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={playNow}>
-                    <Play className="h-4 w-4" />
-                    Play
+                    {isActiveTrack && playerIsPlaying ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
+                    {isActiveTrack && playerIsPlaying ? "Pause" : "Play"}
                   </Button>
                   <Button
                     variant="outline"
