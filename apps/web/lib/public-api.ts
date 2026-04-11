@@ -5,9 +5,7 @@ import type {
   TrackSummary,
   UserSummary,
 } from "@/lib/wavestream-api";
-
-const PUBLIC_API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
+import { SERVER_API_URL } from "@/lib/server-api";
 
 type DiscoveryPayload = Partial<DiscoveryResults> | { data?: Partial<DiscoveryResults> };
 type GenresPayload = GenreSummary[] | { data?: GenreSummary[] };
@@ -31,7 +29,7 @@ const asArray = <T,>(payload: unknown, key?: string) => {
 
 async function fetchPublicJson(path: string) {
   try {
-    const response = await fetch(`${PUBLIC_API_URL}${path}`, {
+    const response = await fetch(`${SERVER_API_URL}${path}`, {
       method: "GET",
       cache: "no-store",
       headers: {

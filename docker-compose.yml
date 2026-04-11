@@ -172,6 +172,7 @@ services:
       - '${WEB_PORT:-3000}:3000'
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-4000}
+      INTERNAL_API_URL: http://api:4000
       NEXT_PUBLIC_MINIO_URL: http://localhost:${MINIO_API_PORT:-9000}
     depends_on:
       api:

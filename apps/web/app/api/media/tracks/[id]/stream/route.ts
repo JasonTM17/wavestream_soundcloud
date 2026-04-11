@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
+import { SERVER_API_URL } from "@/lib/server-api";
 
 const MEDIA_HEADERS = [
   "accept-ranges",
@@ -98,7 +96,7 @@ async function fetchStream(id: string, range: string | null, accessToken?: strin
     headers.authorization = `Bearer ${accessToken}`;
   }
 
-  return fetch(`${API_URL}/api/tracks/${encodeURIComponent(id)}/stream`, {
+  return fetch(`${SERVER_API_URL}/api/tracks/${encodeURIComponent(id)}/stream`, {
     method: "GET",
     headers,
     cache: "no-store",
@@ -106,7 +104,7 @@ async function fetchStream(id: string, range: string | null, accessToken?: strin
 }
 
 async function refreshAccessToken(refreshToken: string) {
-  const response = await fetch(`${API_URL}/api/auth/refresh`, {
+  const response = await fetch(`${SERVER_API_URL}/api/auth/refresh`, {
     method: "POST",
     cache: "no-store",
     headers: {
