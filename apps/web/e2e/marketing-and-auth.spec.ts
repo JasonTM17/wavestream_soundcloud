@@ -16,7 +16,7 @@ test('renders the marketing landing page and opens the sign-in route', async ({
     ),
   ).toBeVisible();
   await expect(page.getByText('Original product demo inspired by modern creator audio platforms.')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Discover' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Discover', exact: true })).toBeVisible();
   const signInLink = page.getByRole('link', { name: 'Sign in', exact: true });
   await expect(signInLink).toBeVisible();
 
