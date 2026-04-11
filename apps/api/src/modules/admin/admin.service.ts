@@ -2,6 +2,7 @@ import {
   AdminActionType,
   NotificationType,
   ReportStatus,
+  ReportableType,
   TrackStatus,
   UserRole,
 } from '@wavestream/shared';
@@ -12,7 +13,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   createPaginationMeta,
   normalizePagination,
@@ -28,6 +29,7 @@ import { NotificationsService } from 'src/modules/notifications/notifications.se
 import { ModerationNoteDto } from 'src/modules/admin/dto/moderation-note.dto';
 import { ResolveReportDto } from 'src/modules/admin/dto/resolve-report.dto';
 import { UpdateUserRoleDto } from 'src/modules/admin/dto/update-user-role.dto';
+import { buildAdminReportTargetPreview } from 'src/modules/admin/admin-report-target.mapper';
 
 @Injectable()
 export class AdminService {
@@ -199,11 +201,55 @@ export class AdminService {
       skip: pagination.skip,
     });
 
+    const trackIds = new Set<string>();
+    const playlistIds = new Set<string>();
+    const userIds = new Set<string>();
+    const commentIds = new Set<string>();
+
+    for (const report of items) {
+      if (report.reportableType === ReportableType.TRACK) {
+        trackIds.add(report.reportableId);
+      } else if (report.reportableType === ReportableType.PLAYLIST) {
+        playlistIds.add(report.reportableId);
+      } else if (report.reportableType === ReportableType.USER) {
+        userIds.add(report.reportableId);
+      } else if (report.reportableType === ReportableType.COMMENT) {
+        commentIds.add(report.reportableId);
+      }
+    }
+
+    const comments = await this.findCommentsByIds(commentIds);
+    for (const comment of comments) {
+      trackIds.add(comment.trackId);
+    }
+
+    const [tracks, playlists, users] = await Promise.all([
+      this.findTracksByIds(trackIds),
+      this.findPlaylistsByIds(playlistIds),
+      this.findUsersByIds(userIds),
+    ]);
+
+    const trackMap = new Map(tracks.map((track) => [track.id, track]));
+    const playlistMap = new Map(
+      playlists.map((playlist) => [playlist.id, playlist]),
+    );
+    const userMap = new Map(users.map((user) => [user.id, user]));
+    const commentMap = new Map(
+      comments.map((comment) => [comment.id, comment]),
+    );
+
     return {
       data: items.map((report) => ({
         id: report.id,
         reportableType: report.reportableType,
         reportableId: report.reportableId,
+        target: buildAdminReportTargetPreview({
+          report,
+          tracks: trackMap,
+          playlists: playlistMap,
+          users: userMap,
+          comments: commentMap,
+        }),
         reason: report.reason,
         details: report.details,
         status: report.status,
@@ -214,6 +260,53 @@ export class AdminService {
       })),
       meta: createPaginationMeta(total, pagination.page, pagination.limit),
     };
+  }
+
+  private async findTracksByIds(ids: Set<string>) {
+    if (ids.size === 0) {
+      return [];
+    }
+
+    return this.tracksRepository.find({
+      where: { id: In([...ids]) },
+      relations: { artist: { profile: true } },
+      withDeleted: true,
+    });
+  }
+
+  private async findPlaylistsByIds(ids: Set<string>) {
+    if (ids.size === 0) {
+      return [];
+    }
+
+    return this.playlistsRepository.find({
+      where: { id: In([...ids]) },
+      relations: { owner: { profile: true } },
+      withDeleted: true,
+    });
+  }
+
+  private async findUsersByIds(ids: Set<string>) {
+    if (ids.size === 0) {
+      return [];
+    }
+
+    return this.usersRepository.find({
+      where: { id: In([...ids]) },
+      relations: { profile: true },
+      withDeleted: true,
+    });
+  }
+
+  private async findCommentsByIds(ids: Set<string>) {
+    if (ids.size === 0) {
+      return [];
+    }
+
+    return this.commentsRepository.find({
+      where: { id: In([...ids]) },
+      withDeleted: true,
+    });
   }
 
   async listAuditLogs(page?: number, limit?: number) {

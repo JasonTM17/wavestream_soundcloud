@@ -251,6 +251,13 @@ export type AdminCommentSummary = {
   createdAt: string;
 };
 
+export type AdminReportTargetSummary = {
+  label: string;
+  secondaryLabel?: string | null;
+  href?: string | null;
+  status?: string | null;
+};
+
 export type AdminReportSummary = {
   id: string;
   reportableType: ReportableType;
@@ -260,6 +267,7 @@ export type AdminReportSummary = {
   status: ReportStatus;
   reporter: string;
   resolvedBy: string | null;
+  target?: AdminReportTargetSummary | null;
   createdAt: string;
   resolvedAt: string | null;
 };
@@ -475,6 +483,9 @@ export const resolveMediaUrl = (value?: string | null) => {
   return `${API_URL}/${value}`;
 };
 
+export const getTrackStreamProxyUrl = (trackId: string) =>
+  `/api/media/tracks/${encodeURIComponent(trackId)}/stream`;
+
 export const toTrackCard = (track: TrackSummary): TrackCard => ({
   id: track.id,
   slug: track.slug,
@@ -488,7 +499,7 @@ export const toTrackCard = (track: TrackSummary): TrackCard => ({
   artistHandle: `@${track.artist.username}`,
   artist: track.artist,
   genreLabel: track.genre?.name ?? "Uncategorized",
-  streamUrl: resolveMediaUrl(track.file?.streamUrl ?? `/api/tracks/${track.id}/stream`) ?? "",
+  streamUrl: getTrackStreamProxyUrl(track.id),
   downloadUrl: resolveMediaUrl(track.file?.downloadUrl ?? null),
   likeCount: track.likeCount ?? 0,
   repostCount: track.repostCount ?? 0,
