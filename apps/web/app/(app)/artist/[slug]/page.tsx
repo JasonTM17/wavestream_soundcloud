@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ReportableType } from "@wavestream/shared";
 import { ArrowLeft, CirclePlus, UserPlus2 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,14 +19,10 @@ import { formatCompactNumber, toPlaylistCard, toTrackCard } from "@/lib/wavestre
 import {
   useArtistProfileQuery,
   useCreateReportMutation,
-  usePlaylistsQuery,
+  usePublicPlaylistsQuery,
   useToggleFollowMutation,
   useTracksQuery,
 } from "@/lib/wavestream-queries";
-
-type ArtistPageProps = {
-  params: { slug: string };
-};
 
 export function buildArtistStats(input: {
   followerCount: number;
@@ -56,13 +52,15 @@ function ArtistSkeleton() {
   );
 }
 
-export default function ArtistPage({ params }: ArtistPageProps) {
+export default function ArtistPage() {
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
   const session = useAuthSession();
-  const profile = useArtistProfileQuery(params.slug);
+  const artistSlug = typeof params.slug === "string" ? params.slug : "";
+  const profile = useArtistProfileQuery(artistSlug);
   const artist = profile.data?.user;
-  const tracksQuery = useTracksQuery({ artistUsername: params.slug, limit: 12 });
-  const playlistsQuery = usePlaylistsQuery(artist?.id);
+  const tracksQuery = useTracksQuery({ artistUsername: artistSlug, limit: 12 });
+  const playlistsQuery = usePublicPlaylistsQuery(artist?.id);
   const setQueue = usePlayerStore((state) => state.setQueue);
   const playTrack = usePlayerStore((state) => state.playTrack);
   const [following, setFollowing] = React.useState(false);
@@ -73,6 +71,10 @@ export default function ArtistPage({ params }: ArtistPageProps) {
   React.useEffect(() => {
     setFollowing(Boolean(profile.data?.isFollowing));
   }, [profile.data?.isFollowing]);
+
+  if (!artistSlug) {
+    return <ArtistSkeleton />;
+  }
 
   if (profile.isLoading) {
     return <ArtistSkeleton />;
@@ -124,7 +126,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
     }
 
     if (!session.isAuthenticated) {
-      router.push(`/sign-in?next=${encodeURIComponent(`/artist/${params.slug}`)}`);
+      router.push(`/sign-in?next=${encodeURIComponent(`/artist/${artistSlug}`)}`);
       return;
     }
 
@@ -166,7 +168,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
             </div>
             <h1 className="text-4xl font-semibold tracking-tight">{artist.displayName}</h1>
             <p className="max-w-2xl text-muted-foreground">
-              {artist.bio ?? "Creator profile data is streamed live from the backend."}
+              {artist.bio ?? "Public creator profile on WaveStream."}
             </p>
           </div>
           <div className="flex items-start gap-3 pt-8">
@@ -202,10 +204,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
         <Card>
           <CardHeader>
             <CardTitle>Uploaded tracks</CardTitle>
-            <CardDescription>
-              This list is backed by the live tracks endpoint and remains empty if no tracks are
-              available yet.
-            </CardDescription>
+            <CardDescription>Public releases from this creator&apos;s live catalog.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {tracksQuery.isLoading ? (
@@ -250,7 +249,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
                 <CardContent className="space-y-2 p-6">
                   <p className="font-medium">No tracks yet</p>
                   <p className="text-sm text-muted-foreground">
-                    Creator uploads will show up here once the creator feed is populated.
+                    No public tracks are live on this profile yet.
                   </p>
                 </CardContent>
               </Card>
@@ -260,10 +259,10 @@ export default function ArtistPage({ params }: ArtistPageProps) {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Profile stats</CardTitle>
-              <CardDescription>Listener, repost, and activity summary.</CardDescription>
-            </CardHeader>
+          <CardHeader>
+            <CardTitle>Profile stats</CardTitle>
+            <CardDescription>Aggregated from the public catalog loaded on this page.</CardDescription>
+          </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {artistStats.map(([label, value]) => (
@@ -279,8 +278,8 @@ export default function ArtistPage({ params }: ArtistPageProps) {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground">
-                These stats are aggregated from the tracks and playlists already loaded on the
-                page, so the profile reads like a live creator surface with current catalog data.
+                Followers come from the profile itself, while plays, likes, tracks, and playlists
+                reflect the public catalog shown here.
               </p>
             </CardContent>
           </Card>
@@ -311,7 +310,7 @@ export default function ArtistPage({ params }: ArtistPageProps) {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No playlists were returned for this creator.
+                  No public playlists are live for this creator yet.
                 </p>
               )}
             </CardContent>

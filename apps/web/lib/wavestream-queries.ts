@@ -352,7 +352,9 @@ export function useArtistProfileQuery(username: string) {
     queryKey: ["artist", username],
     queryFn: async (): Promise<{ user: UserSummary; isFollowing?: boolean }> =>
       getUserProfile(username),
+    enabled: Boolean(username.trim()),
     staleTime: 20_000,
+    retry: false,
   });
 }
 
@@ -375,6 +377,25 @@ export function useCreatorDashboardQuery() {
     staleTime: 20_000,
     retry: false,
     enabled: isAuthenticated && isCreator,
+  });
+}
+
+export function usePublicPlaylistsQuery(ownerId?: string) {
+  return useQuery({
+    queryKey: ["playlists", "public", ownerId ?? null],
+    queryFn: async (): Promise<PlaylistSummary[]> => {
+      try {
+        return await getPlaylists(ownerId ? { ownerId } : {});
+      } catch (error) {
+        if (canIgnoreApiError(error)) {
+          return [];
+        }
+        throw error;
+      }
+    },
+    enabled: Boolean(ownerId),
+    staleTime: 20_000,
+    retry: false,
   });
 }
 

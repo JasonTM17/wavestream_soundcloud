@@ -153,7 +153,9 @@ export function LandingDiscoveryTabs({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{artist.displayName}</p>
-                <p className="truncate text-sm text-muted-foreground">@{artist.username}</p>
+                <p className="truncate text-sm text-muted-foreground">
+                  @{artist.username} | {formatCompactNumber(artist.followerCount ?? 0)} followers
+                </p>
               </div>
               <Badge variant="soft">{formatCompactNumber(artist.trackCount ?? 0)} tracks</Badge>
             </Link>

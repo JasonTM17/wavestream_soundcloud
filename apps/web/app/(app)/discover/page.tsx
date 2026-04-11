@@ -1,20 +1,17 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Play } from "lucide-react";
+import { ArrowUpRight, Headphones, Play, Upload } from "lucide-react";
 
+import { useAuthSession } from "@/lib/auth-store";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePlayerStore } from "@/lib/player-store";
-import {
-  formatCompactNumber,
-  toPlaylistCard,
-  toTrackCard,
-} from "@/lib/wavestream-api";
+import { formatCompactNumber, toPlaylistCard, toTrackCard } from "@/lib/wavestream-api";
 import { useDiscoveryQuery, useGenresQuery } from "@/lib/wavestream-queries";
 
 function getTrackTint(index: number) {
@@ -26,6 +23,24 @@ function getTrackTint(index: number) {
   ];
 
   return palettes[index % palettes.length];
+}
+
+function DiscoveryMetricCard({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="flex h-full flex-col rounded-3xl border border-border/70 bg-background/70 p-4">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+      <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
+    </div>
+  );
 }
 
 function SectionSkeleton() {
@@ -48,6 +63,7 @@ function SectionSkeleton() {
 }
 
 export default function DiscoverPage() {
+  const session = useAuthSession();
   const discovery = useDiscoveryQuery();
   const genres = useGenresQuery();
   const setQueue = usePlayerStore((state) => state.setQueue);
@@ -57,6 +73,69 @@ export default function DiscoverPage() {
   const featuredArtists = discovery.data?.featuredArtists ?? [];
   const featuredPlaylists = discovery.data?.featuredPlaylists ?? [];
   const genreItems = genres.data ?? discovery.data?.genres ?? [];
+
+  const creatorCta = React.useMemo(() => {
+    if (session.isBooting) {
+      return {
+        href: "/discover",
+        label: "Checking creator access",
+        description: "Restoring your session before opening creator tools.",
+        disabled: true,
+      };
+    }
+
+    if (!session.isAuthenticated) {
+      return {
+        href: `/sign-in?next=${encodeURIComponent("/creator")}`,
+        label: "Sign in for creator tools",
+        description: "Upload tracks, review analytics, and manage releases after sign-in.",
+        disabled: false,
+      };
+    }
+
+    if (session.user?.role === "creator" || session.user?.role === "admin") {
+      return {
+        href: "/creator",
+        label: "Open creator dashboard",
+        description: "Manage uploads, playlists, and audience activity from one workspace.",
+        disabled: false,
+      };
+    }
+
+    return {
+      href: "/library",
+      label: "Open your library",
+      description: "Listener accounts can keep exploring, saving tracks, and building playlists.",
+      disabled: false,
+    };
+  }, [session.isAuthenticated, session.isBooting, session.user?.role]);
+
+  const feedSnapshot = React.useMemo(
+    () => [
+      {
+        label: "Trending tracks",
+        value: formatCompactNumber(trendingTracks.length),
+        detail: trendingTracks.length
+          ? "Playable public tracks ranked from the live discovery feed."
+          : "No public trending tracks are available right now.",
+      },
+      {
+        label: "Featured playlists",
+        value: formatCompactNumber(featuredPlaylists.length),
+        detail: featuredPlaylists.length
+          ? "Public playlists that open directly into real catalog pages."
+          : "No public playlists are highlighted in the current discovery response.",
+      },
+      {
+        label: "Featured artists",
+        value: formatCompactNumber(featuredArtists.length),
+        detail: featuredArtists.length
+          ? "Verified creator profiles from discovery, not synthesized fallback cards."
+          : "No verified public creator profiles are being highlighted right now.",
+      },
+    ],
+    [featuredArtists.length, featuredPlaylists.length, trendingTracks.length],
+  );
 
   const startPlaying = () => {
     if (!trendingTracks.length) {
@@ -70,8 +149,8 @@ export default function DiscoverPage() {
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-        <Card className="relative overflow-hidden">
+      <section className="grid items-stretch gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
+        <Card className="relative flex h-full flex-col overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(38,189,255,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(239,197,90,0.12),transparent_26%)]" />
           <CardHeader className="relative space-y-4">
             <Badge variant="soft" className="w-fit">
@@ -85,35 +164,51 @@ export default function DiscoverPage() {
               uploads, and public playlists from the seeded catalog.
             </CardDescription>
           </CardHeader>
-          <CardContent className="relative flex flex-wrap items-center gap-3">
-            <Button onClick={startPlaying} disabled={!trendingTracks.length}>
-              Start playing
-              <Play className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/creator">Open creator dashboard</Link>
-            </Button>
+          <CardContent className="relative mt-auto space-y-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Button onClick={startPlaying} disabled={!trendingTracks.length}>
+                Start playing
+                <Play className="h-4 w-4" />
+              </Button>
+              {creatorCta.disabled ? (
+                <Button variant="outline" disabled>
+                  <Upload className="h-4 w-4" />
+                  {creatorCta.label}
+                </Button>
+              ) : (
+                <Button variant="outline" asChild>
+                  <Link href={creatorCta.href}>
+                    <Upload className="h-4 w-4" />
+                    {creatorCta.label}
+                  </Link>
+                </Button>
+              )}
+            </div>
+            <div className="flex items-start gap-3 rounded-3xl border border-border/70 bg-background/65 p-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-600 text-white shadow-sm">
+                <Headphones className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium">{creatorCta.label}</p>
+                <p className="text-sm text-muted-foreground">{creatorCta.description}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex h-full flex-col">
           <CardHeader>
-            <CardTitle>Listening pulse</CardTitle>
-            <CardDescription>Live discovery metrics from the backend feed.</CardDescription>
+            <CardTitle>Feed snapshot</CardTitle>
+            <CardDescription>Counts pulled directly from the current discovery response.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              ["Trending tracks", trendingTracks.length],
-              ["Featured playlists", featuredPlaylists.length],
-              ["Featured artists", featuredArtists.length],
-            ].map(([label, value], index) => (
-              <div key={label as string} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span>{label as string}</span>
-                  <span className="text-muted-foreground">{formatCompactNumber(value as number)}</span>
-                </div>
-                <Progress value={Math.min(100, ((value as number) + 1) * 20 + index * 7)} />
-              </div>
+          <CardContent className="grid flex-1 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            {feedSnapshot.map((metric) => (
+              <DiscoveryMetricCard
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+                detail={metric.detail}
+              />
             ))}
           </CardContent>
         </Card>
@@ -137,6 +232,7 @@ export default function DiscoverPage() {
                   <Link
                     key={card.id}
                     href={`/track/${card.slug}`}
+                    aria-label={`Open track ${card.title}`}
                     className="flex items-center gap-3 rounded-3xl border border-border/70 bg-background/70 p-3 transition hover:-translate-y-0.5 hover:border-primary/35"
                   >
                     <div
@@ -181,7 +277,7 @@ export default function DiscoverPage() {
           <Card>
             <CardHeader>
               <CardTitle>Featured artists</CardTitle>
-              <CardDescription>Creators surfaced from live discovery data.</CardDescription>
+              <CardDescription>Verified public creators surfaced directly from discovery.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {discovery.isLoading ? (
@@ -191,25 +287,38 @@ export default function DiscoverPage() {
                   <Link
                     key={artist.id}
                     href={`/artist/${artist.username}`}
-                    className="flex items-start gap-3 rounded-3xl border border-border/70 bg-background/70 p-3 transition hover:border-primary/35"
+                    aria-label={`Open artist ${artist.displayName}`}
+                    className="flex items-start gap-3 rounded-3xl border border-border/70 bg-background/70 p-4 transition hover:border-primary/35"
                   >
                     <Avatar className="h-12 w-12">
                       <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-sky-600 text-white">
                         {artist.displayName.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium">{artist.displayName}</p>
-                      <p className="text-sm text-muted-foreground">{artist.bio ?? "Creator profile"}</p>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{artist.displayName}</p>
+                        <span className="text-sm text-muted-foreground">@{artist.username}</span>
+                      </div>
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {artist.bio ??
+                          `${formatCompactNumber(artist.trackCount ?? 0)} public track${artist.trackCount === 1 ? "" : "s"} currently anchored to this creator profile.`}
+                      </p>
                     </div>
-                    <Badge variant="soft">{formatCompactNumber(artist.followerCount)}</Badge>
+                    <div className="shrink-0 space-y-2 text-right sm:min-w-28">
+                      <Badge variant="soft">
+                        {formatCompactNumber(artist.followerCount)} followers
+                      </Badge>
+                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                        {formatCompactNumber(artist.trackCount ?? 0)} tracks
+                      </p>
+                    </div>
                   </Link>
                 ))
               ) : (
                 <Card className="border-dashed bg-background/60">
                   <CardContent className="p-6 text-sm text-muted-foreground">
-                    No featured artists yet. Once creators publish or gain followers, their profiles
-                    will appear here.
+                    No verified public artists are highlighted in the current discovery feed.
                   </CardContent>
                 </Card>
               )}

@@ -57,6 +57,16 @@ export function AppShell({ children }: React.PropsWithChildren) {
   );
 
   const signInHref = `/sign-in?next=${encodeURIComponent(pathname)}`;
+  const creatorToolsHref = !isAuthenticated
+    ? signInHref
+    : user?.role === "creator" || user?.role === "admin"
+      ? "/creator"
+      : "/library";
+  const creatorToolsLabel = !isAuthenticated
+    ? "Sign in for creator tools"
+    : user?.role === "creator" || user?.role === "admin"
+      ? "Upload a track"
+      : "Open your library";
 
   const handleLogout = React.useCallback(() => {
     startLogoutTransition(async () => {
@@ -128,9 +138,9 @@ export function AppShell({ children }: React.PropsWithChildren) {
             <div className="rounded-[2rem] border border-border/85 bg-card/92 p-5 shadow-[0_18px_50px_-28px_rgba(10,13,25,0.42)] backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold">Featured creator</p>
+                  <p className="text-sm font-semibold">Session</p>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    Account aware
+                    Access and alerts
                   </p>
                 </div>
                 <WandSparkles className="h-5 w-5 text-primary" />
@@ -164,7 +174,7 @@ export function AppShell({ children }: React.PropsWithChildren) {
                   ) : (
                     <>
                       <p className="text-sm text-muted-foreground">
-                        Sign in to unlock your queue, notifications, and creator analytics.
+                        Sign in to sync your queue, unlock notifications, and access creator tools.
                       </p>
                       <Button
                         asChild
@@ -250,9 +260,9 @@ export function AppShell({ children }: React.PropsWithChildren) {
               </div>
               <div className="mt-4 space-y-2">
                 <Button asChild className="w-full justify-start rounded-2xl">
-                  <Link href="/creator">
+                  <Link href={creatorToolsHref}>
                     <Upload className="h-4 w-4" />
-                    {isAuthenticated ? "Upload a track" : "Creator dashboard"}
+                    {creatorToolsLabel}
                   </Link>
                 </Button>
                 {user?.role === "admin" ? (
