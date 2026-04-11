@@ -20,6 +20,8 @@ export function MiniPlayer() {
   const currentTrack = usePlayerStore((state) => state.currentTrack);
   const queue = usePlayerStore((state) => state.queue);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
+  const isBuffering = usePlayerStore((state) => state.isBuffering);
+  const error = usePlayerStore((state) => state.error);
   const volume = usePlayerStore((state) => state.volume);
   const muted = usePlayerStore((state) => state.muted);
   const playbackRate = usePlayerStore((state) => state.playbackRate);
@@ -37,6 +39,11 @@ export function MiniPlayer() {
   const setRepeat = usePlayerStore((state) => state.setRepeat);
   const setProgress = usePlayerStore((state) => state.setProgress);
   const hasTrack = Boolean(currentTrack);
+  const statusLabel = error
+    ? "Playback issue"
+    : isBuffering
+      ? "Buffering"
+      : currentTrack?.genreLabel ?? "Queue ready";
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/90 backdrop-blur-xl">
@@ -61,11 +68,18 @@ export function MiniPlayer() {
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Now playing</p>
             <div className="flex flex-wrap items-center gap-2">
               <p className="truncate font-medium">{currentTrack?.title ?? "Select a track"}</p>
-              <Badge variant="soft">{currentTrack?.genreLabel ?? "Queue ready"}</Badge>
+              <Badge variant={error ? "outline" : "soft"}>{statusLabel}</Badge>
             </div>
             <p className="truncate text-sm text-muted-foreground">
               {currentTrack?.artistName ?? "WaveStream"} | {queue.length} tracks
             </p>
+            {error ? (
+              <p className="truncate text-xs text-muted-foreground">{error}</p>
+            ) : isBuffering && hasTrack ? (
+              <p className="truncate text-xs text-muted-foreground">
+                Loading the stream and syncing metadata...
+              </p>
+            ) : null}
           </div>
         </div>
 

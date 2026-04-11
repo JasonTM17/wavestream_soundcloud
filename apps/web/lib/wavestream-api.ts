@@ -8,7 +8,7 @@ import {
   type AdminOverviewDto,
 } from "@wavestream/shared";
 
-import { ApiError, apiRequest, type RequestAuthMode } from "@/lib/api";
+import { API_URL, ApiError, apiRequest, type RequestAuthMode } from "@/lib/api";
 
 export type ApiPaginationMeta = {
   page?: number;
@@ -88,6 +88,7 @@ export type TrackCard = {
   title: string;
   description: string;
   coverUrl: string | null;
+  durationSeconds?: number;
   durationLabel: string;
   playsLabel: string;
   artistName: string;
@@ -399,6 +400,11 @@ export type DeleteTrackResult = {
   deleted: boolean;
 };
 
+export type RecordPlayInput = {
+  durationListened?: number;
+  source?: string;
+};
+
 const isObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object";
 
@@ -453,20 +459,37 @@ export const formatCompactNumber = (value?: number | null) => {
   return new Intl.NumberFormat("en", { notation: "compact" }).format(value);
 };
 
+export const resolveMediaUrl = (value?: string | null) => {
+  if (!value) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  if (value.startsWith("/")) {
+    return `${API_URL}${value}`;
+  }
+
+  return `${API_URL}/${value}`;
+};
+
 export const toTrackCard = (track: TrackSummary): TrackCard => ({
   id: track.id,
   slug: track.slug,
   title: track.title,
   description: track.description ?? "",
   coverUrl: track.coverUrl ?? null,
+  durationSeconds: track.duration ?? 0,
   durationLabel: formatDuration(track.duration),
   playsLabel: formatCompactNumber(track.playCount),
   artistName: track.artist.displayName ?? track.artist.username,
   artistHandle: `@${track.artist.username}`,
   artist: track.artist,
   genreLabel: track.genre?.name ?? "Uncategorized",
-  streamUrl: track.file?.streamUrl ?? `/api/tracks/${track.id}/stream`,
-  downloadUrl: track.file?.downloadUrl ?? null,
+  streamUrl: resolveMediaUrl(track.file?.streamUrl ?? `/api/tracks/${track.id}/stream`) ?? "",
+  downloadUrl: resolveMediaUrl(track.file?.downloadUrl ?? null),
   likeCount: track.likeCount ?? 0,
   repostCount: track.repostCount ?? 0,
   commentCount: track.commentCount ?? 0,
@@ -536,6 +559,14 @@ export async function getListeningHistory() {
     "required",
   );
   return getArrayPayload<ListeningHistoryItem>(response, "data");
+}
+
+export async function recordTrackPlay(idOrSlug: string, input: RecordPlayInput = {}) {
+  return apiRequest<{ playCount: number }>(`/api/tracks/${encodeURIComponent(idOrSlug)}/play`, {
+    method: "POST",
+    auth: "optional",
+    body: input,
+  });
 }
 
 export async function getMyUploads() {
