@@ -58,3 +58,14 @@ test("shows client-side validation feedback on the sign-up form", async ({ page 
   await expect(page.getByText("Enter a valid email address.")).toBeVisible();
   await expect(page.getByText("Password must be at least 8 characters.")).toBeVisible();
 });
+
+test("lets visitors open a track directly from the landing discovery rail", async ({ page }) => {
+  await page.goto("/");
+
+  const firstTrackLink = page.getByRole("link", { name: /open track /i }).first();
+
+  await expect(firstTrackLink).toBeVisible();
+  await firstTrackLink.click();
+
+  await expect(page).toHaveURL(/\/track\//);
+});

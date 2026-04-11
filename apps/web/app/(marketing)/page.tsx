@@ -10,7 +10,6 @@ import {
 
 import { LandingHeroPlayButton } from "@/components/marketing/landing-hero-play-button";
 import { SiteCredits } from "@/components/site-credits";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LandingDiscoveryTabs } from "@/components/marketing/landing-discovery-tabs";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getPublicLandingData } from "@/lib/public-api";
 import { formatCompactNumber, formatDuration } from "@/lib/wavestream-api";
@@ -185,116 +184,11 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            <Tabs defaultValue="trending">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="trending">Trending</TabsTrigger>
-                <TabsTrigger value="artists">Artists</TabsTrigger>
-                <TabsTrigger value="playlists">Playlists</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="trending" className="space-y-3">
-                {trendingTracks.length ? (
-                  trendingTracks.slice(0, 3).map((track) => (
-                    <div
-                      key={track.id}
-                      className="flex items-center gap-3 rounded-3xl border border-border/80 bg-background/88 p-3"
-                    >
-                      <div
-                        className="h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-500 via-sky-500 to-indigo-500"
-                        style={
-                          track.coverUrl
-                            ? {
-                                backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.18), rgba(7, 11, 24, 0.45)), url(${track.coverUrl})`,
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                              }
-                            : undefined
-                        }
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{track.title}</p>
-                        <p className="truncate text-sm text-muted-foreground">
-                          {track.artist.displayName} / {track.genre?.name ?? "Uncategorized"}
-                        </p>
-                      </div>
-                      <div className="text-right text-sm text-muted-foreground">
-                        <p>{formatDuration(track.duration)}</p>
-                        <p>{formatCompactNumber(track.playCount)} plays</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-3xl border border-dashed border-border/80 bg-background/88 p-4 text-sm text-muted-foreground">
-                    Trending tracks will appear once discovery data is available.
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="artists" className="space-y-3">
-                {featuredArtists.length ? (
-                  featuredArtists.map((artist) => (
-                    <div
-                      key={artist.id}
-                      className="flex items-center gap-3 rounded-3xl border border-border/80 bg-background/88 p-3"
-                    >
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-sky-600 text-white">
-                          {artist.displayName.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{artist.displayName}</p>
-                        <p className="truncate text-sm text-muted-foreground">
-                          @{artist.username}
-                        </p>
-                      </div>
-                      <Badge variant="soft">
-                        {formatCompactNumber(artist.trackCount ?? 0)} tracks
-                      </Badge>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-3xl border border-dashed border-border/80 bg-background/88 p-4 text-sm text-muted-foreground">
-                    Featured creators will appear once the public feed is seeded.
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="playlists" className="space-y-3">
-                {featuredPlaylists.length ? (
-                  featuredPlaylists.slice(0, 3).map((playlist) => (
-                    <div
-                      key={playlist.id}
-                      className="flex items-center gap-3 rounded-3xl border border-border/80 bg-background/88 p-3"
-                    >
-                      <div
-                        className="h-14 w-14 rounded-2xl bg-gradient-to-br from-slate-900 via-cyan-900 to-teal-700"
-                        style={
-                          playlist.coverUrl
-                            ? {
-                                backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.18), rgba(7, 11, 24, 0.45)), url(${playlist.coverUrl})`,
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                              }
-                            : undefined
-                        }
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{playlist.title}</p>
-                        <p className="truncate text-sm text-muted-foreground">
-                          {playlist.description || "Curated from live public data."}
-                        </p>
-                      </div>
-                      <Badge variant="soft">{playlist.trackCount ?? 0} tracks</Badge>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-3xl border border-dashed border-border/80 bg-background/88 p-4 text-sm text-muted-foreground">
-                    Featured playlists will appear once the discovery endpoint returns data.
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+            <LandingDiscoveryTabs
+              trendingTracks={trendingTracks}
+              featuredArtists={featuredArtists}
+              featuredPlaylists={featuredPlaylists}
+            />
           </CardContent>
         </Card>
       </section>
