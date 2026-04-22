@@ -20,7 +20,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-2xl px-3 py-2 text-sm outline-none focus:bg-muted data-[state=open]:bg-muted",
+      "flex cursor-default select-none items-center rounded-sm px-3 py-2 text-sm text-white outline-none focus:bg-[#3e3e3e] data-[state=open]:bg-[#3e3e3e]",
       inset && "pl-8",
       className,
     )}
@@ -39,7 +39,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-48 overflow-hidden rounded-[1.4rem] border border-border/85 bg-card/98 p-1 text-foreground shadow-[0_24px_64px_-30px_rgba(10,13,25,0.55)]",
+      "z-50 min-w-48 overflow-hidden rounded-md border border-[#282828] bg-[#282828] p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
       className,
     )}
     {...props}
@@ -56,7 +56,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-48 overflow-hidden rounded-[1.4rem] border border-border/85 bg-card/98 p-1 text-foreground shadow-[0_24px_64px_-30px_rgba(10,13,25,0.55)]",
+        "z-50 min-w-48 overflow-hidden rounded-md border border-[#282828] bg-[#282828] p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
         className,
       )}
       {...props}
@@ -75,7 +75,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-2xl px-3 py-2 text-sm text-foreground outline-none transition-colors focus:bg-muted/90 focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "flex cursor-default select-none items-center rounded-sm px-3 py-2 text-sm text-[#eaeaea] outline-none transition-colors focus:bg-[#3e3e3e] focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className,
     )}
@@ -91,7 +91,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-2xl py-2 pl-8 pr-3 text-sm text-foreground outline-none transition-colors focus:bg-muted/90 focus:text-foreground",
+      "relative flex cursor-default select-none items-center rounded-sm py-2 pl-8 pr-3 text-sm text-[#eaeaea] outline-none transition-colors focus:bg-[#3e3e3e] focus:text-white",
       className,
     )}
     checked={checked}
@@ -114,7 +114,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-2xl py-2 pl-8 pr-3 text-sm text-foreground outline-none transition-colors focus:bg-muted/90 focus:text-foreground",
+      "relative flex cursor-default select-none items-center rounded-sm py-2 pl-8 pr-3 text-sm text-[#eaeaea] outline-none transition-colors focus:bg-[#3e3e3e] focus:text-white",
       className,
     )}
     {...props}
@@ -138,7 +138,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground",
+      "px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#b3b3b3]",
       inset && "pl-8",
       className,
     )}
@@ -153,7 +153,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("my-1 h-px bg-border", className)}
+    className={cn("my-1 h-px bg-[#3e3e3e]", className)}
     {...props}
   />
 ));
@@ -164,7 +164,7 @@ const DropdownMenuShortcut = ({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) => (
   <span
-    className={cn("ml-auto text-xs tracking-wide text-muted-foreground", className)}
+    className={cn("ml-auto text-xs tracking-wide text-[#b3b3b3]", className)}
     {...props}
   />
 );
