@@ -115,8 +115,8 @@ export default function CreatorPage() {
   if (session.isBooting || (currentUserQuery.isLoading && !user)) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-40 w-full rounded-[2rem]" />
-        <Skeleton className="h-96 w-full rounded-[2rem]" />
+        <Skeleton className="h-40 w-full rounded-md" />
+        <Skeleton className="h-96 w-full rounded-md" />
       </div>
     );
   }
@@ -131,15 +131,15 @@ export default function CreatorPage() {
   return (
     <ProtectedRoute requireRole="creator">
       <div className="space-y-6">
-        <section className="rounded-[2rem] border border-border/70 bg-card/85 p-6 shadow-[0_24px_70px_-36px_rgba(10,13,25,0.45)]">
+        <section className="rounded-lg bg-[#1f1f1f] p-6 shadow-md">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <Badge variant="soft">Creator studio</Badge>
               <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight">
+                <h1 className="text-3xl font-bold text-white">
                   {user?.displayName ?? "Your creator dashboard"}
                 </h1>
-                <p className="max-w-2xl text-sm text-muted-foreground">
+                <p className="max-w-2xl text-sm text-[#b3b3b3]">
                   Upload new tracks, tune metadata, and keep an eye on live listener response
                   without leaving the same session-aware dashboard.
                 </p>
@@ -158,8 +158,8 @@ export default function CreatorPage() {
           {metrics.map(([label, value]) => (
             <Card key={label}>
               <CardHeader className="pb-0">
-                <CardDescription>{label}</CardDescription>
-                <CardTitle className="text-3xl">{formatCompactNumber(value)}</CardTitle>
+                <CardDescription className="text-xs font-bold uppercase tracking-[0.2em]">{label}</CardDescription>
+                <CardTitle className="text-3xl text-white">{formatCompactNumber(value)}</CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
                 <Progress value={Math.min(100, (value % 100) + 24)} />
@@ -174,7 +174,7 @@ export default function CreatorPage() {
               <CardTitle>Upload track</CardTitle>
               <CardDescription>
                 Publish a new audio upload with artwork, release settings, tags, and privacy
-                controls using the live multipart track endpoint.
+                controls.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -192,15 +192,15 @@ export default function CreatorPage() {
               <CardHeader>
                 <CardTitle>Creator snapshot</CardTitle>
                 <CardDescription>
-                  A quick read on your best-performing release and what listeners are doing lately.
+                  A quick read on your best-performing release and listener activity.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-3xl border border-border/70 bg-background/70 p-4">
+                <div className="rounded-md bg-[#1f1f1f] p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-medium">Top track</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-bold text-white">Top track</p>
+                      <p className="text-sm text-[#b3b3b3]">
                         {dashboard?.topTracks?.[0]?.title ?? selectedTrackCard?.title ?? "No uploads yet"}
                       </p>
                     </div>
@@ -214,57 +214,55 @@ export default function CreatorPage() {
                     <Progress
                       value={dashboard?.topTracks?.[0]?.playCount ? Math.min(100, dashboard.topTracks[0].playCount % 100) : 36}
                     />
-                    <p className="text-sm text-muted-foreground">
-                      {dashboard?.recentListeners?.length ?? 0} recent listener events and{" "}
+                    <p className="text-sm text-[#b3b3b3]">
+                      {dashboard?.recentListeners?.length ?? 0} recent listeners and{" "}
                       {selectedAnalytics.data
-                        ? `${selectedAnalytics.data.totalPlays} tracked plays for the selected upload.`
-                        : "analytics ready as soon as you select a track."}
+                        ? `${selectedAnalytics.data.totalPlays} plays for selected upload.`
+                        : "analytics ready on select."}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-3xl border border-border/70 bg-background/70 p-4">
+                  <div className="rounded-md bg-[#1f1f1f] p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1ed760] text-black">
                         <UploadCloud className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-medium">Release ready</p>
-                        <p className="text-sm text-muted-foreground">
-                          Uploads refresh your dashboard, discovery cards, and artist page
-                          automatically.
+                        <p className="font-bold text-white">Release ready</p>
+                        <p className="text-xs text-[#b3b3b3]">
+                          Uploads refresh everywhere.
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-3xl border border-border/70 bg-background/70 p-4">
+                  <div className="rounded-md bg-[#1f1f1f] p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1f1f1f] border border-[#1ed760] text-[#1ed760]">
                         <ShieldAlert className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-medium">Safe ownership</p>
-                        <p className="text-sm text-muted-foreground">
-                          Edit and delete flows stay constrained to your own uploads with backend
-                          ownership checks.
+                        <p className="font-bold text-white">Safe ownership</p>
+                        <p className="text-xs text-[#b3b3b3]">
+                          Edit flows are constrained.
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-border/70 bg-background/70 p-4">
+                <div className="rounded-md bg-[#1f1f1f] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1f1f1f] border border-[#b3b3b3] text-white">
                       <BarChart3 className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-medium">Selected track analytics</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-bold text-white">Selected track analytics</p>
+                      <p className="text-sm text-[#b3b3b3]">
                         {selectedTrackCard
                           ? `${selectedTrackCard.title} | ${selectedTrackCard.genreLabel} | ${selectedTrackCard.durationLabel}`
-                          : "Choose one of your uploads below to inspect listener activity."}
+                          : "Choose one of your uploads below."}
                       </p>
                     </div>
                   </div>
@@ -276,29 +274,28 @@ export default function CreatorPage() {
               <CardHeader>
                 <CardTitle>Track analytics</CardTitle>
                 <CardDescription>
-                  Choose an upload to inspect metrics, then edit or safely remove it without leaving
-                  the dashboard.
+                  Choose an upload to inspect metrics, edit, or remove.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {uploadsQuery.isLoading ? (
                   Array.from({ length: 3 }).map((_, index) => (
-                    <Skeleton key={index} className="h-24 w-full rounded-3xl" />
+                    <Skeleton key={index} className="h-24 w-full rounded-md" />
                   ))
                 ) : uploads.length ? (
                   <>
-                    <ScrollArea className="h-[26rem] rounded-[1.75rem] pr-4">
-                      <div className="space-y-3">
+                    <ScrollArea className="h-[26rem] rounded-md pr-4">
+                      <div className="space-y-2">
                         {uploads.map((track) => {
                           const trackCard = toTrackCard(track);
                           const active = selectedTrackId === track.id;
                           return (
                             <div
                               key={track.id}
-                              className={`rounded-3xl border p-4 transition ${
+                              className={`rounded-md p-4 transition-colors ${
                                 active
-                                  ? "border-primary/40 bg-primary/5"
-                                  : "border-border/70 bg-background/70"
+                                  ? "bg-[#282828] border-l-2 border-l-[#1ed760]"
+                                  : "bg-[#1f1f1f] hover:bg-[#282828] border-l-2 border-l-transparent"
                               }`}
                             >
                               <button
@@ -309,28 +306,27 @@ export default function CreatorPage() {
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
-                                      <p className="font-medium">{trackCard.title}</p>
+                                      <p className="font-bold text-white">{trackCard.title}</p>
                                       <Badge variant={statusTone[track.status ?? "published"] ?? "soft"}>
                                         {track.status ?? "published"}
                                       </Badge>
                                       <Badge variant="outline">{track.privacy ?? "public"}</Badge>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">
-                                      {trackCard.genreLabel} | {formatDuration(track.duration)} |{" "}
+                                    <p className="text-sm text-[#b3b3b3]">
+                                      {trackCard.genreLabel} • {formatDuration(track.duration)} •{" "}
                                       {formatCompactNumber(track.playCount)} plays
                                     </p>
-                                    <p className="line-clamp-2 text-sm text-muted-foreground">
+                                    <p className="line-clamp-2 text-sm text-[#b3b3b3]">
                                       {track.description ?? "No description yet."}
                                     </p>
                                   </div>
-                                  <Badge variant="soft">{trackCard.playsLabel} plays</Badge>
                                 </div>
                               </button>
                               <div className="mt-4 flex flex-wrap gap-2">
                                 <Button
                                   type="button"
                                   size="sm"
-                                  variant="outline"
+                                  variant="secondary"
                                   onClick={() => setEditingTrackId(track.id)}
                                 >
                                   <PencilLine className="h-3.5 w-3.5" />
@@ -352,16 +348,16 @@ export default function CreatorPage() {
                       </div>
                     </ScrollArea>
 
-                    <div className="rounded-3xl border border-border/70 bg-background/70 p-4">
+                    <div className="rounded-md bg-[#1f1f1f] p-4">
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <p className="font-medium">
+                          <p className="font-bold text-white">
                             {selectedTrackCard?.title ?? "Select a track for analytics"}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-[#b3b3b3]">
                             {selectedAnalytics.data
-                              ? `${selectedAnalytics.data.dailyPlays.length} daily play buckets and ${selectedAnalytics.data.recentListeners.length} recent listeners`
-                              : "Analytics will populate here once the selected track is resolved."}
+                              ? `${selectedAnalytics.data.dailyPlays.length} days and ${selectedAnalytics.data.recentListeners.length} listeners`
+                              : "Analytics will populate when resolved."}
                           </p>
                         </div>
                         <Badge variant="outline">
@@ -372,59 +368,59 @@ export default function CreatorPage() {
                       {selectedAnalytics.data ? (
                         <div className="mt-4 space-y-4">
                           <div className="grid gap-3 sm:grid-cols-4">
-                            <div className="rounded-2xl border border-border/70 bg-card/80 p-3">
-                              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                            <div className="rounded-md bg-[#282828] p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b3b3b3]">
                                 Plays
                               </p>
-                              <p className="mt-1 text-xl font-semibold">
+                              <p className="mt-1 text-xl font-bold text-white">
                                 {formatCompactNumber(selectedAnalytics.data.totalPlays)}
                               </p>
                             </div>
-                            <div className="rounded-2xl border border-border/70 bg-card/80 p-3">
-                              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                            <div className="rounded-md bg-[#282828] p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b3b3b3]">
                                 Likes
                               </p>
-                              <p className="mt-1 text-xl font-semibold">
+                              <p className="mt-1 text-xl font-bold text-white">
                                 {formatCompactNumber(selectedAnalytics.data.totalLikes)}
                               </p>
                             </div>
-                            <div className="rounded-2xl border border-border/70 bg-card/80 p-3">
-                              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                            <div className="rounded-md bg-[#282828] p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b3b3b3]">
                                 Reposts
                               </p>
-                              <p className="mt-1 text-xl font-semibold">
+                              <p className="mt-1 text-xl font-bold text-white">
                                 {formatCompactNumber(selectedAnalytics.data.totalReposts)}
                               </p>
                             </div>
-                            <div className="rounded-2xl border border-border/70 bg-card/80 p-3">
-                              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                            <div className="rounded-md bg-[#282828] p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b3b3b3]">
                                 Comments
                               </p>
-                              <p className="mt-1 text-xl font-semibold">
+                              <p className="mt-1 text-xl font-bold text-white">
                                 {formatCompactNumber(selectedAnalytics.data.totalComments)}
                               </p>
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <p className="text-sm font-medium">Recent listeners</p>
+                            <p className="text-sm font-bold text-white">Recent listeners</p>
                             {selectedAnalytics.data.recentListeners.length ? (
                               <div className="space-y-2">
                                 {selectedAnalytics.data.recentListeners.slice(0, 4).map((listener) => (
                                   <div
                                     key={`${listener.username}-${listener.listenedAt}`}
-                                    className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/80 px-3 py-2 text-sm"
+                                    className="flex items-center justify-between gap-3 rounded-md bg-[#282828] px-3 py-2 text-sm"
                                   >
-                                    <span className="font-medium">{listener.username}</span>
-                                    <span className="text-muted-foreground">
+                                    <span className="font-bold text-white">{listener.username}</span>
+                                    <span className="text-xs text-[#b3b3b3]">
                                       {new Date(listener.listenedAt).toLocaleString()}
                                     </span>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground">
-                                No recent listener events for this track yet.
+                              <p className="text-sm text-[#b3b3b3]">
+                                No recent listener events.
                               </p>
                             )}
                           </div>
@@ -433,15 +429,10 @@ export default function CreatorPage() {
                     </div>
                   </>
                 ) : (
-                  <Card className="border-dashed bg-background/60">
-                    <CardContent className="space-y-2 p-6">
-                      <p className="font-medium">No uploads yet</p>
-                      <p className="text-sm text-muted-foreground">
-                        Publish your first track from the form on the left and analytics will start
-                        filling in immediately.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="rounded-md bg-[#1f1f1f] p-6 text-sm text-[#b3b3b3]">
+                    <p className="font-bold text-white mb-2">No uploads yet</p>
+                    Publish your first track from the form on the left.
+                  </div>
                 )}
               </CardContent>
             </Card>

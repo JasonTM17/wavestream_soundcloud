@@ -111,9 +111,9 @@ function FileSummary({
   className?: string;
 }>) {
   return (
-    <div className={cn("rounded-[1.75rem] border border-border/70 bg-background/70 p-4", className)}>
+    <div className={cn("rounded-md bg-[#1f1f1f] p-4", className)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1ed760] text-black">
           {icon}
         </div>
         <div className="space-y-1">
@@ -360,7 +360,7 @@ export function TrackForm({
         <Textarea
           id={`${mode}-description`}
           placeholder="Describe the track, collaborators, and release notes."
-          className="min-h-32 rounded-[1.75rem]"
+          className="min-h-32 rounded-md"
           {...form.register("description")}
         />
         {form.formState.errors.description ? (
@@ -424,7 +424,7 @@ export function TrackForm({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="rounded-[1.75rem] border-border/70 bg-background/70">
+        <Card className="rounded-md bg-[#1f1f1f] border-none">
           <CardContent className="p-4">
             <Label className="flex items-center justify-between gap-3">
               <span className="space-y-1">
@@ -443,7 +443,7 @@ export function TrackForm({
             </Label>
           </CardContent>
         </Card>
-        <Card className="rounded-[1.75rem] border-border/70 bg-background/70">
+        <Card className="rounded-md bg-[#1f1f1f] border-none">
           <CardContent className="p-4">
             <Label className="flex items-center justify-between gap-3">
               <span className="space-y-1">
@@ -490,7 +490,7 @@ export function TrackForm({
                 {audioFile ? "Replace audio file" : "Choose audio file"}
               </Button>
               {audioFile ? (
-                <div className="rounded-2xl border border-border/70 bg-card/80 p-3">
+                <div className="rounded-md bg-[#282828] p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
                       <p className="font-medium">{audioFile.name}</p>
@@ -538,7 +538,7 @@ export function TrackForm({
                 {coverImage ? "Replace cover art" : "Choose cover art"}
               </Button>
               {coverPreviewUrl ? (
-                <div className="overflow-hidden rounded-[1.5rem] border border-border/70 bg-card/80">
+                <div className="overflow-hidden rounded-md bg-[#282828]">
                   <div
                     className="aspect-[4/3] w-full bg-cover bg-center"
                     style={{ backgroundImage: `url(${coverPreviewUrl})` }}
@@ -563,9 +563,9 @@ export function TrackForm({
           </FileSummary>
         </div>
       ) : (
-        <div className="rounded-[1.75rem] border border-border/70 bg-background/70 p-4">
+        <div className="rounded-md bg-[#1f1f1f] p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1ed760] text-black">
               <Info className="h-5 w-5" />
             </div>
             <div className="space-y-1">
@@ -579,7 +579,7 @@ export function TrackForm({
       )}
 
       {submitError ? (
-        <div className="rounded-[1.5rem] border border-destructive/25 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-500">
           {submitError}
         </div>
       ) : null}
