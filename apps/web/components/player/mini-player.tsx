@@ -3,9 +3,7 @@
 import { Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { usePlayerStore } from "@/lib/player-store";
@@ -18,7 +16,6 @@ function formatTime(seconds: number) {
 
 export function MiniPlayer() {
   const currentTrack = usePlayerStore((state) => state.currentTrack);
-  const queue = usePlayerStore((state) => state.queue);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const isBuffering = usePlayerStore((state) => state.isBuffering);
   const error = usePlayerStore((state) => state.error);
@@ -43,21 +40,22 @@ export function MiniPlayer() {
     ? "Playback issue"
     : isBuffering
       ? "Buffering"
-      : currentTrack?.genreLabel ?? "Queue ready";
+      : currentTrack?.genreLabel ?? "";
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/85 bg-card/94 shadow-[0_-18px_50px_-34px_rgba(10,13,25,0.42)] backdrop-blur-xl">
-      <div className="mx-auto grid max-w-[1600px] gap-4 px-4 py-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.4fr)_minmax(280px,0.85fr)] lg:px-6">
+    <div className="border-t border-[#282828] bg-black px-4 py-2">
+      <div className="mx-auto grid max-w-[1600px] items-center gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(200px,0.7fr)]">
+        {/* Track info */}
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              "h-14 w-14 rounded-2xl shadow-lg",
-              hasTrack ? "bg-muted" : "bg-gradient-to-br from-slate-700 to-slate-900",
+              "h-14 w-14 shrink-0 rounded-md",
+              hasTrack ? "bg-[#282828]" : "bg-[#282828]",
             )}
             style={
               hasTrack && currentTrack?.coverUrl
                 ? {
-                    backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.18), rgba(7, 11, 24, 0.55)), url(${currentTrack.coverUrl})`,
+                    backgroundImage: `url(${currentTrack.coverUrl})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }
@@ -65,77 +63,77 @@ export function MiniPlayer() {
             }
           />
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Now playing</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate font-medium">{currentTrack?.title ?? "Select a track"}</p>
-              <Badge variant={error ? "outline" : "soft"}>{statusLabel}</Badge>
-            </div>
-            <p className="truncate text-sm text-muted-foreground">
-              {currentTrack?.artistName ?? "WaveStream"} | {queue.length} tracks
+            <p className="truncate text-sm font-medium text-white">
+              {currentTrack?.title ?? "Select a track"}
             </p>
-            {error ? (
-              <p className="truncate text-xs text-muted-foreground">{error}</p>
-            ) : isBuffering && hasTrack ? (
-              <p className="truncate text-xs text-muted-foreground">
-                Loading the stream and syncing metadata...
-              </p>
-            ) : null}
+            <p className="truncate text-xs text-[#b3b3b3]">
+              {currentTrack?.artistName ?? "WaveStream"}
+            </p>
           </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-center gap-2">
-            <Button
-              variant={shuffle ? "secondary" : "ghost"}
-              size="icon"
+        {/* Playback controls */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-center gap-3">
+            <button
               onClick={toggleShuffle}
               aria-label="Toggle shuffle"
               disabled={!hasTrack}
+              className={cn(
+                "rounded-full p-1.5 transition-colors disabled:opacity-40",
+                shuffle
+                  ? "text-[#1ed760]"
+                  : "text-[#b3b3b3] hover:text-white",
+              )}
             >
-              <Shuffle className={cn("h-4 w-4", shuffle && "text-secondary-foreground")} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+              <Shuffle className="h-4 w-4" />
+            </button>
+            <button
               onClick={previousTrack}
               aria-label="Previous track"
               disabled={!hasTrack}
+              className="rounded-full p-1.5 text-[#b3b3b3] transition-colors hover:text-white disabled:opacity-40"
             >
               <SkipBack className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
+            </button>
+            <button
               onClick={togglePlay}
               aria-label={isPlaying ? "Pause track" : "Play track"}
               disabled={!hasTrack}
-              className="shadow-[0_16px_36px_-20px_hsl(var(--primary)/0.82)]"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105 disabled:opacity-40"
             >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
+            </button>
+            <button
               onClick={nextTrack}
               aria-label="Next track"
               disabled={!hasTrack}
+              className="rounded-full p-1.5 text-[#b3b3b3] transition-colors hover:text-white disabled:opacity-40"
             >
               <SkipForward className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={repeat !== "off" ? "secondary" : "ghost"}
-              size="icon"
+            </button>
+            <button
               onClick={() => setRepeat(repeat === "off" ? "all" : repeat === "all" ? "one" : "off")}
               aria-label="Cycle repeat mode"
               disabled={!hasTrack}
+              className={cn(
+                "relative rounded-full p-1.5 transition-colors disabled:opacity-40",
+                repeat !== "off"
+                  ? "text-[#1ed760]"
+                  : "text-[#b3b3b3] hover:text-white",
+              )}
             >
-              <Repeat
-                className={cn("h-4 w-4", repeat !== "off" && "text-secondary-foreground")}
-              />
-            </Button>
+              <Repeat className="h-4 w-4" />
+              {repeat === "one" && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-[#1ed760] text-[6px] font-bold text-black">
+                  1
+                </span>
+              )}
+            </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="w-12 text-right text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span className="w-10 text-right text-xs text-[#b3b3b3]">
               {formatTime(hasTrack ? progress : 0)}
             </span>
             <Slider
@@ -145,34 +143,25 @@ export function MiniPlayer() {
               onValueChange={(values) => setProgress(values[0] ?? 0)}
               disabled={!hasTrack}
             />
-            <span className="w-12 text-xs text-muted-foreground">
+            <span className="w-10 text-xs text-[#b3b3b3]">
               {formatTime(hasTrack ? duration : 0)}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 lg:justify-end">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={toggleMute} aria-label="Mute" disabled={!hasTrack}>
-              {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-            <div className="w-28">
-              <Slider
-                value={[muted ? 0 : Math.round(volume * 100)]}
-                max={100}
-                step={1}
-                onValueChange={(values) => setVolume((values[0] ?? 0) / 100)}
-                disabled={!hasTrack}
-              />
-            </div>
-          </div>
-          <Separator orientation="vertical" className="hidden h-8 lg:block" />
+        {/* Volume & extras */}
+        <div className="hidden items-center justify-end gap-3 lg:flex">
+          {statusLabel && (
+            <Badge variant="outline" className="text-[10px]">
+              {statusLabel}
+            </Badge>
+          )}
           <Select
             value={String(playbackRate)}
             onValueChange={(value) => setPlaybackRate(Number(value))}
             disabled={!hasTrack}
           >
-            <SelectTrigger className="w-24">
+            <SelectTrigger className="h-7 w-16 rounded-md bg-transparent px-2 text-xs shadow-none">
               <SelectValue placeholder="1x" />
             </SelectTrigger>
             <SelectContent>
@@ -182,6 +171,23 @@ export function MiniPlayer() {
               <SelectItem value="1.5">1.5x</SelectItem>
             </SelectContent>
           </Select>
+          <button
+            onClick={toggleMute}
+            aria-label="Mute"
+            disabled={!hasTrack}
+            className="rounded-full p-1 text-[#b3b3b3] transition-colors hover:text-white disabled:opacity-40"
+          >
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+          <div className="w-24">
+            <Slider
+              value={[muted ? 0 : Math.round(volume * 100)]}
+              max={100}
+              step={1}
+              onValueChange={(values) => setVolume((values[0] ?? 0) / 100)}
+              disabled={!hasTrack}
+            />
+          </div>
         </div>
       </div>
     </div>
