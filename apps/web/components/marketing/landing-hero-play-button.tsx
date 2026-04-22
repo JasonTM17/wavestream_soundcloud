@@ -94,7 +94,7 @@ export function LandingHeroPlayButton({
     <div className="w-full space-y-3">
       <Button
         size="lg"
-        className="w-full rounded-full px-6"
+        className="w-full"
         onClick={handlePlay}
         disabled={!spotlightCard}
       >
@@ -107,11 +107,11 @@ export function LandingHeroPlayButton({
         )}
         {buttonLabel}
       </Button>
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-[#b3b3b3]">
         <Badge variant={spotlightCard ? "soft" : "outline"}>
           {isActiveTrack ? (isPlaying ? "Now playing" : "Ready in player") : "Live spotlight"}
         </Badge>
-        <span>{statusLabel}</span>
+        <span className="text-xs">{statusLabel}</span>
       </div>
     </div>
   );
