@@ -10,7 +10,7 @@ function getPublicListeningCta(page: Page) {
 test("renders the auth shell with creator next targets", async ({ page }) => {
   await page.goto("/sign-in?next=%2Fcreator");
 
-  await expect(page.getByRole("heading", { name: "Sign in to your studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to WaveStream" })).toBeVisible();
   await expect(page.getByTestId("auth-credits").getByText("Portfolio project by Nguyễn Sơn")).toBeVisible();
   const publicCtas = getPublicListeningCta(page);
 
@@ -41,7 +41,7 @@ test("renders the sign-up shell with matching public CTAs", async ({ page }) => 
   await expect(publicCtas.listenNow).toHaveAttribute("href", "/");
   await expect(publicCtas.previewTheFeed).toBeVisible();
   await expect(publicCtas.previewTheFeed).toHaveAttribute("href", "/discover");
-  await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Sign in" }).first()).toHaveAttribute(
     "href",
     "/sign-in?next=%2Fcreator",
   );
@@ -75,8 +75,8 @@ test("keeps the auth hero spacing stable on desktop", async ({ page }) => {
 
 test("protects library and creator routes for guests", async ({ page }) => {
   await page.goto("/library");
-  await expect(page.getByRole("heading", { name: "Sign in to your studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to WaveStream" })).toBeVisible();
 
   await page.goto("/creator");
-  await expect(page.getByRole("heading", { name: "Sign in to your studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to WaveStream" })).toBeVisible();
 });

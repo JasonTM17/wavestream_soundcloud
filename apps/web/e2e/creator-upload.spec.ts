@@ -7,7 +7,7 @@ const creatorCredentials = {
 
 async function signIn(page: Page) {
   await page.goto("/sign-in?next=%2Fcreator");
-  await expect(page.getByRole("heading", { name: "Sign in to your studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to WaveStream" })).toBeVisible();
   await page.getByRole("textbox", { name: "Email" }).fill(creatorCredentials.email);
   await page.getByRole("textbox", { name: "Password" }).fill(creatorCredentials.password);
   await Promise.all([

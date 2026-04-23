@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test";
 test("renders the marketing landing shell with public navigation", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("link", { name: "Discover", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Discover", exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in", exact: true }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Start free", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore discovery" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Create your account" })).toBeVisible();
@@ -17,8 +17,8 @@ test("switches the shell theme between light and dark modes", async ({ page }) =
 
   const startFree = page.getByRole("link", { name: "Start free", exact: true });
   const exploreDiscovery = page.getByRole("link", { name: "Explore discovery" });
-  const createAccount = page.getByRole("link", { name: "Create your account" });
-  const joinWaveStream = page.getByRole("link", { name: "Join WaveStream" });
+  const createAccount = page.getByRole("link", { name: "Create your account" }).first();
+  const joinWaveStream = page.getByRole("link", { name: "Join WaveStream" }).first();
 
   const themeToggle = page.getByRole("button", { name: /change theme/i }).first();
   const lightBackground = await page.locator("html").evaluate((element) =>

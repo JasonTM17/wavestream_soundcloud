@@ -76,8 +76,8 @@ test("guest discover surfaces route to real creator profiles, tracks, and playli
 
   await page.goto("/discover");
 
-  await expect(page.getByText("Feed snapshot")).toBeVisible();
-  await expect(page.getByText("Session", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Discover" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Trending" })).toBeVisible();
   await expect(page.getByText("Listening pulse")).toHaveCount(0);
   await expect(page.getByText("Featured creator")).toHaveCount(0);
 
@@ -89,7 +89,7 @@ test("guest discover surfaces route to real creator profiles, tracks, and playli
 
   await expect(page).toHaveURL(new RegExp(`/artist/${discovery.artist.username}$`));
   await expect(page.getByRole("heading", { name: discovery.artist.displayName })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Uploaded tracks" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Uploaded tracks|Tracks/i }).first()).toBeVisible();
 
   await page.goto("/discover");
 

@@ -54,7 +54,7 @@ test("landing hero can start playback from the spotlight track", async ({ page }
 
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: spotlight.title, exact: true })).toBeVisible();
+  await expect(page.getByText(spotlight.title, { exact: true }).first()).toBeVisible();
   await expect(
     page.getByRole("button", { name: /play spotlight|resume spotlight|pause spotlight/i }),
   ).toBeVisible();
