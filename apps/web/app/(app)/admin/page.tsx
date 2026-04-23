@@ -443,7 +443,7 @@ function AdminReportCard({ report }: { report: AdminReportSummary }) {
               ) : null}
 
               {shouldShowFallbackTargetId ? (
-                <p className="text-sm text-muted-foreground">{report.reportableId}</p>
+                <p className="text-sm text-muted-foreground">Target ID: {report.reportableId}</p>
               ) : null}
             </div>
             {report.details ? (
@@ -530,7 +530,7 @@ function AdminPageContent() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-1">
               <h1 className="text-2xl font-bold text-foreground">{tAdmin.title}</h1>
-              <p className="text-sm text-muted-foreground">{tAdmin.subtitle}</p>
+              <p className="text-sm text-muted-foreground">{tAdmin.adminOnlySurface}</p>
             </div>
           </div>
         </section>
@@ -572,7 +572,7 @@ function AdminPageContent() {
 
           <TabsContent value="reports">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.reports}</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{tAdmin.reportsQueue}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {reportsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
@@ -604,7 +604,7 @@ function AdminPageContent() {
 
           <TabsContent value="tracks">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.tracks}</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{tAdmin.trackModeration}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {tracksQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
@@ -636,7 +636,7 @@ function AdminPageContent() {
 
           <TabsContent value="comments">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.comments}</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{tAdmin.commentModeration}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {commentsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
@@ -668,7 +668,7 @@ function AdminPageContent() {
 
           <TabsContent value="playlists">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.playlists}</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{tAdmin.playlistModeration}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {playlistsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
@@ -700,7 +700,7 @@ function AdminPageContent() {
 
           <TabsContent value="users">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.users}</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{tAdmin.userRoles}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {usersQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
