@@ -23,8 +23,8 @@ export function SiteCredits({
           ? "gap-2 px-4 py-3 text-sm md:items-center"
           : "gap-3 px-5 py-4 text-sm md:items-center",
         inverted
-          ? "bg-[#1f1f1f] text-[#b3b3b3]"
-          : "bg-[#181818] text-[#b3b3b3]",
+          ? "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+          : "bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))]",
         className,
       )}
     >
@@ -50,3 +50,4 @@ export function SiteCredits({
     </div>
   );
 }
+

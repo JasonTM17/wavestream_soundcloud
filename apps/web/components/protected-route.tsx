@@ -40,13 +40,13 @@ function GateScreen({
 }) {
   return (
     <div className="flex min-h-[calc(100vh-2rem)] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-md bg-[#181818] p-6">
+      <div className="w-full max-w-md rounded-md bg-[hsl(var(--card))] p-6">
         <div className="space-y-2">
           <p className="text-lg font-bold text-white">{title}</p>
-          <p className="text-sm text-[#b3b3b3]">{description}</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">{description}</p>
         </div>
-        <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-[#282828]">
-          <div className="h-full w-2/3 animate-pulse rounded-full bg-[#1ed760]" />
+        <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
+          <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
         </div>
       </div>
     </div>
@@ -195,3 +195,4 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+

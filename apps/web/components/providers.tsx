@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { PlayerProvider } from "@/components/player/player-provider";
+import { I18nProvider } from "@/lib/i18n";
 
 export function Providers({ children }: React.PropsWithChildren) {
   const [queryClient] = React.useState(
@@ -28,6 +29,7 @@ export function Providers({ children }: React.PropsWithChildren) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <I18nProvider>
       <ThemeProvider
         attribute="class"
         defaultTheme="dark"
@@ -44,7 +46,7 @@ export function Providers({ children }: React.PropsWithChildren) {
                 position="bottom-right"
                 toastOptions={{
                   className:
-                    "rounded-lg border border-[#282828] bg-[#282828] text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
+                    "rounded-lg border border-[hsl(var(--accent))] bg-[hsl(var(--accent))] text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
                 }}
               />
             </PlayerProvider>
@@ -52,6 +54,8 @@ export function Providers({ children }: React.PropsWithChildren) {
         </TooltipProvider>
       </ThemeProvider>
       {process.env.NODE_ENV === "development" ? <ReactQueryDevtools initialIsOpen={false} /> : null}
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
+

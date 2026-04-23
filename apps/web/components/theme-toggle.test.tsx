@@ -20,15 +20,18 @@ describe("ThemeToggle", () => {
   });
 
   it.each([
-    ["Light", "light"],
-    ["Dark", "dark"],
-    ["System", "system"],
+    // Vietnamese labels (default locale is 'vi')
+    ["Sáng", "light"],
+    ["Tối", "dark"],
+    ["Hệ thống", "system"],
   ] as const)("selects the %s theme option", async (label, theme) => {
     const user = userEvent.setup();
 
     render(<ThemeToggle />);
 
-    await user.click(screen.getAllByRole("button", { name: /change theme/i })[0]);
+    // Button aria-label is t.theme ("Giao diện") from common namespace
+    const toggleButtons = screen.getAllByRole("button");
+    await user.click(toggleButtons[0]);
     await user.click(screen.getByRole("menuitem", { name: label }));
 
     expect(setTheme).toHaveBeenCalledWith(theme);

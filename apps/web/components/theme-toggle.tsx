@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useT } from "@/lib/i18n";
 
 type ThemeToggleProps = {
   className?: string;
@@ -19,24 +20,14 @@ type ThemeToggleProps = {
   variant?: VariantProps<typeof buttonVariants>["variant"];
 };
 
-export function ThemeToggle({
-  className,
-  size = "icon",
-  variant = "ghost",
-}: ThemeToggleProps = {}) {
+export function ThemeToggle({ className, size = "icon", variant = "ghost" }: ThemeToggleProps = {}) {
   const { resolvedTheme, setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const t = useT("common");
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  React.useEffect(() => { setMounted(true); }, []);
 
   const currentMode = mounted ? theme ?? "system" : "system";
-  const currentTheme = mounted
-    ? currentMode === "system"
-      ? `system (${resolvedTheme ?? "light"})`
-      : currentMode
-    : "system";
   const Icon = !mounted ? Sun : currentMode === "system" ? Laptop : resolvedTheme === "dark" ? Moon : Sun;
 
   return (
@@ -46,8 +37,8 @@ export function ThemeToggle({
           variant={variant}
           size={size}
           className={className}
-          aria-label={`Change theme. Current theme: ${currentTheme}`}
-          title={`Current theme: ${currentTheme}`}
+          aria-label={t.theme}
+          title={t.theme}
         >
           <Icon className="h-4 w-4" />
         </Button>
@@ -55,15 +46,15 @@ export function ThemeToggle({
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <Sun className="mr-2 h-4 w-4" />
-          Light
+          {t.light}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
           <Moon className="mr-2 h-4 w-4" />
-          Dark
+          {t.dark}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
           <Laptop className="mr-2 h-4 w-4" />
-          System
+          {t.system}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
