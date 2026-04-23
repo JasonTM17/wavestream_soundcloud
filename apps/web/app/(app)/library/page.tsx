@@ -67,7 +67,7 @@ export default function LibraryPage() {
   const deletePlaylistMutation = useDeletePlaylistMutation(pendingDeletePlaylist?.id ?? "");
 
   const handleCreatePlaylist = async (values: PlaylistEditorValues) => {
-    const created = await createPlaylistMutation.mutateAsync(toPlaylistMutationPayload(values));
+    await createPlaylistMutation.mutateAsync(toPlaylistMutationPayload(values));
     setIsCreateOpen(false);
     toast.success(t.playlistCreated);
   };

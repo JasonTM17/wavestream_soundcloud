@@ -263,7 +263,6 @@ function AdminTrackCard({ track }: { track: AdminTrackSummary }) {
 
 function AdminCommentCard({ comment }: { comment: AdminCommentSummary }) {
   const tAdmin = useT("admin");
-  const tCommon = useT("common");
   const [isHideOpen, setIsHideOpen] = React.useState(false);
   const hideMutation = useHideAdminCommentMutation(comment.id);
   const restoreMutation = useRestoreAdminCommentMutation(comment.id);
@@ -499,7 +498,6 @@ function AdminAuditLogCard({ log }: { log: AdminAuditLogSummary }) {
 
 function AdminPageContent() {
   const tAdmin = useT("admin");
-  const tCommon = useT("common");
   const [usersPage, setUsersPage] = React.useState(1);
   const [tracksPage, setTracksPage] = React.useState(1);
   const [playlistsPage, setPlaylistsPage] = React.useState(1);
