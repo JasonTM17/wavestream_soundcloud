@@ -41,7 +41,7 @@ export function TrackDeleteDialog({
               : "This will remove the selected track from your public catalog and dashboard analytics views."}
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-md bg-[#1f1f1f] p-4 text-sm text-[#b3b3b3]">
+        <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
           The delete is safe and owner-checked on the backend, but listeners will no longer be able
           to access this track from discovery or your profile.
         </div>
@@ -62,3 +62,4 @@ export function TrackDeleteDialog({
     </Dialog>
   );
 }
+

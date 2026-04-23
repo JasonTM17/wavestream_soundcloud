@@ -53,7 +53,7 @@ export function ConfirmDeleteDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md bg-[#1f1f1f] p-4 text-sm text-[#b3b3b3]">
+        <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
           Confirming this action should only be possible for the current owner or an authorized
           moderator. The component itself stays generic so the caller can enforce those rules.
         </div>
@@ -70,3 +70,4 @@ export function ConfirmDeleteDialog({
     </Dialog>
   );
 }
+

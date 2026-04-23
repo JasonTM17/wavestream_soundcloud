@@ -78,7 +78,7 @@ export function LandingDiscoveryTabs({
             return (
               <div
                 key={track.id}
-                className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[#282828]"
+                className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
               >
                 <button
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105"
@@ -99,7 +99,7 @@ export function LandingDiscoveryTabs({
                   className="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
-                    className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[#1ed760] to-[#169c46]"
+                    className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.6)]"
                     style={
                       track.coverUrl
                         ? {
@@ -111,14 +111,14 @@ export function LandingDiscoveryTabs({
                     }
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white group-hover:text-[#1ed760] transition-colors">
+                    <p className="truncate text-sm font-medium text-white group-hover:text-[hsl(var(--primary))] transition-colors">
                       {track.title}
                     </p>
-                    <p className="truncate text-xs text-[#b3b3b3]">
+                    <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
                       {track.artist.displayName} • {track.genre?.name ?? "Uncategorized"}
                     </p>
                   </div>
-                  <div className="shrink-0 text-right text-xs text-[#b3b3b3]">
+                  <div className="shrink-0 text-right text-xs text-[hsl(var(--muted-foreground))]">
                     <p>{formatDuration(track.duration)}</p>
                     <p>{formatCompactNumber(track.playCount)} plays</p>
                   </div>
@@ -127,7 +127,7 @@ export function LandingDiscoveryTabs({
             );
           })
         ) : (
-          <div className="rounded-md bg-[#1f1f1f] p-4 text-sm text-[#b3b3b3]">
+          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
             Trending tracks will appear once discovery data is available.
           </div>
         )}
@@ -139,16 +139,16 @@ export function LandingDiscoveryTabs({
             <Link
               key={artist.id}
               href={`/artist/${artist.username}`}
-              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[#282828]"
+              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
             >
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-[#1ed760] text-black text-xs font-bold">
+                <AvatarFallback className="bg-[hsl(var(--primary))] text-black text-xs font-bold">
                   {artist.displayName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-white">{artist.displayName}</p>
-                <p className="truncate text-xs text-[#b3b3b3]">
+                <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
                   @{artist.username} • {formatCompactNumber(artist.followerCount ?? 0)} followers
                 </p>
               </div>
@@ -156,7 +156,7 @@ export function LandingDiscoveryTabs({
             </Link>
           ))
         ) : (
-          <div className="rounded-md bg-[#1f1f1f] p-4 text-sm text-[#b3b3b3]">
+          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
             Featured creators will appear once the public feed is seeded.
           </div>
         )}
@@ -168,10 +168,10 @@ export function LandingDiscoveryTabs({
             <Link
               key={playlist.id}
               href={`/playlist/${playlist.slug}`}
-              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[#282828]"
+              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
             >
               <div
-                className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[#282828] to-[#1f1f1f]"
+                className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--muted))]"
                 style={
                   playlist.coverUrl
                     ? {
@@ -184,7 +184,7 @@ export function LandingDiscoveryTabs({
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-white">{playlist.title}</p>
-                <p className="truncate text-xs text-[#b3b3b3]">
+                <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
                   {playlist.description || "Curated from live public data."}
                 </p>
               </div>
@@ -192,7 +192,7 @@ export function LandingDiscoveryTabs({
             </Link>
           ))
         ) : (
-          <div className="rounded-md bg-[#1f1f1f] p-4 text-sm text-[#b3b3b3]">
+          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
             Featured playlists will appear once the discovery endpoint returns data.
           </div>
         )}
@@ -200,3 +200,4 @@ export function LandingDiscoveryTabs({
     </Tabs>
   );
 }
+

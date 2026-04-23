@@ -107,7 +107,7 @@ export function LandingHeroPlayButton({
         )}
         {buttonLabel}
       </Button>
-      <div className="flex flex-wrap items-center gap-2 text-sm text-[#b3b3b3]">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
         <Badge variant={spotlightCard ? "soft" : "outline"}>
           {isActiveTrack ? (isPlaying ? "Now playing" : "Ready in player") : "Live spotlight"}
         </Badge>
@@ -116,3 +116,4 @@ export function LandingHeroPlayButton({
     </div>
   );
 }
+

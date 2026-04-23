@@ -161,9 +161,9 @@ export function PlaylistEditorDialog({
             </div>
           ) : null}
 
-          <div className="rounded-md bg-[#1f1f1f] p-4">
+          <div className="rounded-md bg-[hsl(var(--muted))] p-4">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1ed760] text-black">
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))] text-black">
                 <Lock className="h-4 w-4" />
               </div>
               <div className="space-y-1">
@@ -192,3 +192,4 @@ export function PlaylistEditorDialog({
     </Dialog>
   );
 }
+
