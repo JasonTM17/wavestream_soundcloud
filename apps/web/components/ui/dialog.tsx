@@ -33,13 +33,13 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-[#282828] bg-[#282828] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.5)] outline-none",
+        "fixed left-1/2 top-1/2 z-50 grid w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-[hsl(var(--accent))] bg-[hsl(var(--accent))] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.5)] outline-none",
         className,
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2 text-[#b3b3b3] transition hover:bg-[#3e3e3e] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#1ed760]/40">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2 text-[hsl(var(--muted-foreground))] transition hover:bg-[#3e3e3e] hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/40">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -88,7 +88,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-[#b3b3b3]", className)}
+    className={cn("text-sm text-[hsl(var(--muted-foreground))]", className)}
     {...props}
   />
 ));
@@ -106,3 +106,4 @@ export {
   DialogTitle,
   DialogTrigger,
 };
+

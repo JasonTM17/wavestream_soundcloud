@@ -15,7 +15,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between rounded-full border-0 bg-[#1f1f1f] px-4 py-2 text-sm text-white shadow-[inset_0_0_0_1px_#727272] transition-colors focus:shadow-[inset_0_0_0_2px_#ffffff] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+      "flex h-10 w-full items-center justify-between rounded-full border-0 bg-[hsl(var(--muted))] px-4 py-2 text-sm text-white shadow-[inset_0_0_0_1px_#727272] transition-colors focus:shadow-[inset_0_0_0_2px_#ffffff] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
     {...props}
@@ -64,7 +64,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-48 overflow-hidden rounded-md border border-[#282828] bg-[#282828] text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
+        "relative z-50 max-h-96 min-w-48 overflow-hidden rounded-md border border-[hsl(var(--accent))] bg-[hsl(var(--accent))] text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]",
         position === "popper" && "translate-y-1",
         className,
       )}
@@ -86,7 +86,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#b3b3b3]",
+      "px-3 py-2 text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]",
       className,
     )}
     {...props}
@@ -108,7 +108,7 @@ const SelectItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-[#1ed760]" />
+        <Check className="h-4 w-4 text-primary" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
@@ -138,3 +138,4 @@ export {
   SelectTrigger,
   SelectValue,
 };
+
