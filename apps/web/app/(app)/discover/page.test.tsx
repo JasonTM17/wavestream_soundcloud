@@ -17,10 +17,13 @@ vi.mock("@/lib/wavestream-queries", () => ({
 }));
 
 vi.mock("@/lib/player-store", () => ({
-  usePlayerStore: (selector: (state: { setQueue: () => void; playTrack: () => void }) => unknown) =>
+  usePlayerStore: (selector: (state: { setQueue: () => void; playTrack: () => void; currentTrack: null; isPlaying: boolean; togglePlay: () => void }) => unknown) =>
     selector({
       setQueue: vi.fn(),
       playTrack: vi.fn(),
+      currentTrack: null,
+      isPlaying: false,
+      togglePlay: vi.fn(),
     }),
 }));
 
@@ -90,22 +93,26 @@ describe("DiscoverPage", () => {
     vi.clearAllMocks();
   });
 
-  it("renders real feed snapshot cards instead of synthetic pulse progress", () => {
+  it("renders trending tracks section without AI dashboard patterns", () => {
     render(<DiscoverPage />);
 
-    expect(screen.getByText("Feed snapshot")).toBeInTheDocument();
+    // Page heading is translated to Vietnamese
+    expect(screen.getByRole("heading", { name: "Khám phá" })).toBeInTheDocument();
+    // Trending tracks section heading (i18n)
+    expect(screen.getByText("Đang thịnh hành")).toBeInTheDocument();
+    // No synthetic pulse/progress
     expect(screen.queryByText("Listening pulse")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Featured artists")).toHaveLength(1);
   });
 
-  it("routes guests toward sign-in for creator tools and keeps artist cards deep-linkable", () => {
+  it("routes guests toward sign-in for creator tools", () => {
     render(<DiscoverPage />);
 
-    const creatorLinks = screen.getAllByRole("link", { name: "Sign in for creator tools" });
-
-    expect(creatorLinks[0]).toHaveAttribute("href", "/sign-in?next=%2Fcreator");
-    const artistLinks = screen.getAllByRole("link", { name: "Open artist Solis Kim" });
-
-    expect(artistLinks[0]).toHaveAttribute("href", "/artist/solis-kim");
+    // CTA for unauthenticated users links to sign-in for creator tools
+    const allLinks = screen.getAllByRole("link");
+    const creatorLink = allLinks.find(
+      (l) => l.getAttribute("href") === "/sign-in?next=%2Fcreator",
+    );
+    expect(creatorLink).toBeDefined();
+    expect(creatorLink?.getAttribute("href")).toBe("/sign-in?next=%2Fcreator");
   });
 });

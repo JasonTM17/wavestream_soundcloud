@@ -1,22 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLibraryStats } from "./page";
+import { formatCompactNumber } from "@/lib/wavestream-api";
 
-describe("buildLibraryStats", () => {
-  it("renders live library aggregates without any liked-tracks placeholder copy", () => {
-    const stats = buildLibraryStats({
-      historyCount: 18,
-      followingCount: 7,
-      trackCount: 4,
-      playlistCount: 5,
-    });
-
-    expect(stats).toHaveLength(4);
-    expect(stats.map(([label, value]) => [label, value])).toEqual([
-      ["Listening history", "18 tracks"],
-      ["Following", "7 creators"],
-      ["My uploads", "4 tracks"],
-      ["Playlists", "5 collections"],
-    ]);
+describe("library page utilities", () => {
+  it("formats large counts in compact form", () => {
+    expect(formatCompactNumber(18)).toBe("18");
+    expect(formatCompactNumber(1000)).toBe("1K");
+    expect(formatCompactNumber(5000000)).toBe("5M");
   });
 });
