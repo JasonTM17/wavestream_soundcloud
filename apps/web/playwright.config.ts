@@ -15,6 +15,15 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: baseURL,
+          localStorage: [{ name: 'wavestream_locale', value: 'en' }],
+        },
+      ],
+    },
   },
   projects: [
     {
