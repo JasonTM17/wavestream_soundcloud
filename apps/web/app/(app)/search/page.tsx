@@ -283,21 +283,25 @@ export default function SearchPage() {
                 </section>
               )}
 
-              {showGenres && genresResults.length > 0 && (
+              {showGenres && (
                 <section>
                   <h2 className="mb-3 text-base font-bold text-foreground">{t.genres}</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {genresResults.map((genre) => (
-                      <button
-                        key={genre.id}
-                        type="button"
-                        onClick={() => applyQuickSearch(genre.name)}
-                        className="rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                      >
-                        {genre.name}
-                      </button>
-                    ))}
-                  </div>
+                  {genresResults.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {genresResults.map((genre) => (
+                        <button
+                          key={genre.id}
+                          type="button"
+                          onClick={() => applyQuickSearch(genre.name)}
+                          className="rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                        >
+                          {genre.name}
+                        </button>
+                      ))}
+                    </div>
+                  ) : scope === "genres" ? (
+                    <p className="text-sm text-muted-foreground">{t.noGenresYet}</p>
+                  ) : null}
                 </section>
               )}
 
