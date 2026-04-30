@@ -1,22 +1,28 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { ReportStatus, TrackStatus, UserRole } from "@wavestream/shared";
-import { ShieldAlert, Users, Waves, MessageSquareWarning, ListMusic } from "lucide-react";
-import Link from "next/link";
-import { toast } from "sonner";
+import * as React from 'react';
+import { ReportStatus, TrackStatus, UserRole } from '@wavestream/shared';
+import { ShieldAlert, Users, Waves, MessageSquareWarning, ListMusic } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
 
-import { ModerationNoteDialog } from "@/components/admin/moderation-note-dialog";
-import { PaginationControls } from "@/components/admin/pagination-controls";
-import { ResolveReportDialog } from "@/components/admin/resolve-report-dialog";
-import { ProtectedRoute } from "@/components/protected-route";
-import { useT } from "@/lib/i18n";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModerationNoteDialog } from '@/components/admin/moderation-note-dialog';
+import { PaginationControls } from '@/components/admin/pagination-controls';
+import { ResolveReportDialog } from '@/components/admin/resolve-report-dialog';
+import { ProtectedRoute } from '@/components/protected-route';
+import { useT } from '@/lib/i18n';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   formatCompactNumber,
   formatDuration,
@@ -26,7 +32,7 @@ import {
   type AdminReportSummary,
   type AdminTrackSummary,
   type AdminUserSummary,
-} from "@/lib/wavestream-api";
+} from '@/lib/wavestream-api';
 import {
   useAdminAuditLogsQuery,
   useAdminCommentsQuery,
@@ -42,9 +48,15 @@ import {
   useRestoreAdminCommentMutation,
   useRestoreAdminTrackMutation,
   useUpdateAdminUserRoleMutation,
-} from "@/lib/wavestream-queries";
+} from '@/lib/wavestream-queries';
 
 const PAGE_SIZE = 8;
+
+const getHasPreviousPage = (meta?: { hasPrev?: boolean; hasPreviousPage?: boolean }) =>
+  Boolean(meta?.hasPrev ?? meta?.hasPreviousPage);
+
+const getHasNextPage = (meta?: { hasNext?: boolean; hasNextPage?: boolean }) =>
+  Boolean(meta?.hasNext ?? meta?.hasNextPage);
 
 function AdminSkeleton() {
   return (
@@ -69,7 +81,7 @@ function EmptyState({ title, description }: { title: string; description: string
 }
 
 function QueryErrorState({ label, onRetry }: { label: string; onRetry: () => void }) {
-  const tAdmin = useT("admin");
+  const tAdmin = useT('admin');
   return (
     <div className="rounded-lg bg-muted/30 p-6">
       <div className="space-y-2 mb-4 text-muted-foreground text-sm">
@@ -83,39 +95,39 @@ function QueryErrorState({ label, onRetry }: { label: string; onRetry: () => voi
   );
 }
 
-function statusBadgeVariant(status: ReportStatus | TrackStatus | "deleted" | "active") {
+function statusBadgeVariant(status: ReportStatus | TrackStatus | 'deleted' | 'active') {
   switch (status) {
     case ReportStatus.RESOLVED:
     case TrackStatus.PUBLISHED:
-    case "active":
-      return "success";
+    case 'active':
+      return 'success';
     case ReportStatus.DISMISSED:
     case TrackStatus.HIDDEN:
-    case "deleted":
-      return "outline";
+    case 'deleted':
+      return 'outline';
     default:
-      return "soft";
+      return 'soft';
   }
 }
 
 function targetStatusBadgeVariant(status?: string | null) {
   switch (status?.toLowerCase()) {
-    case "active":
-    case "published":
-    case "public":
-      return "success";
-    case "deleted":
-    case "hidden":
-    case "private":
-      return "outline";
+    case 'active':
+    case 'published':
+    case 'public':
+      return 'success';
+    case 'deleted':
+    case 'hidden':
+    case 'private':
+      return 'outline';
     default:
-      return "soft";
+      return 'soft';
   }
 }
 
 function AdminUserCard({ user }: { user: AdminUserSummary }) {
-  const tAdmin = useT("admin");
-  const tCommon = useT("common");
+  const tAdmin = useT('admin');
+  const tCommon = useT('common');
   const [draftRole, setDraftRole] = React.useState<UserRole>(user.role);
   const updateRoleMutation = useUpdateAdminUserRoleMutation(user.id);
 
@@ -127,10 +139,10 @@ function AdminUserCard({ user }: { user: AdminUserSummary }) {
   const roleLabel = user.deletedAt
     ? tAdmin.deletedLabel
     : user.role === UserRole.ADMIN
-    ? tCommon.admin
-    : user.role === UserRole.CREATOR
-    ? tCommon.creator
-    : tCommon.listener;
+      ? tCommon.admin
+      : user.role === UserRole.CREATOR
+        ? tCommon.creator
+        : tCommon.listener;
 
   return (
     <div className="rounded-md bg-muted p-4 transition-colors hover:bg-accent">
@@ -139,13 +151,14 @@ function AdminUserCard({ user }: { user: AdminUserSummary }) {
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-bold text-foreground">{user.displayName}</p>
             <Badge variant="soft">@{user.username}</Badge>
-            <Badge variant={statusBadgeVariant(user.deletedAt ? "deleted" : "active")}>
+            <Badge variant={statusBadgeVariant(user.deletedAt ? 'deleted' : 'active')}>
               {roleLabel}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">{user.email}</p>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            {formatCompactNumber(user.followerCount)} {tCommon.followers} · {user.trackCount} {tCommon.tracks} · {user.playlistCount} {tCommon.playlists}
+            {formatCompactNumber(user.followerCount)} {tCommon.followers} · {user.trackCount}{' '}
+            {tCommon.tracks} · {user.playlistCount} {tCommon.playlists}
           </p>
         </div>
 
@@ -183,9 +196,9 @@ function AdminUserCard({ user }: { user: AdminUserSummary }) {
 }
 
 function AdminTrackCard({ track }: { track: AdminTrackSummary }) {
-  const tAdmin = useT("admin");
-  const tCommon = useT("common");
-  const tCreator = useT("creator");
+  const tAdmin = useT('admin');
+  const tCommon = useT('common');
+  const tCreator = useT('creator');
   const [isHideOpen, setIsHideOpen] = React.useState(false);
   const hideMutation = useHideAdminTrackMutation(track.id);
   const restoreMutation = useRestoreAdminTrackMutation(track.id);
@@ -194,9 +207,9 @@ function AdminTrackCard({ track }: { track: AdminTrackSummary }) {
     track.status === TrackStatus.PUBLISHED
       ? tCreator.published
       : track.status === TrackStatus.HIDDEN
-      ? tAdmin.hidden
-      : tCreator.draft;
-  const privacyLabel = track.privacy === "public" ? tCommon.public : tCommon.private;
+        ? tAdmin.hidden
+        : tCreator.draft;
+  const privacyLabel = track.privacy === 'public' ? tCommon.public : tCommon.private;
 
   return (
     <>
@@ -208,17 +221,23 @@ function AdminTrackCard({ track }: { track: AdminTrackSummary }) {
               <Badge variant={statusBadgeVariant(track.status)}>{statusLabel}</Badge>
               <Badge variant="outline">{privacyLabel}</Badge>
             </div>
-            <p className="text-sm text-muted-foreground">{tAdmin.by} {track.artistName}</p>
+            <p className="text-sm text-muted-foreground">
+              {tAdmin.by} {track.artistName}
+            </p>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              {formatCompactNumber(track.playCount)} {tCommon.plays} · {formatCompactNumber(track.likeCount)} {tCommon.likes} · {track.commentCount} {tCommon.comments}
+              {formatCompactNumber(track.playCount)} {tCommon.plays} ·{' '}
+              {formatCompactNumber(track.likeCount)} {tCommon.likes} · {track.commentCount}{' '}
+              {tCommon.comments}
             </p>
             {track.hiddenReason ? (
-              <p className="text-sm text-muted-foreground">{tAdmin.hiddenReason}: {track.hiddenReason}</p>
+              <p className="text-sm text-muted-foreground">
+                {tAdmin.hiddenReason}: {track.hiddenReason}
+              </p>
             ) : null}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {track.status === "hidden" ? (
+            {track.status === 'hidden' ? (
               <Button
                 type="button"
                 variant="outline"
@@ -262,7 +281,7 @@ function AdminTrackCard({ track }: { track: AdminTrackSummary }) {
 }
 
 function AdminCommentCard({ comment }: { comment: AdminCommentSummary }) {
-  const tAdmin = useT("admin");
+  const tAdmin = useT('admin');
   const [isHideOpen, setIsHideOpen] = React.useState(false);
   const hideMutation = useHideAdminCommentMutation(comment.id);
   const restoreMutation = useRestoreAdminCommentMutation(comment.id);
@@ -274,7 +293,7 @@ function AdminCommentCard({ comment }: { comment: AdminCommentSummary }) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-bold text-foreground">@{comment.username}</p>
-              <Badge variant={statusBadgeVariant(comment.isHidden ? "deleted" : "active")}>
+              <Badge variant={statusBadgeVariant(comment.isHidden ? 'deleted' : 'active')}>
                 {comment.isHidden ? tAdmin.hidden : tAdmin.visible}
               </Badge>
             </div>
@@ -327,16 +346,16 @@ function AdminCommentCard({ comment }: { comment: AdminCommentSummary }) {
 }
 
 function AdminPlaylistCard({ playlist }: { playlist: AdminPlaylistSummary }) {
-  const tAdmin = useT("admin");
-  const tCommon = useT("common");
+  const tAdmin = useT('admin');
+  const tCommon = useT('common');
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const deleteMutation = useDeleteAdminPlaylistMutation(playlist.id);
 
   const statusLabel = playlist.deletedAt
     ? tAdmin.deletedLabel
     : playlist.isPublic
-    ? tCommon.public
-    : tCommon.private;
+      ? tCommon.public
+      : tCommon.private;
 
   return (
     <>
@@ -345,7 +364,7 @@ function AdminPlaylistCard({ playlist }: { playlist: AdminPlaylistSummary }) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-bold text-foreground">{playlist.title}</p>
-              <Badge variant={statusBadgeVariant(playlist.deletedAt ? "deleted" : "active")}>
+              <Badge variant={statusBadgeVariant(playlist.deletedAt ? 'deleted' : 'active')}>
                 {statusLabel}
               </Badge>
             </div>
@@ -386,8 +405,8 @@ function AdminPlaylistCard({ playlist }: { playlist: AdminPlaylistSummary }) {
 }
 
 function AdminReportCard({ report }: { report: AdminReportSummary }) {
-  const tAdmin = useT("admin");
-  const tCommon = useT("common");
+  const tAdmin = useT('admin');
+  const tCommon = useT('common');
   const [isResolveOpen, setIsResolveOpen] = React.useState(false);
   const resolveMutation = useResolveAdminReportMutation(report.id);
   const shouldShowFallbackTargetId = !report.target?.label || !report.target?.href;
@@ -421,7 +440,9 @@ function AdminReportCard({ report }: { report: AdminReportSummary }) {
                         ) : null}
                       </div>
                       {report.target.secondaryLabel ? (
-                        <p className="mt-1 text-sm text-muted-foreground">{report.target.secondaryLabel}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {report.target.secondaryLabel}
+                        </p>
                       ) : null}
                     </Link>
                   ) : (
@@ -435,7 +456,9 @@ function AdminReportCard({ report }: { report: AdminReportSummary }) {
                         ) : null}
                       </div>
                       {report.target.secondaryLabel ? (
-                        <p className="mt-1 text-sm text-muted-foreground">{report.target.secondaryLabel}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {report.target.secondaryLabel}
+                        </p>
                       ) : null}
                     </div>
                   )}
@@ -497,7 +520,7 @@ function AdminAuditLogCard({ log }: { log: AdminAuditLogSummary }) {
 }
 
 function AdminPageContent() {
-  const tAdmin = useT("admin");
+  const tAdmin = useT('admin');
   const [usersPage, setUsersPage] = React.useState(1);
   const [tracksPage, setTracksPage] = React.useState(1);
   const [playlistsPage, setPlaylistsPage] = React.useState(1);
@@ -541,7 +564,11 @@ function AdminPageContent() {
             { label: tAdmin.tracks, value: overview?.trackCount ?? 0, icon: Waves },
             { label: tAdmin.playlists, value: overview?.playlistCount ?? 0, icon: ListMusic },
             { label: tAdmin.pendingReports, value: overview?.reportCount ?? 0, icon: ShieldAlert },
-            { label: tAdmin.hiddenComments, value: overview?.flaggedCommentCount ?? 0, icon: MessageSquareWarning },
+            {
+              label: tAdmin.hiddenComments,
+              value: overview?.flaggedCommentCount ?? 0,
+              icon: MessageSquareWarning,
+            },
           ].map((item) => {
             const Icon = item.icon;
             return (
@@ -551,7 +578,9 @@ function AdminPageContent() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-foreground">{formatCompactNumber(item.value)}</p>
+                    <p className="text-xl font-bold text-foreground">
+                      {formatCompactNumber(item.value)}
+                    </p>
                     <p className="text-sm text-muted-foreground">{item.label}</p>
                   </div>
                 </CardContent>
@@ -572,14 +601,19 @@ function AdminPageContent() {
 
           <TabsContent value="reports">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.reportsQueue}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.reportsQueue}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {reportsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <Skeleton key={index} className="h-28 rounded-md" />
                   ))
                 ) : reportsQuery.isError ? (
-                  <QueryErrorState label={tAdmin.reports} onRetry={() => void reportsQuery.refetch()} />
+                  <QueryErrorState
+                    label={tAdmin.reports}
+                    onRetry={() => void reportsQuery.refetch()}
+                  />
                 ) : reportsQuery.data?.data.length ? (
                   <>
                     <div className="space-y-2">
@@ -589,8 +623,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={reportsPage}
-                      hasPrev={Boolean(reportsQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(reportsQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(reportsQuery.data.meta)}
+                      hasNext={getHasNextPage(reportsQuery.data.meta)}
                       isPending={reportsQuery.isFetching}
                       onPageChange={setReportsPage}
                     />
@@ -604,14 +638,19 @@ function AdminPageContent() {
 
           <TabsContent value="tracks">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.trackModeration}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.trackModeration}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {tracksQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <Skeleton key={index} className="h-28 rounded-md" />
                   ))
                 ) : tracksQuery.isError ? (
-                  <QueryErrorState label={tAdmin.tracks} onRetry={() => void tracksQuery.refetch()} />
+                  <QueryErrorState
+                    label={tAdmin.tracks}
+                    onRetry={() => void tracksQuery.refetch()}
+                  />
                 ) : tracksQuery.data?.data.length ? (
                   <>
                     <div className="space-y-2">
@@ -621,8 +660,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={tracksPage}
-                      hasPrev={Boolean(tracksQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(tracksQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(tracksQuery.data.meta)}
+                      hasNext={getHasNextPage(tracksQuery.data.meta)}
                       isPending={tracksQuery.isFetching}
                       onPageChange={setTracksPage}
                     />
@@ -636,14 +675,19 @@ function AdminPageContent() {
 
           <TabsContent value="comments">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.commentModeration}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.commentModeration}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {commentsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <Skeleton key={index} className="h-28 rounded-md" />
                   ))
                 ) : commentsQuery.isError ? (
-                  <QueryErrorState label={tAdmin.comments} onRetry={() => void commentsQuery.refetch()} />
+                  <QueryErrorState
+                    label={tAdmin.comments}
+                    onRetry={() => void commentsQuery.refetch()}
+                  />
                 ) : commentsQuery.data?.data.length ? (
                   <>
                     <div className="space-y-2">
@@ -653,8 +697,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={commentsPage}
-                      hasPrev={Boolean(commentsQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(commentsQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(commentsQuery.data.meta)}
+                      hasNext={getHasNextPage(commentsQuery.data.meta)}
                       isPending={commentsQuery.isFetching}
                       onPageChange={setCommentsPage}
                     />
@@ -668,14 +712,19 @@ function AdminPageContent() {
 
           <TabsContent value="playlists">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.playlistModeration}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.playlistModeration}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {playlistsQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <Skeleton key={index} className="h-28 rounded-md" />
                   ))
                 ) : playlistsQuery.isError ? (
-                  <QueryErrorState label={tAdmin.playlists} onRetry={() => void playlistsQuery.refetch()} />
+                  <QueryErrorState
+                    label={tAdmin.playlists}
+                    onRetry={() => void playlistsQuery.refetch()}
+                  />
                 ) : playlistsQuery.data?.data.length ? (
                   <>
                     <div className="space-y-2">
@@ -685,8 +734,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={playlistsPage}
-                      hasPrev={Boolean(playlistsQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(playlistsQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(playlistsQuery.data.meta)}
+                      hasNext={getHasNextPage(playlistsQuery.data.meta)}
                       isPending={playlistsQuery.isFetching}
                       onPageChange={setPlaylistsPage}
                     />
@@ -700,7 +749,9 @@ function AdminPageContent() {
 
           <TabsContent value="users">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.userRoles}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.userRoles}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {usersQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
@@ -717,8 +768,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={usersPage}
-                      hasPrev={Boolean(usersQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(usersQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(usersQuery.data.meta)}
+                      hasNext={getHasNextPage(usersQuery.data.meta)}
                       isPending={usersQuery.isFetching}
                       onPageChange={setUsersPage}
                     />
@@ -732,14 +783,19 @@ function AdminPageContent() {
 
           <TabsContent value="audit">
             <Card>
-              <CardHeader><CardTitle>{tAdmin.auditLogs}</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>{tAdmin.auditLogs}</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-2">
                 {auditQuery.isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <Skeleton key={index} className="h-28 rounded-md" />
                   ))
                 ) : auditQuery.isError ? (
-                  <QueryErrorState label={tAdmin.auditLogs} onRetry={() => void auditQuery.refetch()} />
+                  <QueryErrorState
+                    label={tAdmin.auditLogs}
+                    onRetry={() => void auditQuery.refetch()}
+                  />
                 ) : auditQuery.data?.data.length ? (
                   <>
                     <div className="space-y-2">
@@ -749,8 +805,8 @@ function AdminPageContent() {
                     </div>
                     <PaginationControls
                       page={auditPage}
-                      hasPrev={Boolean(auditQuery.data.meta?.hasPreviousPage)}
-                      hasNext={Boolean(auditQuery.data.meta?.hasNextPage)}
+                      hasPrev={getHasPreviousPage(auditQuery.data.meta)}
+                      hasNext={getHasNextPage(auditQuery.data.meta)}
                       isPending={auditQuery.isFetching}
                       onPageChange={setAuditPage}
                     />
@@ -774,4 +830,3 @@ export default function AdminPage() {
     </React.Suspense>
   );
 }
-

@@ -14,21 +14,25 @@ export default async function LandingPage() {
     await getPublicLandingData();
   const spotlightTrack = trendingTracks[0] ?? newReleases[0] ?? null;
   const heroQueueTracks = trendingTracks.length ? trendingTracks : newReleases;
+  const publicGenreSlugs = new Set(
+    [...trendingTracks, ...newReleases]
+      .map((track) => track.genre?.slug)
+      .filter((slug): slug is string => Boolean(slug)),
+  );
+  const landingGenres = (
+    publicGenreSlugs.size
+      ? genres.filter((genre) => publicGenreSlugs.has(genre.slug))
+      : genres
+  ).slice(0, 12);
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Navbar — client component for i18n */}
       <LandingNav />
 
-      {/* Hero */}
       <section className="mx-auto max-w-[1400px] px-4 pb-16 pt-8 lg:px-8 lg:pb-24">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <LandingHeroText
-            spotlightTrack={spotlightTrack}
-            heroQueueTracks={heroQueueTracks}
-          />
+          <LandingHeroText spotlightTrack={spotlightTrack} heroQueueTracks={heroQueueTracks} />
 
-          {/* Spotlight card */}
           {spotlightTrack && (
             <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
               <div className="flex items-center gap-4">
@@ -36,9 +40,12 @@ export default async function LandingPage() {
                   <Music4 className="h-7 w-7 text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-lg font-bold text-foreground truncate">{spotlightTrack.title}</p>
+                  <p className="text-lg font-bold text-foreground truncate">
+                    {spotlightTrack.title}
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    {spotlightTrack.artist.displayName} · {formatDuration(spotlightTrack.duration)} · {formatCompactNumber(spotlightTrack.playCount)}
+                    {spotlightTrack.artist.displayName} • {formatDuration(spotlightTrack.duration)}{" "}
+                    • {formatCompactNumber(spotlightTrack.playCount)}
                   </p>
                 </div>
               </div>
@@ -54,14 +61,13 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Genres */}
-      {genres.length > 0 && (
+      {landingGenres.length > 0 && (
         <section className="mx-auto max-w-[1400px] px-4 pb-16 lg:px-8">
           <div className="flex flex-wrap gap-2">
-            {genres.slice(0, 12).map((genre) => (
+            {landingGenres.map((genre) => (
               <Link
                 key={genre.id}
-                href={`/search?q=${encodeURIComponent(genre.name)}`}
+                href={`/search?genre=${encodeURIComponent(genre.slug)}`}
                 className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
               >
                 {genre.name}
@@ -71,10 +77,7 @@ export default async function LandingPage() {
         </section>
       )}
 
-      {/* CTA section — client component for i18n */}
       <LandingCta />
-
-      {/* Footer — client component for i18n */}
       <LandingFooter />
     </main>
   );

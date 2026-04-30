@@ -1,5 +1,5 @@
-FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM public.ecr.aws/docker/library/node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /app
 
 # Install dependencies
@@ -20,8 +20,8 @@ COPY apps/api/ ./apps/api/
 RUN pnpm --filter api build
 
 # Production
-FROM node:20-alpine AS production
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM public.ecr.aws/docker/library/node:20-alpine AS production
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /app
 ENV NODE_ENV=production
 

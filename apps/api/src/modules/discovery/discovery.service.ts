@@ -160,12 +160,19 @@ export class DiscoveryService {
         .andWhere(
           viewer?.role === UserRole.ADMIN
             ? 'track.deletedAt IS NULL'
-            : 'track.deletedAt IS NULL AND ((track.status = :status AND track.privacy = :privacy) OR track.artistId = :viewerId)',
-          {
-            status: TrackStatus.PUBLISHED,
-            privacy: TrackPrivacy.PUBLIC,
-            viewerId: viewer?.id ?? '',
-          },
+            : viewer
+              ? 'track.deletedAt IS NULL AND ((track.status = :status AND track.privacy = :privacy) OR track.artistId = :viewerId)'
+              : 'track.deletedAt IS NULL AND track.status = :status AND track.privacy = :privacy',
+          viewer
+            ? {
+                status: TrackStatus.PUBLISHED,
+                privacy: TrackPrivacy.PUBLIC,
+                viewerId: viewer.id,
+              }
+            : {
+                status: TrackStatus.PUBLISHED,
+                privacy: TrackPrivacy.PUBLIC,
+              },
         )
         .orderBy('track.playCount', 'DESC')
         .take(10)
@@ -190,8 +197,10 @@ export class DiscoveryService {
         .andWhere(
           viewer?.role === UserRole.ADMIN
             ? 'playlist.deletedAt IS NULL'
-            : 'playlist.deletedAt IS NULL AND (playlist.isPublic = true OR playlist.ownerId = :viewerId)',
-          { viewerId: viewer?.id ?? '' },
+            : viewer
+              ? 'playlist.deletedAt IS NULL AND (playlist.isPublic = true OR playlist.ownerId = :viewerId)'
+              : 'playlist.deletedAt IS NULL AND playlist.isPublic = true',
+          viewer ? { viewerId: viewer.id } : {},
         )
         .orderBy('playlist.updatedAt', 'DESC')
         .take(10)

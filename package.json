@@ -13,6 +13,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "pnpm --filter api test:e2e && pnpm --filter web test:e2e",
+    "docs:check": "node ./scripts/check-docs-text.mjs",
     "smoke:docker": "node ./scripts/docker-smoke.mjs",
     "db:migrate": "pnpm --filter api migration:run",
     "db:seed": "pnpm --filter api seed",

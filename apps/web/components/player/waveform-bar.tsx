@@ -4,18 +4,25 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface WaveformBarProps {
-  /** Playback progress as a percentage (0–100) */
+  /** Playback progress as a percentage (0-100). */
   progress: number;
-  /** Total track duration in seconds — used to calculate seek position on click */
+  /** Total track duration in seconds, used to calculate seek position on click. */
   duration: number;
-  /** Called with the target second when user clicks the waveform */
+  /** Called with the target second when user clicks the waveform. */
   onSeek?: (seconds: number) => void;
   disabled?: boolean;
-  /** Number of bars to render — more bars = finer resolution */
+  /** Number of bars to render; more bars = finer resolution. */
   barCount?: number;
   className?: string;
-  /** Seed string (e.g. track slug) for deterministic peak heights per track */
+  /** Seed string (for example, a track slug) for deterministic peak heights per track. */
   seed?: string;
+  ariaLabel?: string;
+}
+
+function formatPreviewTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = Math.floor(seconds % 60);
+  return `${minutes}:${remaining.toString().padStart(2, "0")}`;
 }
 
 /** Deterministic pseudo-random peak heights keyed to a seed string. */
@@ -43,9 +50,26 @@ export function WaveformBar({
   barCount = 90,
   className,
   seed = "track",
+  ariaLabel = "Track waveform",
 }: WaveformBarProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [hoverRatio, setHoverRatio] = React.useState<number | null>(null);
   const peaks = React.useMemo(() => generatePeaks(barCount, seed), [barCount, seed]);
+  const normalizedProgress = Math.min(Math.max(progress, 0), 100);
+
+  const updateHoverRatio = React.useCallback(
+    (clientX: number) => {
+      if (!containerRef.current || !duration) {
+        setHoverRatio(null);
+        return;
+      }
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      setHoverRatio(ratio);
+    },
+    [duration],
+  );
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -61,35 +85,57 @@ export function WaveformBar({
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (disabled || !onSeek || !duration) return;
       if (e.key === "ArrowRight") {
-        onSeek(Math.min(duration, (progress / 100) * duration + 5));
+        e.preventDefault();
+        onSeek(Math.min(duration, (normalizedProgress / 100) * duration + 5));
       } else if (e.key === "ArrowLeft") {
-        onSeek(Math.max(0, (progress / 100) * duration - 5));
+        e.preventDefault();
+        onSeek(Math.max(0, (normalizedProgress / 100) * duration - 5));
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        onSeek(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        onSeek(duration);
       }
     },
-    [disabled, onSeek, duration, progress],
+    [disabled, onSeek, duration, normalizedProgress],
   );
+
+  const previewSeconds = duration > 0 ? (normalizedProgress / 100) * duration : 0;
 
   return (
     <div
       ref={containerRef}
       role="slider"
       tabIndex={disabled ? -1 : 0}
-      aria-label="Track waveform — click to seek"
+      aria-label={ariaLabel}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-valuenow={Math.round(progress)}
+      aria-valuenow={Math.round(normalizedProgress)}
+      aria-valuetext={`${formatPreviewTime(previewSeconds)} / ${formatPreviewTime(duration)}`}
+      aria-disabled={disabled}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onMouseMove={(event) => updateHoverRatio(event.clientX)}
+      onMouseLeave={() => setHoverRatio(null)}
       className={cn(
-        "flex items-end gap-px select-none",
+        "relative flex items-end gap-px select-none",
         disabled ? "cursor-default opacity-40" : "cursor-pointer",
         className,
       )}
     >
+      {hoverRatio !== null && duration > 0 && !disabled ? (
+        <div
+          className="pointer-events-none absolute -top-7 -translate-x-1/2 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-medium text-background shadow-sm"
+          style={{ left: `${hoverRatio * 100}%` }}
+        >
+          {formatPreviewTime(hoverRatio * duration)}
+        </div>
+      ) : null}
       {peaks.map((height, i) => {
         const barProgress = (i / barCount) * 100;
-        const played = barProgress < progress;
-        const active = Math.abs(barProgress - progress) < 100 / barCount;
+        const played = barProgress < normalizedProgress;
+        const active = Math.abs(barProgress - normalizedProgress) < 100 / barCount;
         return (
           <div
             key={i}

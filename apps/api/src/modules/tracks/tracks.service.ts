@@ -115,15 +115,22 @@ export class TracksService {
       );
     }
 
-    if (!viewer || viewer.role !== UserRole.ADMIN) {
+    if (viewer?.role === UserRole.ADMIN) {
+      // Admins can inspect all non-deleted tracks.
+    } else if (viewer) {
       qb.andWhere(
         '((track.status = :published AND track.privacy = :public) OR track.artistId = :viewerId)',
         {
           published: TrackStatus.PUBLISHED,
           public: TrackPrivacy.PUBLIC,
-          viewerId: viewer?.id ?? '',
+          viewerId: viewer.id,
         },
       );
+    } else {
+      qb.andWhere('track.status = :published AND track.privacy = :public', {
+        published: TrackStatus.PUBLISHED,
+        public: TrackPrivacy.PUBLIC,
+      });
     }
 
     const [items, total] = await qb.getManyAndCount();

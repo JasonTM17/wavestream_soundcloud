@@ -1,12 +1,12 @@
-import { Suspense } from "react";
-import Link from "next/link";
-import { Headphones, Music4 } from "lucide-react";
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { Headphones, Music4 } from 'lucide-react';
 
-import { AuthPageGuard } from "@/components/protected-route";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { getPublicLandingData } from "@/lib/public-api";
-import { formatCompactNumber, formatDuration } from "@/lib/wavestream-api";
+import { AuthPageGuard } from '@/components/protected-route';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { getPublicLandingData } from '@/lib/public-api';
+import { formatCompactNumber, formatDuration } from '@/lib/wavestream-api';
 
 export default async function AuthLayout({
   children,
@@ -21,12 +21,12 @@ export default async function AuthLayout({
       <AuthPageGuard>
         <main className="min-h-screen bg-background px-4 py-6 lg:px-6">
           <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-7xl overflow-hidden rounded-lg lg:grid-cols-[0.92fr_1.08fr]">
-            {/* Left panel — branding & featured */}
-            <section className="hidden flex-col gap-8 bg-gradient-to-b from-card to-background p-8 text-foreground lg:flex border-r border-border">
+            {/* Left panel - branding & featured */}
+            <section className="hidden flex-col gap-8 border-r border-border bg-gradient-to-b from-card to-background p-8 text-foreground lg:flex">
               <div className="flex items-center justify-between gap-4">
                 <Link href="/" className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                    <Music4 className="h-5 w-5 text-white" />
+                    <Music4 className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="text-lg font-bold text-foreground">WaveStream</p>
@@ -59,32 +59,36 @@ export default async function AuthLayout({
               </div>
 
               {spotlightTrack && (
-                <div className="mt-auto rounded-xl bg-card border border-border p-5" data-testid="auth-featured-track-card">
-                  <p className="text-xs text-muted-foreground mb-2">Đang thịnh hành</p>
+                <div
+                  className="mt-auto rounded-xl border border-border bg-card p-5"
+                  data-testid="auth-featured-track-card"
+                >
+                  <p className="mb-2 text-xs text-muted-foreground">Đang thịnh hành</p>
                   <p className="text-lg font-bold text-foreground">{spotlightTrack.title}</p>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    {spotlightTrack.artist.displayName} · {formatDuration(spotlightTrack.duration)} · {formatCompactNumber(spotlightTrack.playCount)} lượt nghe
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    {spotlightTrack.artist.displayName} · {formatDuration(spotlightTrack.duration)}{' '}
+                    · {formatCompactNumber(spotlightTrack.playCount)} lượt nghe
                   </p>
                 </div>
               )}
 
               <div className="text-xs text-muted-foreground" data-testid="auth-credits">
-                <Link href="/about" className="hover:text-primary transition-colors">
+                <Link href="/about" className="transition-colors hover:text-primary">
                   About
                 </Link>
-                {" · "}
+                {' · '}
                 <span>Portfolio project by Nguyễn Sơn</span>
               </div>
             </section>
 
-            {/* Right panel — form */}
+            {/* Right panel - form */}
             <section className="flex flex-col justify-center bg-card p-4 sm:p-6 lg:p-10">
               <div className="mx-auto w-full max-w-lg">
                 {/* Mobile logo */}
                 <div className="mb-6 flex items-center justify-between lg:hidden">
                   <Link href="/" className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-                      <Music4 className="h-4 w-4 text-white" />
+                      <Music4 className="h-4 w-4 text-primary-foreground" />
                     </div>
                     <p className="font-bold text-foreground">WaveStream</p>
                   </Link>
@@ -92,8 +96,10 @@ export default async function AuthLayout({
                 </div>
                 {children}
                 <p className="mt-6 text-center text-xs text-muted-foreground lg:hidden">
-                  <Link href="/about" className="hover:text-primary transition-colors">Giới thiệu</Link>
-                  {" · "}Portfolio · Nguyễn Sơn
+                  <Link href="/about" className="transition-colors hover:text-primary">
+                    Giới thiệu
+                  </Link>
+                  {' · '}Portfolio · Nguyễn Sơn
                 </p>
               </div>
             </section>

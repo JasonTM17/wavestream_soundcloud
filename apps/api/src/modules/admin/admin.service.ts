@@ -400,6 +400,11 @@ export class AdminService {
 
     if (!playlist.deletedAt) {
       await this.playlistsRepository.softDelete(playlist.id);
+      const owner = await this.usersRepository.findOneBy({ id: playlist.ownerId });
+      if (owner) {
+        owner.playlistCount = Math.max(0, owner.playlistCount - 1);
+        await this.usersRepository.save(owner);
+      }
     }
 
     await this.writeAuditLog(admin.id, AdminActionType.DELETE_PLAYLIST, 'playlist', playlist.id, {

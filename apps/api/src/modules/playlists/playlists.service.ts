@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserRole } from '@wavestream/shared';
+import { TrackPrivacy, TrackStatus, UserRole } from '@wavestream/shared';
 import { Repository } from 'typeorm';
 import { isUuid } from 'src/common/utils/is-uuid.util';
 import { mapPlaylist } from 'src/common/utils/mappers';
@@ -52,10 +52,14 @@ export class PlaylistsService {
       qb.andWhere('playlist.ownerId = :ownerId', { ownerId });
     }
 
-    if (!viewer || viewer.role !== UserRole.ADMIN) {
+    if (viewer?.role === UserRole.ADMIN) {
+      // Admins can inspect all non-deleted playlists.
+    } else if (viewer) {
       qb.andWhere('(playlist.isPublic = true OR playlist.ownerId = :viewerId)', {
-        viewerId: viewer?.id ?? '',
+        viewerId: viewer.id,
       });
+    } else {
+      qb.andWhere('playlist.isPublic = true');
     }
 
     const [items, total] = await qb.getManyAndCount();
@@ -77,7 +81,7 @@ export class PlaylistsService {
     const playlist = await this.findPlaylistOrFail(idOrSlug);
     this.assertCanAccess(playlist, viewer);
 
-    return mapPlaylist(playlist);
+    return mapPlaylist(this.getVisiblePlaylist(playlist, viewer));
   }
 
   async createPlaylist(owner: UserEntity, dto: CreatePlaylistDto) {
@@ -104,6 +108,10 @@ export class PlaylistsService {
   async updatePlaylist(idOrSlug: string, actor: UserEntity, dto: UpdatePlaylistDto) {
     const playlist = await this.findPlaylistOrFail(idOrSlug);
     this.assertOwnership(playlist, actor);
+
+    if (dto.isPublic === true) {
+      this.assertPublicPlaylistCanExposeTracks(playlist);
+    }
 
     if (dto.title) {
       playlist.title = sanitizePlainText(dto.title) ?? playlist.title;
@@ -161,6 +169,7 @@ export class PlaylistsService {
     if (!track || track.deletedAt) {
       throw new NotFoundException('Track not found');
     }
+    this.assertTrackCanBeAdded(playlist, track, actor);
 
     const existing = await this.playlistTracksRepository.findOneBy({
       playlistId: playlist.id,
@@ -304,6 +313,64 @@ export class PlaylistsService {
 
     if (!canAccess) {
       throw new ForbiddenException('Playlist is private');
+    }
+  }
+
+  private isPublicTrack(track?: TrackEntity | null) {
+    if (!track) {
+      return false;
+    }
+
+    return (
+      !track.deletedAt &&
+      track.status === TrackStatus.PUBLISHED &&
+      track.privacy === TrackPrivacy.PUBLIC
+    );
+  }
+
+  private getVisiblePlaylist(playlist: PlaylistEntity, viewer?: UserEntity) {
+    const canSeePrivateEntries =
+      viewer && (viewer.id === playlist.ownerId || viewer.role === UserRole.ADMIN);
+
+    if (canSeePrivateEntries) {
+      return playlist;
+    }
+
+    const tracks = (playlist.tracks ?? []).filter((entry) => this.isPublicTrack(entry.track));
+    const totalDuration = tracks.reduce((sum, entry) => sum + entry.track.duration, 0);
+
+    return {
+      ...playlist,
+      tracks,
+      trackCount: tracks.length,
+      totalDuration,
+    } as PlaylistEntity;
+  }
+
+  private assertPublicPlaylistCanExposeTracks(playlist: PlaylistEntity) {
+    const hasPrivateEntries = (playlist.tracks ?? []).some(
+      (entry) => !this.isPublicTrack(entry.track),
+    );
+
+    if (hasPrivateEntries) {
+      throw new ForbiddenException(
+        'Private, draft, or hidden tracks cannot be exposed in a public playlist',
+      );
+    }
+  }
+
+  private assertTrackCanBeAdded(playlist: PlaylistEntity, track: TrackEntity, actor: UserEntity) {
+    const canAccessTrack =
+      this.isPublicTrack(track) || track.artistId === actor.id || actor.role === UserRole.ADMIN;
+
+    if (!canAccessTrack) {
+      throw new ForbiddenException('You cannot add this track to a playlist');
+    }
+
+    if (playlist.isPublic && !this.isPublicTrack(track)) {
+      throw new ForbiddenException(
+        'Private, draft, or hidden tracks cannot be added to a public playlist',
+      );
     }
   }
 }

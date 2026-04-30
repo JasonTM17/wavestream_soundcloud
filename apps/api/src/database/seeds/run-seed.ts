@@ -241,8 +241,12 @@ const run = async () => {
     console.log(
       `Seed complete: ${userMap.size} users, ${trackMap.size} tracks, ${playlistMap.size} playlists`,
     );
-    console.log(`Demo listener password: ${DEMO_LISTENER_PASSWORD}`);
-    console.log(`Admin credentials: ${env.adminEmail} / ${env.adminPassword}`);
+    if (env.nodeEnv === 'production') {
+      console.log('Seed credentials hidden because NODE_ENV=production.');
+    } else {
+      console.log(`Demo listener password: ${DEMO_LISTENER_PASSWORD}`);
+      console.log(`Admin credentials: ${env.adminEmail} / ${env.adminPassword}`);
+    }
   } finally {
     await dataSource.destroy();
   }
@@ -440,6 +444,9 @@ const upsertTracks = async (
       durationSeconds: trackSpec.durationSeconds,
       baseFrequency: trackSpec.baseFrequency,
       pulseFrequency: trackSpec.pulseFrequency,
+      genre: trackSpec.genre,
+      seed: trackSpec.slug,
+      title: trackSpec.title,
     });
     const audioUrl = await uploadSeedAsset(
       client,

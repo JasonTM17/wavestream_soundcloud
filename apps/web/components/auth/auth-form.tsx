@@ -1,50 +1,54 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { UserRole } from "@wavestream/shared";
-import { z } from "zod";
-import { toast } from "sonner";
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import { UserRole } from '@wavestream/shared';
+import { z } from 'zod';
+import { toast } from 'sonner';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
-  buildAuthHref,
-  getFirstQueryValue,
-  resolveAuthRedirect,
-} from "@/lib/auth-routing";
-import {
-  forgotPassword,
-  resetPassword,
-  signIn,
-  signUp,
-  type AuthSession,
-} from "@/lib/auth";
-import { useT } from "@/lib/i18n";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { buildAuthHref, getFirstQueryValue, resolveAuthRedirect } from '@/lib/auth-routing';
+import { forgotPassword, resetPassword, signIn, signUp, type AuthSession } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
 
 type AuthFormProps = {
-  mode: "sign-in" | "sign-up" | "forgot-password" | "reset-password";
+  mode: 'sign-in' | 'sign-up' | 'forgot-password' | 'reset-password';
   nextPath?: string | string[] | null;
   resetToken?: string | string[] | null;
   onAuthenticatedSession?: (session: AuthSession) => void;
 };
 
 type SignInValues = { email: string; password: string };
-type SignUpValues = { displayName: string; username: string; email: string; password: string; role: UserRole.LISTENER | UserRole.CREATOR };
+type SignUpValues = {
+  displayName: string;
+  username: string;
+  email: string;
+  password: string;
+  role: UserRole.LISTENER | UserRole.CREATOR;
+};
 type ForgotPasswordValues = { email: string };
 type ResetPasswordValues = { token: string; password: string; confirmPassword: string };
 
 export function AuthForm({ mode, nextPath, resetToken, onAuthenticatedSession }: AuthFormProps) {
-  if (mode === "sign-in") return <SignInForm nextPath={nextPath} onAuthenticatedSession={onAuthenticatedSession} />;
-  if (mode === "sign-up") return <SignUpForm nextPath={nextPath} onAuthenticatedSession={onAuthenticatedSession} />;
-  if (mode === "forgot-password") return <ForgotPasswordForm nextPath={nextPath} />;
+  if (mode === 'sign-in')
+    return <SignInForm nextPath={nextPath} onAuthenticatedSession={onAuthenticatedSession} />;
+  if (mode === 'sign-up')
+    return <SignUpForm nextPath={nextPath} onAuthenticatedSession={onAuthenticatedSession} />;
+  if (mode === 'forgot-password') return <ForgotPasswordForm nextPath={nextPath} />;
   return <ResetPasswordForm nextPath={nextPath} resetToken={resetToken} />;
 }
 
@@ -70,14 +74,20 @@ export function AuthCard({
   );
 }
 
-function SignInForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "nextPath" | "onAuthenticatedSession">) {
+function SignInForm({
+  nextPath,
+  onAuthenticatedSession,
+}: Pick<AuthFormProps, 'nextPath' | 'onAuthenticatedSession'>) {
   const router = useRouter();
-  const t = useT("auth");
+  const t = useT('auth');
   const schema = z.object({
     email: z.string().email(t.validEmailRequired),
     password: z.string().min(8, t.passwordMin),
   });
-  const form = useForm<SignInValues>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } });
+  const form = useForm<SignInValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '', password: '' },
+  });
 
   const mutation = useMutation({
     mutationFn: signIn,
@@ -97,13 +107,12 @@ function SignInForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
       description={t.signInDesc}
       footer={
         <>
-          {t.noAccount}{" "}
-          <Link className="font-medium text-foreground underline-offset-4 hover:underline" href={buildAuthHref("/sign-up", nextPath)}>
+          {t.noAccount}{' '}
+          <Link
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href={buildAuthHref('/sign-up', nextPath)}
+          >
             {t.createAccount}
-          </Link>
-          {" | "}
-          <Link className="font-medium text-foreground underline-offset-4 hover:underline" href={buildAuthHref("/forgot-password", nextPath)}>
-            {t.forgotPassword}
           </Link>
         </>
       }
@@ -111,7 +120,7 @@ function SignInForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
       <form className="space-y-5" onSubmit={form.handleSubmit((v) => mutation.mutate(v))}>
         <div className="space-y-2">
           <Label htmlFor="email">{t.emailLabel}</Label>
-          <Input id="email" type="email" placeholder="you@email.com" {...form.register("email")} />
+          <Input id="email" type="email" placeholder="you@email.com" {...form.register('email')} />
           {form.formState.errors.email && (
             <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
           )}
@@ -119,11 +128,19 @@ function SignInForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="password">{t.passwordLabel}</Label>
-            <Link className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" href={buildAuthHref("/forgot-password", nextPath)}>
+            <Link
+              className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              href={buildAuthHref('/forgot-password', nextPath)}
+            >
               {t.recoveryLink}
             </Link>
           </div>
-          <Input id="password" type="password" placeholder="••••••••" {...form.register("password")} />
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            {...form.register('password')}
+          />
           {form.formState.errors.password && (
             <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
           )}
@@ -136,18 +153,33 @@ function SignInForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
   );
 }
 
-function SignUpForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "nextPath" | "onAuthenticatedSession">) {
+function SignUpForm({
+  nextPath,
+  onAuthenticatedSession,
+}: Pick<AuthFormProps, 'nextPath' | 'onAuthenticatedSession'>) {
   const router = useRouter();
-  const t = useT("auth");
+  const t = useT('auth');
   const schema = z.object({
     displayName: z.string().min(2, t.displayNameMin),
-    username: z.string().min(3, t.usernameMin).max(24, t.usernameMax).regex(/^[a-z0-9-_.]+$/i, t.usernamePattern),
+    username: z
+      .string()
+      .min(3, t.usernameMin)
+      .max(24, t.usernameMax)
+      .regex(/^[a-z0-9-_.]+$/i, t.usernamePattern),
     email: z.string().email(t.validEmailRequired),
     password: z.string().min(8, t.passwordMin),
     role: z.enum([UserRole.LISTENER, UserRole.CREATOR]),
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const form = useForm<SignUpValues>({ resolver: zodResolver(schema) as any, defaultValues: { displayName: "", username: "", email: "", password: "", role: UserRole.LISTENER } });
+  const form = useForm<SignUpValues, unknown, SignUpValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      displayName: '',
+      username: '',
+      email: '',
+      password: '',
+      role: UserRole.LISTENER,
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: signUp,
@@ -167,8 +199,11 @@ function SignUpForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
       description={t.signUpDesc}
       footer={
         <>
-          {t.alreadyHaveAccount}{" "}
-          <Link className="font-medium text-foreground underline-offset-4 hover:underline" href={buildAuthHref("/sign-in", nextPath)}>
+          {t.alreadyHaveAccount}{' '}
+          <Link
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href={buildAuthHref('/sign-in', nextPath)}
+          >
             {t.signInLink}
           </Link>
         </>
@@ -177,28 +212,33 @@ function SignUpForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
       <form className="space-y-4" onSubmit={form.handleSubmit((v) => mutation.mutate(v))}>
         <div className="space-y-2">
           <Label htmlFor="displayName">{t.displayNameLabel}</Label>
-          <Input id="displayName" placeholder="Tên của bạn" {...form.register("displayName")} />
+          <Input id="displayName" placeholder="Tên của bạn" {...form.register('displayName')} />
           {form.formState.errors.displayName && (
             <p className="text-sm text-destructive">{form.formState.errors.displayName.message}</p>
           )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="username">{t.usernameLabel}</Label>
-          <Input id="username" placeholder="ten-nguoi-dung" {...form.register("username")} />
+          <Input id="username" placeholder="ten-nguoi-dung" {...form.register('username')} />
           {form.formState.errors.username && (
             <p className="text-sm text-destructive">{form.formState.errors.username.message}</p>
           )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">{t.emailLabel}</Label>
-          <Input id="email" type="email" placeholder="you@email.com" {...form.register("email")} />
+          <Input id="email" type="email" placeholder="you@email.com" {...form.register('email')} />
           {form.formState.errors.email && (
             <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
           )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">{t.passwordLabel}</Label>
-          <Input id="password" type="password" placeholder="••••••••" {...form.register("password")} />
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            {...form.register('password')}
+          />
           {form.formState.errors.password && (
             <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
           )}
@@ -209,8 +249,13 @@ function SignUpForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
             control={form.control}
             name="role"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={(v) => field.onChange(v as SignUpValues["role"])}>
-                <SelectTrigger id="role"><SelectValue placeholder={t.rolePlaceholder} /></SelectTrigger>
+              <Select
+                value={field.value}
+                onValueChange={(v) => field.onChange(v as SignUpValues['role'])}
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder={t.rolePlaceholder} />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={UserRole.LISTENER}>{t.listenerOption}</SelectItem>
                   <SelectItem value={UserRole.CREATOR}>{t.creatorOption}</SelectItem>
@@ -227,15 +272,22 @@ function SignUpForm({ nextPath, onAuthenticatedSession }: Pick<AuthFormProps, "n
   );
 }
 
-function ForgotPasswordForm({ nextPath }: Pick<AuthFormProps, "nextPath">) {
-  const t = useT("auth");
+function ForgotPasswordForm({ nextPath }: Pick<AuthFormProps, 'nextPath'>) {
+  const t = useT('auth');
   const schema = z.object({ email: z.string().email(t.validEmailRequired) });
-  const form = useForm<ForgotPasswordValues>({ resolver: zodResolver(schema), defaultValues: { email: "" } });
+  const form = useForm<ForgotPasswordValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '' },
+  });
 
   const mutation = useMutation({
     mutationFn: forgotPassword,
-    onSuccess: () => { toast.success(t.forgotSuccessMessage); },
-    onError: (error) => { toast.error(error instanceof Error ? error.message : t.validEmailRequired); },
+    onSuccess: () => {
+      toast.success(t.forgotSuccessMessage);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : t.validEmailRequired);
+    },
   });
 
   return (
@@ -244,8 +296,11 @@ function ForgotPasswordForm({ nextPath }: Pick<AuthFormProps, "nextPath">) {
       description={t.forgotDesc}
       footer={
         <>
-          {t.remembered}{" "}
-          <Link className="font-medium text-foreground underline-offset-4 hover:underline" href={buildAuthHref("/sign-in", nextPath)}>
+          {t.remembered}{' '}
+          <Link
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href={buildAuthHref('/sign-in', nextPath)}
+          >
             {t.returnToSignIn}
           </Link>
         </>
@@ -254,7 +309,12 @@ function ForgotPasswordForm({ nextPath }: Pick<AuthFormProps, "nextPath">) {
       <form className="space-y-5" onSubmit={form.handleSubmit((v) => mutation.mutate(v))}>
         <div className="space-y-2">
           <Label htmlFor="forgot-email">{t.emailLabel}</Label>
-          <Input id="forgot-email" type="email" placeholder="you@email.com" {...form.register("email")} />
+          <Input
+            id="forgot-email"
+            type="email"
+            placeholder="you@email.com"
+            {...form.register('email')}
+          />
           {form.formState.errors.email && (
             <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
           )}
@@ -272,25 +332,38 @@ function ForgotPasswordForm({ nextPath }: Pick<AuthFormProps, "nextPath">) {
   );
 }
 
-function ResetPasswordForm({ nextPath, resetToken }: Pick<AuthFormProps, "nextPath" | "resetToken">) {
+function ResetPasswordForm({
+  nextPath,
+  resetToken,
+}: Pick<AuthFormProps, 'nextPath' | 'resetToken'>) {
   const router = useRouter();
-  const t = useT("auth");
-  const resolvedToken = getFirstQueryValue(resetToken) ?? "";
+  const t = useT('auth');
+  const resolvedToken = getFirstQueryValue(resetToken) ?? '';
   const hasPrefilledToken = resolvedToken.length > 0;
-  const schema = z.object({
-    token: z.string().min(1, t.tokenRequired),
-    password: z.string().min(8, t.passwordMin),
-    confirmPassword: z.string().min(8, t.confirmPasswordMin),
-  }).refine((v) => v.password === v.confirmPassword, { message: t.passwordsNoMatch, path: ["confirmPassword"] });
-  const form = useForm<ResetPasswordValues>({ resolver: zodResolver(schema), defaultValues: { token: resolvedToken, password: "", confirmPassword: "" } });
+  const schema = z
+    .object({
+      token: z.string().min(1, t.tokenRequired),
+      password: z.string().min(8, t.passwordMin),
+      confirmPassword: z.string().min(8, t.confirmPasswordMin),
+    })
+    .refine((v) => v.password === v.confirmPassword, {
+      message: t.passwordsNoMatch,
+      path: ['confirmPassword'],
+    });
+  const form = useForm<ResetPasswordValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { token: resolvedToken, password: '', confirmPassword: '' },
+  });
 
   const mutation = useMutation({
     mutationFn: resetPassword,
     onSuccess: () => {
       toast.success(t.passwordUpdated);
-      router.replace(buildAuthHref("/sign-in", nextPath));
+      router.replace(buildAuthHref('/sign-in', nextPath));
     },
-    onError: (error) => { toast.error(error instanceof Error ? error.message : t.validEmailRequired); },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : t.validEmailRequired);
+    },
   });
 
   return (
@@ -299,8 +372,11 @@ function ResetPasswordForm({ nextPath, resetToken }: Pick<AuthFormProps, "nextPa
       description={t.resetDesc}
       footer={
         <>
-          {t.needFreshLink}{" "}
-          <Link className="font-medium text-foreground underline-offset-4 hover:underline" href={buildAuthHref("/forgot-password", nextPath)}>
+          {t.needFreshLink}{' '}
+          <Link
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+            href={buildAuthHref('/forgot-password', nextPath)}
+          >
             {t.requestRecovery}
           </Link>
         </>
@@ -315,26 +391,38 @@ function ResetPasswordForm({ nextPath, resetToken }: Pick<AuthFormProps, "nextPa
         {!hasPrefilledToken ? (
           <div className="space-y-2">
             <Label htmlFor="token">{t.tokenLabel}</Label>
-            <Input id="token" placeholder={t.tokenPlaceholder} {...form.register("token")} />
+            <Input id="token" placeholder={t.tokenPlaceholder} {...form.register('token')} />
             {form.formState.errors.token && (
               <p className="text-sm text-destructive">{form.formState.errors.token.message}</p>
             )}
           </div>
         ) : (
-          <input type="hidden" {...form.register("token")} />
+          <input type="hidden" {...form.register('token')} />
         )}
         <div className="space-y-2">
           <Label htmlFor="new-password">{t.newPasswordLabel}</Label>
-          <Input id="new-password" type="password" placeholder="••••••••" {...form.register("password")} />
+          <Input
+            id="new-password"
+            type="password"
+            placeholder="••••••••"
+            {...form.register('password')}
+          />
           {form.formState.errors.password && (
             <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
           )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm-password">{t.confirmPasswordLabel}</Label>
-          <Input id="confirm-password" type="password" placeholder="••••••••" {...form.register("confirmPassword")} />
+          <Input
+            id="confirm-password"
+            type="password"
+            placeholder="••••••••"
+            {...form.register('confirmPassword')}
+          />
           {form.formState.errors.confirmPassword && (
-            <p className="text-sm text-destructive">{form.formState.errors.confirmPassword.message}</p>
+            <p className="text-sm text-destructive">
+              {form.formState.errors.confirmPassword.message}
+            </p>
           )}
         </div>
         <Button type="submit" className="w-full" disabled={mutation.isPending}>

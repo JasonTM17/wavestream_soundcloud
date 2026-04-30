@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { AuthSessionDto, UserDto } from "@wavestream/shared";
+import * as React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AuthSessionDto, UserDto } from '@wavestream/shared';
 
-import { useAuthActions, useAuthSession } from "@/components/auth/auth-provider";
-import { ApiError } from "@/lib/api";
+import { useAuthActions, useAuthSession } from '@/components/auth/auth-provider';
+import { ApiError } from '@/lib/api';
 import {
   addTrackToPlaylist,
   buildCreateTrackFormData,
@@ -80,19 +80,19 @@ import {
   reorderPlaylistTracks,
   updatePlaylist,
   updateAdminUserRole,
-} from "@/lib/wavestream-api";
-import { apiRequest } from "@/lib/api";
+} from '@/lib/wavestream-api';
+import { apiRequest } from '@/lib/api';
 
-const keepPreviousData = <T,>(data: T) => data;
+const keepPreviousData = <T>(data: T) => data;
 
-const toAuthenticatedUser = (user: UserSummary): AuthSessionDto["user"] => ({
+const toAuthenticatedUser = (user: UserSummary): AuthSessionDto['user'] => ({
   id: user.id,
   email: user.email,
   username: user.username,
   displayName: user.displayName,
   bio: user.bio ?? null,
   avatarUrl: user.avatarUrl ?? null,
-  role: user.role as UserDto["role"],
+  role: user.role as UserDto['role'],
   isVerified: Boolean(user.isVerified),
   followerCount: user.followerCount ?? 0,
   followingCount: user.followingCount ?? 0,
@@ -115,7 +115,7 @@ export function useCurrentUserQuery() {
   const { accessToken, isAuthenticated } = useAuthSession();
   const { clearSession, setAuthenticatedSession } = useAuthActions();
   const query = useQuery({
-    queryKey: ["auth", "me"],
+    queryKey: ['auth', 'me'],
     queryFn: async () => getCurrentUser(),
     staleTime: 60_000,
     retry: false,
@@ -132,10 +132,7 @@ export function useCurrentUserQuery() {
   }, [accessToken, query.data, setAuthenticatedSession]);
 
   React.useEffect(() => {
-    if (
-      query.error instanceof ApiError &&
-      [401, 403].includes(query.error.status)
-    ) {
+    if (query.error instanceof ApiError && [401, 403].includes(query.error.status)) {
       clearSession();
     }
   }, [clearSession, query.error]);
@@ -147,7 +144,7 @@ export function useNotificationsQuery() {
   const { isAuthenticated } = useAuthSession();
 
   return useQuery({
-    queryKey: ["notifications"],
+    queryKey: ['notifications'],
     queryFn: async (): Promise<NotificationSummary[]> => {
       try {
         return await getNotifications();
@@ -168,7 +165,7 @@ export function useListeningHistoryQuery() {
   const { isAuthenticated } = useAuthSession();
 
   return useQuery({
-    queryKey: ["me", "history"],
+    queryKey: ['me', 'history'],
     queryFn: async (): Promise<ListeningHistoryItem[]> => {
       try {
         return await getListeningHistory();
@@ -189,7 +186,7 @@ export function useMyUploadsQuery() {
   const { isAuthenticated } = useAuthSession();
 
   return useQuery({
-    queryKey: ["me", "uploads"],
+    queryKey: ['me', 'uploads'],
     queryFn: async (): Promise<TrackSummary[]> => {
       try {
         return await getMyUploads();
@@ -208,7 +205,7 @@ export function useMyUploadsQuery() {
 
 export function useDiscoveryQuery() {
   return useQuery({
-    queryKey: ["discovery", "home"],
+    queryKey: ['discovery', 'home'],
     queryFn: async (): Promise<DiscoveryResults> => getDiscoveryResults(),
     staleTime: 20_000,
   });
@@ -216,7 +213,7 @@ export function useDiscoveryQuery() {
 
 export function useGenresQuery() {
   return useQuery({
-    queryKey: ["genres"],
+    queryKey: ['genres'],
     queryFn: async () => {
       try {
         return await getGenres();
@@ -244,7 +241,7 @@ export function useTracksQuery(filters: {
     Boolean(filters.artistUsername?.trim());
 
   return useQuery({
-    queryKey: ["tracks", filters],
+    queryKey: ['tracks', filters],
     queryFn: async () => {
       try {
         return await getTracks(filters);
@@ -265,7 +262,7 @@ export function useSearchQuery(query: string) {
   const deferredQuery = React.useDeferredValue(query.trim());
 
   return useQuery({
-    queryKey: ["search", deferredQuery],
+    queryKey: ['search', deferredQuery],
     queryFn: async (): Promise<SearchResults> => {
       try {
         return await getSearchResults(deferredQuery);
@@ -284,7 +281,7 @@ export function useSearchQuery(query: string) {
 
 export function useTrackQuery(idOrSlug: string) {
   return useQuery({
-    queryKey: ["track", idOrSlug],
+    queryKey: ['track', idOrSlug],
     queryFn: async (): Promise<TrackSummary> => getTrack(idOrSlug),
     enabled: Boolean(idOrSlug.trim()),
     retry: false,
@@ -294,7 +291,7 @@ export function useTrackQuery(idOrSlug: string) {
 
 export function useTrackCommentsQuery(idOrSlug: string) {
   return useQuery({
-    queryKey: ["track", idOrSlug, "comments"],
+    queryKey: ['track', idOrSlug, 'comments'],
     queryFn: async () => getTrackComments(idOrSlug),
     enabled: Boolean(idOrSlug.trim()),
     staleTime: 10_000,
@@ -304,7 +301,7 @@ export function useTrackCommentsQuery(idOrSlug: string) {
 
 export function useRelatedTracksQuery(idOrSlug: string) {
   return useQuery({
-    queryKey: ["track", idOrSlug, "related"],
+    queryKey: ['track', idOrSlug, 'related'],
     queryFn: async () => {
       try {
         return await getRelatedTracks(idOrSlug);
@@ -323,7 +320,7 @@ export function useRelatedTracksQuery(idOrSlug: string) {
 
 export function usePlaylistQuery(idOrSlug: string) {
   return useQuery({
-    queryKey: ["playlist", idOrSlug],
+    queryKey: ['playlist', idOrSlug],
     queryFn: async (): Promise<PlaylistSummary> => getPlaylist(idOrSlug),
     enabled: Boolean(idOrSlug.trim()),
     retry: false,
@@ -336,7 +333,7 @@ export function usePlaylistsQuery(ownerId?: string) {
   const enabled = Boolean(ownerId) && isAuthenticated;
 
   return useQuery({
-    queryKey: ["playlists", ownerId ?? "all"],
+    queryKey: ['playlists', ownerId ?? 'all'],
     queryFn: async (): Promise<PlaylistSummary[]> => {
       try {
         return await getPlaylists(ownerId ? { ownerId } : {});
@@ -355,7 +352,7 @@ export function usePlaylistsQuery(ownerId?: string) {
 
 export function useArtistProfileQuery(username: string) {
   return useQuery({
-    queryKey: ["artist", username],
+    queryKey: ['artist', username],
     queryFn: async (): Promise<{ user: UserSummary; isFollowing?: boolean }> =>
       getUserProfile(username),
     enabled: Boolean(username.trim()),
@@ -366,10 +363,10 @@ export function useArtistProfileQuery(username: string) {
 
 export function useCreatorDashboardQuery() {
   const { isAuthenticated, user } = useAuthSession();
-  const isCreator = user?.role === "creator" || user?.role === "admin";
+  const isCreator = user?.role === 'creator' || user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["me", "dashboard"],
+    queryKey: ['me', 'dashboard'],
     queryFn: async () => {
       try {
         return await getCreatorDashboard();
@@ -388,7 +385,7 @@ export function useCreatorDashboardQuery() {
 
 export function usePublicPlaylistsQuery(ownerId?: string) {
   return useQuery({
-    queryKey: ["playlists", "public", ownerId ?? null],
+    queryKey: ['playlists', 'public', ownerId ?? null],
     queryFn: async (): Promise<PlaylistSummary[]> => {
       try {
         return await getPlaylists(ownerId ? { ownerId } : {});
@@ -407,10 +404,10 @@ export function usePublicPlaylistsQuery(ownerId?: string) {
 
 export function useTrackAnalyticsQuery(trackId: string) {
   const { isAuthenticated, user } = useAuthSession();
-  const isCreator = user?.role === "creator" || user?.role === "admin";
+  const isCreator = user?.role === 'creator' || user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["me", "tracks", trackId, "analytics"],
+    queryKey: ['me', 'tracks', trackId, 'analytics'],
     queryFn: async () => {
       try {
         return await getTrackAnalytics(trackId);
@@ -431,7 +428,7 @@ export function useMyPlaylistsQuery() {
   const { isAuthenticated } = useAuthSession();
 
   return useQuery({
-    queryKey: ["playlists", "me"],
+    queryKey: ['playlists', 'me'],
     queryFn: async (): Promise<PlaylistSummary[]> => {
       try {
         return await getMyPlaylists();
@@ -450,10 +447,10 @@ export function useMyPlaylistsQuery() {
 
 export function useAdminOverviewQuery() {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "overview"],
+    queryKey: ['admin', 'overview'],
     queryFn: async (): Promise<AdminOverviewSummary | null> => {
       try {
         return await getAdminOverview();
@@ -472,10 +469,10 @@ export function useAdminOverviewQuery() {
 
 export function useAdminUsersQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "users", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'users', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminUserSummary>> => {
       try {
         return await getAdminUsers(filters);
@@ -494,10 +491,10 @@ export function useAdminUsersQuery(filters: { page?: number; limit?: number } = 
 
 export function useAdminTracksQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "tracks", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'tracks', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminTrackSummary>> => {
       try {
         return await getAdminTracks(filters);
@@ -516,10 +513,10 @@ export function useAdminTracksQuery(filters: { page?: number; limit?: number } =
 
 export function useAdminPlaylistsQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "playlists", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'playlists', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminPlaylistSummary>> => {
       try {
         return await getAdminPlaylists(filters);
@@ -538,10 +535,10 @@ export function useAdminPlaylistsQuery(filters: { page?: number; limit?: number 
 
 export function useAdminCommentsQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "comments", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'comments', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminCommentSummary>> => {
       try {
         return await getAdminComments(filters);
@@ -560,10 +557,10 @@ export function useAdminCommentsQuery(filters: { page?: number; limit?: number }
 
 export function useAdminReportsQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "reports", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'reports', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminReportSummary>> => {
       try {
         return await getAdminReports(filters);
@@ -582,10 +579,10 @@ export function useAdminReportsQuery(filters: { page?: number; limit?: number } 
 
 export function useAdminAuditLogsQuery(filters: { page?: number; limit?: number } = {}) {
   const { isAuthenticated, user } = useAuthSession();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 'admin';
 
   return useQuery({
-    queryKey: ["admin", "audit-logs", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['admin', 'audit-logs', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminAuditLogSummary>> => {
       try {
         return await getAdminAuditLogs(filters);
@@ -606,7 +603,7 @@ export function useMyReportsQuery(filters: { page?: number; limit?: number } = {
   const { isAuthenticated } = useAuthSession();
 
   return useQuery({
-    queryKey: ["reports", "me", filters.page ?? null, filters.limit ?? null],
+    queryKey: ['reports', 'me', filters.page ?? null, filters.limit ?? null],
     queryFn: async (): Promise<PaginatedApiResponse<AdminReportSummary>> => {
       try {
         return await getMyReports(filters);
@@ -628,23 +625,23 @@ const invalidateTrackMutationQueries = async (
   trackIdOrSlug?: string,
 ) => {
   const invalidations = [
-    queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
-    queryClient.invalidateQueries({ queryKey: ["me", "uploads"] }),
-    queryClient.invalidateQueries({ queryKey: ["me", "dashboard"] }),
-    queryClient.invalidateQueries({ queryKey: ["me", "tracks"] }),
-    queryClient.invalidateQueries({ queryKey: ["discovery", "home"] }),
-    queryClient.invalidateQueries({ queryKey: ["track"] }),
-    queryClient.invalidateQueries({ queryKey: ["tracks"] }),
-    queryClient.invalidateQueries({ queryKey: ["playlist"] }),
-    queryClient.invalidateQueries({ queryKey: ["playlists"] }),
-    queryClient.invalidateQueries({ queryKey: ["artist"] }),
+    queryClient.invalidateQueries({ queryKey: ['auth', 'me'] }),
+    queryClient.invalidateQueries({ queryKey: ['me', 'uploads'] }),
+    queryClient.invalidateQueries({ queryKey: ['me', 'dashboard'] }),
+    queryClient.invalidateQueries({ queryKey: ['me', 'tracks'] }),
+    queryClient.invalidateQueries({ queryKey: ['discovery', 'home'] }),
+    queryClient.invalidateQueries({ queryKey: ['track'] }),
+    queryClient.invalidateQueries({ queryKey: ['tracks'] }),
+    queryClient.invalidateQueries({ queryKey: ['playlist'] }),
+    queryClient.invalidateQueries({ queryKey: ['playlists'] }),
+    queryClient.invalidateQueries({ queryKey: ['artist'] }),
   ];
 
   if (trackIdOrSlug) {
     invalidations.push(
-      queryClient.invalidateQueries({ queryKey: ["track", trackIdOrSlug] }),
+      queryClient.invalidateQueries({ queryKey: ['track', trackIdOrSlug] }),
       queryClient.invalidateQueries({
-        queryKey: ["me", "tracks", trackIdOrSlug, "analytics"],
+        queryKey: ['me', 'tracks', trackIdOrSlug, 'analytics'],
       }),
     );
   }
@@ -658,45 +655,41 @@ const invalidatePlaylistMutationQueries = async (
   trackIdOrSlug?: string,
 ) => {
   const invalidations = [
-    queryClient.invalidateQueries({ queryKey: ["playlists"] }),
-    queryClient.invalidateQueries({ queryKey: ["playlist"] }),
-    queryClient.invalidateQueries({ queryKey: ["discovery", "home"] }),
-    queryClient.invalidateQueries({ queryKey: ["artist"] }),
-    queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
+    queryClient.invalidateQueries({ queryKey: ['playlists'] }),
+    queryClient.invalidateQueries({ queryKey: ['playlist'] }),
+    queryClient.invalidateQueries({ queryKey: ['discovery', 'home'] }),
+    queryClient.invalidateQueries({ queryKey: ['artist'] }),
+    queryClient.invalidateQueries({ queryKey: ['auth', 'me'] }),
   ];
 
   if (playlistIdOrSlug) {
-    invalidations.push(
-      queryClient.invalidateQueries({ queryKey: ["playlist", playlistIdOrSlug] }),
-    );
+    invalidations.push(queryClient.invalidateQueries({ queryKey: ['playlist', playlistIdOrSlug] }));
   }
 
   if (trackIdOrSlug) {
     invalidations.push(
-      queryClient.invalidateQueries({ queryKey: ["track", trackIdOrSlug] }),
-      queryClient.invalidateQueries({ queryKey: ["track"] }),
+      queryClient.invalidateQueries({ queryKey: ['track', trackIdOrSlug] }),
+      queryClient.invalidateQueries({ queryKey: ['track'] }),
     );
   }
 
   await Promise.all(invalidations);
 };
 
-const invalidateAdminMutationQueries = async (
-  queryClient: ReturnType<typeof useQueryClient>,
-) => {
+const invalidateAdminMutationQueries = async (queryClient: ReturnType<typeof useQueryClient>) => {
   await Promise.all([
-    queryClient.invalidateQueries({ queryKey: ["admin"] }),
-    queryClient.invalidateQueries({ queryKey: ["reports"] }),
-    queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
-    queryClient.invalidateQueries({ queryKey: ["me", "dashboard"] }),
-    queryClient.invalidateQueries({ queryKey: ["me", "uploads"] }),
-    queryClient.invalidateQueries({ queryKey: ["track"] }),
-    queryClient.invalidateQueries({ queryKey: ["tracks"] }),
-    queryClient.invalidateQueries({ queryKey: ["playlist"] }),
-    queryClient.invalidateQueries({ queryKey: ["playlists"] }),
-    queryClient.invalidateQueries({ queryKey: ["artist"] }),
-    queryClient.invalidateQueries({ queryKey: ["discovery", "home"] }),
-    queryClient.invalidateQueries({ queryKey: ["search"] }),
+    queryClient.invalidateQueries({ queryKey: ['admin'] }),
+    queryClient.invalidateQueries({ queryKey: ['reports'] }),
+    queryClient.invalidateQueries({ queryKey: ['auth', 'me'] }),
+    queryClient.invalidateQueries({ queryKey: ['me', 'dashboard'] }),
+    queryClient.invalidateQueries({ queryKey: ['me', 'uploads'] }),
+    queryClient.invalidateQueries({ queryKey: ['track'] }),
+    queryClient.invalidateQueries({ queryKey: ['tracks'] }),
+    queryClient.invalidateQueries({ queryKey: ['playlist'] }),
+    queryClient.invalidateQueries({ queryKey: ['playlists'] }),
+    queryClient.invalidateQueries({ queryKey: ['artist'] }),
+    queryClient.invalidateQueries({ queryKey: ['discovery', 'home'] }),
+    queryClient.invalidateQueries({ queryKey: ['search'] }),
   ]);
 };
 
@@ -705,9 +698,9 @@ export function useCreateTrackMutation() {
 
   return useMutation({
     mutationFn: async (input: CreateTrackInput): Promise<TrackSummary> =>
-      apiRequest<TrackSummary>("/api/tracks", {
-        method: "POST",
-        auth: "required",
+      apiRequest<TrackSummary>('/api/tracks', {
+        method: 'POST',
+        auth: 'required',
         body: buildCreateTrackFormData(input),
       }),
     onSuccess: async (track) => {
@@ -722,8 +715,8 @@ export function useUpdateTrackMutation(trackIdOrSlug: string) {
   return useMutation({
     mutationFn: async (input: UpdateTrackInput): Promise<TrackSummary> =>
       apiRequest<TrackSummary>(`/api/tracks/${encodeURIComponent(trackIdOrSlug)}`, {
-        method: "PATCH",
-        auth: "required",
+        method: 'PATCH',
+        auth: 'required',
         body: buildUpdateTrackPayload(input),
       }),
     onSuccess: async (track) => {
@@ -738,8 +731,8 @@ export function useDeleteTrackMutation(trackIdOrSlug: string) {
   return useMutation({
     mutationFn: async (): Promise<DeleteTrackResult> =>
       apiRequest<DeleteTrackResult>(`/api/tracks/${encodeURIComponent(trackIdOrSlug)}`, {
-        method: "DELETE",
-        auth: "required",
+        method: 'DELETE',
+        auth: 'required',
       }),
     onSuccess: async () => {
       await invalidateTrackMutationQueries(queryClient, trackIdOrSlug);
@@ -775,8 +768,7 @@ export function useDeletePlaylistMutation(playlistIdOrSlug: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (): Promise<DeletePlaylistResult> =>
-      deletePlaylist(playlistIdOrSlug),
+    mutationFn: async (): Promise<DeletePlaylistResult> => deletePlaylist(playlistIdOrSlug),
     onSuccess: async () => {
       await invalidatePlaylistMutationQueries(queryClient, playlistIdOrSlug);
     },
@@ -873,23 +865,30 @@ export function useCreateReportMutation() {
       createReport(input),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["reports"] }),
-        queryClient.invalidateQueries({ queryKey: ["admin"] }),
+        queryClient.invalidateQueries({ queryKey: ['reports'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin'] }),
       ]);
     },
   });
 }
 
-export function useAddTrackToPlaylistMutation(playlistIdOrSlug: string) {
+type AddTrackToPlaylistMutationInput = AddTrackToPlaylistInput & {
+  playlistIdOrSlug?: string;
+};
+
+export function useAddTrackToPlaylistMutation(defaultPlaylistIdOrSlug: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: AddTrackToPlaylistInput): Promise<PlaylistSummary> =>
-      addTrackToPlaylist(playlistIdOrSlug, input),
+    mutationFn: async (input: AddTrackToPlaylistMutationInput): Promise<PlaylistSummary> => {
+      const playlistIdOrSlug = input.playlistIdOrSlug ?? defaultPlaylistIdOrSlug;
+
+      return addTrackToPlaylist(playlistIdOrSlug, { trackId: input.trackId });
+    },
     onSuccess: async (playlist, variables) => {
       await invalidatePlaylistMutationQueries(
         queryClient,
-        playlist.id ?? playlistIdOrSlug,
+        playlist.id ?? variables.playlistIdOrSlug ?? defaultPlaylistIdOrSlug,
         variables.trackId,
       );
     },
@@ -929,20 +928,17 @@ export function useToggleFollowMutation(targetUserId: string) {
 
   return useMutation({
     mutationFn: async (shouldFollow: boolean) =>
-      apiRequest<{ following: boolean }>(
-        `/api/users/${encodeURIComponent(targetUserId)}/follow`,
-        {
-          method: shouldFollow ? "POST" : "DELETE",
-        },
-      ),
+      apiRequest<{ following: boolean }>(`/api/users/${encodeURIComponent(targetUserId)}/follow`, {
+        method: shouldFollow ? 'POST' : 'DELETE',
+      }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["artist"] });
-      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      await queryClient.invalidateQueries({ queryKey: ['artist'] });
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
   });
 }
 
-export function useToggleTrackReactionMutation(trackId: string, reaction: "like" | "repost") {
+export function useToggleTrackReactionMutation(trackId: string, reaction: 'like' | 'repost') {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -950,12 +946,12 @@ export function useToggleTrackReactionMutation(trackId: string, reaction: "like"
       apiRequest<Record<string, unknown>>(
         `/api/tracks/${encodeURIComponent(trackId)}/${reaction}`,
         {
-          method: active ? "POST" : "DELETE",
+          method: active ? 'POST' : 'DELETE',
         },
       ),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["track"] });
-      await queryClient.invalidateQueries({ queryKey: ["discovery"] });
+      await queryClient.invalidateQueries({ queryKey: ['track'] });
+      await queryClient.invalidateQueries({ queryKey: ['discovery'] });
     },
   });
 }
@@ -965,15 +961,12 @@ export function useCreateCommentMutation(trackId: string) {
 
   return useMutation({
     mutationFn: async (body: { body: string; timestampSeconds?: number | null }) =>
-      apiRequest<Record<string, unknown>>(
-        `/api/tracks/${encodeURIComponent(trackId)}/comments`,
-        {
-          method: "POST",
-          body,
-        },
-      ),
+      apiRequest<Record<string, unknown>>(`/api/tracks/${encodeURIComponent(trackId)}/comments`, {
+        method: 'POST',
+        body,
+      }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["track"] });
+      await queryClient.invalidateQueries({ queryKey: ['track'] });
     },
   });
 }

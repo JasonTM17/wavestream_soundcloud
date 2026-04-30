@@ -6,15 +6,17 @@ import {
   TrackStatus,
   UserRole,
   type AdminOverviewDto,
-} from "@wavestream/shared";
+} from '@wavestream/shared';
 
-import { API_URL, ApiError, apiRequest, type RequestAuthMode } from "@/lib/api";
+import { ApiError, apiRequest, getApiBaseUrl, type RequestAuthMode } from '@/lib/api';
 
 export type ApiPaginationMeta = {
   page?: number;
   limit?: number;
   total?: number;
   totalPages?: number;
+  hasNext?: boolean;
+  hasPrev?: boolean;
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
 };
@@ -26,7 +28,7 @@ export type UserSummary = {
   displayName: string;
   bio?: string | null;
   avatarUrl?: string | null;
-  role: "listener" | "creator" | "admin";
+  role: 'listener' | 'creator' | 'admin';
   isVerified?: boolean;
   followerCount?: number;
   followingCount?: number;
@@ -420,10 +422,9 @@ export type RecordPlayInput = {
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === "object";
+  Boolean(value) && typeof value === 'object';
 
-const isApiError = (error: unknown): error is ApiError =>
-  error instanceof ApiError;
+const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;
 
 export const canIgnoreApiError = (error: unknown) =>
   isApiError(error) && [401, 403, 404, 503].includes(error.status);
@@ -433,8 +434,16 @@ function getArrayPayload<T>(payload: unknown, key: string): T[] {
     return payload as T[];
   }
 
-  if (isObject(payload) && Array.isArray(payload[key])) {
-    return payload[key] as T[];
+  if (isObject(payload)) {
+    const nested = payload[key];
+
+    if (Array.isArray(nested)) {
+      return nested as T[];
+    }
+
+    if (isObject(nested)) {
+      return getArrayPayload<T>(nested, key);
+    }
   }
 
   return [];
@@ -468,20 +477,20 @@ function getPaginatedPayload<T>(payload: unknown): PaginatedApiResponse<T> {
 
 export const formatDuration = (seconds?: number | null) => {
   if (!seconds || Number.isNaN(seconds) || seconds < 0) {
-    return "0:00";
+    return '0:00';
   }
 
   const minutes = Math.floor(seconds / 60);
   const remaining = Math.floor(seconds % 60);
-  return `${minutes}:${remaining.toString().padStart(2, "0")}`;
+  return `${minutes}:${remaining.toString().padStart(2, '0')}`;
 };
 
 export const formatCompactNumber = (value?: number | null) => {
   if (value === undefined || value === null || Number.isNaN(value)) {
-    return "0";
+    return '0';
   }
 
-  return new Intl.NumberFormat("en", { notation: "compact" }).format(value);
+  return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
 };
 
 export const resolveMediaUrl = (value?: string | null) => {
@@ -493,11 +502,11 @@ export const resolveMediaUrl = (value?: string | null) => {
     return value;
   }
 
-  if (value.startsWith("/")) {
-    return `${API_URL}${value}`;
+  if (value.startsWith('/')) {
+    return `${getApiBaseUrl()}${value}`;
   }
 
-  return `${API_URL}/${value}`;
+  return `${getApiBaseUrl()}/${value}`;
 };
 
 export const getTrackStreamProxyUrl = (trackId: string) =>
@@ -507,7 +516,7 @@ export const toTrackCard = (track: TrackSummary): TrackCard => ({
   id: track.id,
   slug: track.slug,
   title: track.title,
-  description: track.description ?? "",
+  description: track.description ?? '',
   coverUrl: track.coverUrl ?? null,
   durationSeconds: track.duration ?? 0,
   durationLabel: formatDuration(track.duration),
@@ -515,7 +524,7 @@ export const toTrackCard = (track: TrackSummary): TrackCard => ({
   artistName: track.artist.displayName ?? track.artist.username,
   artistHandle: `@${track.artist.username}`,
   artist: track.artist,
-  genreLabel: track.genre?.name ?? "Uncategorized",
+  genreLabel: track.genre?.name ?? 'Uncategorized',
   streamUrl: getTrackStreamProxyUrl(track.id),
   downloadUrl: resolveMediaUrl(track.file?.downloadUrl ?? null),
   likeCount: track.likeCount ?? 0,
@@ -535,11 +544,8 @@ export const toPlaylistCard = (playlist: PlaylistSummary): PlaylistCard => ({
   id: playlist.id,
   slug: playlist.slug,
   title: playlist.title,
-  description: playlist.description ?? "",
-  coverUrl:
-    playlist.coverUrl ??
-    playlist.tracks?.[0]?.track.coverUrl ??
-    null,
+  description: playlist.description ?? '',
+  coverUrl: playlist.coverUrl ?? playlist.tracks?.[0]?.track.coverUrl ?? null,
   ownerName: playlist.owner.displayName ?? playlist.owner.username,
   ownerHandle: `@${playlist.owner.username}`,
   owner: playlist.owner,
@@ -554,8 +560,8 @@ export const toComment = (comment: CommentSummary): CommentSummary => ({
   replies: comment.replies?.map(toComment) ?? [],
 });
 
-export async function apiGet<T>(path: string, auth: RequestAuthMode = "optional") {
-  return apiRequest<T>(path, { method: "GET", auth });
+export async function apiGet<T>(path: string, auth: RequestAuthMode = 'optional') {
+  return apiRequest<T>(path, { method: 'GET', auth });
 }
 
 export async function apiGetOrNull<T>(path: string) {
@@ -570,39 +576,39 @@ export async function apiGetOrNull<T>(path: string) {
 }
 
 export async function getCurrentUser() {
-  return apiGet<UserSummary>("/api/auth/me", "required");
+  return apiGet<UserSummary>('/api/auth/me', 'required');
 }
 
 export async function getNotifications() {
   const response = await apiGet<NotificationSummary[] | { data?: NotificationSummary[] }>(
-    "/api/notifications?limit=12",
-    "required",
+    '/api/notifications?limit=12',
+    'required',
   );
-  return getArrayPayload<NotificationSummary>(response, "data");
+  return getArrayPayload<NotificationSummary>(response, 'data');
 }
 
 export async function getListeningHistory() {
   const response = await apiGet<ListeningHistoryItem[] | { data?: ListeningHistoryItem[] }>(
-    "/api/tracks/me/history",
-    "required",
+    '/api/tracks/me/history',
+    'required',
   );
-  return getArrayPayload<ListeningHistoryItem>(response, "data");
+  return getArrayPayload<ListeningHistoryItem>(response, 'data');
 }
 
 export async function recordTrackPlay(idOrSlug: string, input: RecordPlayInput = {}) {
   return apiRequest<{ playCount: number }>(`/api/tracks/${encodeURIComponent(idOrSlug)}/play`, {
-    method: "POST",
-    auth: "optional",
+    method: 'POST',
+    auth: 'optional',
     body: input,
   });
 }
 
 export async function getMyUploads() {
   const response = await apiGet<TrackSummary[] | { data?: TrackSummary[] }>(
-    "/api/tracks/me/uploads",
-    "required",
+    '/api/tracks/me/uploads',
+    'required',
   );
-  return getArrayPayload<TrackSummary>(response, "data");
+  return getArrayPayload<TrackSummary>(response, 'data');
 }
 
 export async function getTracks(query: {
@@ -612,65 +618,65 @@ export async function getTracks(query: {
   limit?: number;
 }) {
   const params = new URLSearchParams();
-  if (query.q) params.set("q", query.q);
-  if (query.genre) params.set("genre", query.genre);
-  if (query.artistUsername) params.set("artistUsername", query.artistUsername);
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.q) params.set('q', query.q);
+  if (query.genre) params.set('genre', query.genre);
+  if (query.artistUsername) params.set('artistUsername', query.artistUsername);
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<TrackSummary[] | { data?: TrackSummary[] }>(
-    `/api/tracks${params.size ? `?${params.toString()}` : ""}`,
+    `/api/tracks${params.size ? `?${params.toString()}` : ''}`,
   );
-  return getArrayPayload<TrackSummary>(response, "data");
+  return getArrayPayload<TrackSummary>(response, 'data');
 }
 
 export async function getTrack(idOrSlug: string) {
-  return apiGet<TrackSummary>(`/api/tracks/${encodeURIComponent(idOrSlug)}`, "optional");
+  return apiGet<TrackSummary>(`/api/tracks/${encodeURIComponent(idOrSlug)}`, 'optional');
 }
 
 export async function getTrackComments(idOrSlug: string) {
   const response = await apiGet<CommentSummary[] | { data?: CommentSummary[] }>(
     `/api/tracks/${encodeURIComponent(idOrSlug)}/comments`,
-    "optional",
+    'optional',
   );
-  return getArrayPayload<CommentSummary>(response, "data");
+  return getArrayPayload<CommentSummary>(response, 'data');
 }
 
 export async function getPlaylist(idOrSlug: string) {
-  return apiGet<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}`, "optional");
+  return apiGet<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}`, 'optional');
 }
 
 export async function getMyPlaylists() {
   const response = await apiGet<PlaylistSummary[] | { data?: PlaylistSummary[] }>(
-    "/api/playlists/me",
-    "required",
+    '/api/playlists/me',
+    'required',
   );
-  return getArrayPayload<PlaylistSummary>(response, "data");
+  return getArrayPayload<PlaylistSummary>(response, 'data');
 }
 
 export async function getPlaylists(query: { ownerId?: string; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.ownerId) params.set("ownerId", query.ownerId);
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.ownerId) params.set('ownerId', query.ownerId);
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<PlaylistSummary[] | { data?: PlaylistSummary[] }>(
-    `/api/playlists${params.size ? `?${params.toString()}` : ""}`,
+    `/api/playlists${params.size ? `?${params.toString()}` : ''}`,
   );
-  return getArrayPayload<PlaylistSummary>(response, "data");
+  return getArrayPayload<PlaylistSummary>(response, 'data');
 }
 
 export async function getUserProfile(username: string) {
   return apiGet<{ user: UserSummary; isFollowing?: boolean }>(
     `/api/users/${encodeURIComponent(username)}`,
-    "optional",
+    'optional',
   );
 }
 
 export async function getSearchResults(query: string) {
   const response = await apiGet<Partial<SearchResults> | { data?: Partial<SearchResults> }>(
-    `/api/search?q=${encodeURIComponent(query)}&limit=12`,
+    `/api/search?q=${encodeURIComponent(query)}`,
   );
 
-  const payload = isObject(response) && "data" in response ? response.data : response;
+  const payload = isObject(response) && 'data' in response ? response.data : response;
   const result = (payload ?? {}) as Partial<SearchResults>;
 
   return {
@@ -684,27 +690,25 @@ export async function getSearchResults(query: string) {
 export async function getDiscoveryResults() {
   try {
     const response = await apiGet<DiscoveryApiShape | { data?: DiscoveryApiShape }>(
-      "/api/discovery/home",
+      '/api/discovery/home',
     );
-    const payload = isObject(response) && "data" in response ? response.data : response;
+    const payload = isObject(response) && 'data' in response ? response.data : response;
     const result = (payload ?? {}) as DiscoveryApiShape;
     const trendingTracks = getArrayPayloadFromKeys<TrackSummary>(result, [
-      "trendingTracks",
-      "trending",
-      "recentUploads",
+      'trendingTracks',
+      'trending',
+      'recentUploads',
     ]);
     const newReleases = getArrayPayloadFromKeys<TrackSummary>(result, [
-      "newReleases",
-      "recentUploads",
-      "trending",
+      'newReleases',
+      'recentUploads',
+      'trending',
     ]);
     const featuredPlaylists = getArrayPayloadFromKeys<PlaylistSummary>(result, [
-      "featuredPlaylists",
-      "popularPlaylists",
+      'featuredPlaylists',
+      'popularPlaylists',
     ]);
-    const featuredArtists = getArrayPayloadFromKeys<UserSummary>(result, [
-      "featuredArtists",
-    ]);
+    const featuredArtists = getArrayPayloadFromKeys<UserSummary>(result, ['featuredArtists']);
 
     return {
       trendingTracks,
@@ -734,126 +738,126 @@ export async function getDiscoveryResults() {
 }
 
 export async function getGenres() {
-  const response = await apiGet<GenreSummary[] | { data?: GenreSummary[] }>("/api/genres");
-  return getArrayPayload<GenreSummary>(response, "data");
+  const response = await apiGet<GenreSummary[] | { data?: GenreSummary[] }>('/api/genres');
+  return getArrayPayload<GenreSummary>(response, 'data');
 }
 
 export async function getRelatedTracks(idOrSlug: string) {
   const response = await apiGet<TrackSummary[] | { data?: TrackSummary[] }>(
     `/api/tracks/${encodeURIComponent(idOrSlug)}/related`,
   );
-  return getArrayPayload<TrackSummary>(response, "data");
+  return getArrayPayload<TrackSummary>(response, 'data');
 }
 
 export async function getCreatorDashboard() {
-  return apiGet<CreatorDashboardSummary>("/api/me/dashboard", "required");
+  return apiGet<CreatorDashboardSummary>('/api/me/dashboard', 'required');
 }
 
 export async function getTrackAnalytics(idOrSlug: string) {
   return apiGet<TrackAnalyticsSummary>(
     `/api/me/tracks/${encodeURIComponent(idOrSlug)}/analytics`,
-    "required",
+    'required',
   );
 }
 
 export async function getAdminOverview() {
-  return apiGet<AdminOverviewSummary>("/api/admin/overview", "required");
+  return apiGet<AdminOverviewSummary>('/api/admin/overview', 'required');
 }
 
 export async function getAdminUsers(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<AdminUserSummary[] | PaginatedApiResponse<AdminUserSummary>>(
-    `/api/admin/users${params.size ? `?${params.toString()}` : ""}`,
-    "required",
+    `/api/admin/users${params.size ? `?${params.toString()}` : ''}`,
+    'required',
   );
   return getPaginatedPayload<AdminUserSummary>(response);
 }
 
 export async function getAdminTracks(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<AdminTrackSummary[] | PaginatedApiResponse<AdminTrackSummary>>(
-    `/api/admin/tracks${params.size ? `?${params.toString()}` : ""}`,
-    "required",
+    `/api/admin/tracks${params.size ? `?${params.toString()}` : ''}`,
+    'required',
   );
   return getPaginatedPayload<AdminTrackSummary>(response);
 }
 
 export async function getAdminPlaylists(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<
     AdminPlaylistSummary[] | PaginatedApiResponse<AdminPlaylistSummary>
-  >(`/api/admin/playlists${params.size ? `?${params.toString()}` : ""}`, "required");
+  >(`/api/admin/playlists${params.size ? `?${params.toString()}` : ''}`, 'required');
   return getPaginatedPayload<AdminPlaylistSummary>(response);
 }
 
 export async function getAdminComments(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<AdminCommentSummary[] | PaginatedApiResponse<AdminCommentSummary>>(
-    `/api/admin/comments${params.size ? `?${params.toString()}` : ""}`,
-    "required",
+    `/api/admin/comments${params.size ? `?${params.toString()}` : ''}`,
+    'required',
   );
   return getPaginatedPayload<AdminCommentSummary>(response);
 }
 
 export async function getAdminReports(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<AdminReportSummary[] | PaginatedApiResponse<AdminReportSummary>>(
-    `/api/admin/reports${params.size ? `?${params.toString()}` : ""}`,
-    "required",
+    `/api/admin/reports${params.size ? `?${params.toString()}` : ''}`,
+    'required',
   );
   return getPaginatedPayload<AdminReportSummary>(response);
 }
 
 export async function getAdminAuditLogs(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<
     AdminAuditLogSummary[] | PaginatedApiResponse<AdminAuditLogSummary>
-  >(`/api/admin/audit-logs${params.size ? `?${params.toString()}` : ""}`, "required");
+  >(`/api/admin/audit-logs${params.size ? `?${params.toString()}` : ''}`, 'required');
   return getPaginatedPayload<AdminAuditLogSummary>(response);
 }
 
 export async function createReport(input: CreateReportInput) {
-  return apiRequest<CreateReportResult>("/api/reports", {
-    method: "POST",
-    auth: "required",
+  return apiRequest<CreateReportResult>('/api/reports', {
+    method: 'POST',
+    auth: 'required',
     body: input,
   });
 }
 
 export async function getMyReports(query: { page?: number; limit?: number } = {}) {
   const params = new URLSearchParams();
-  if (query.page) params.set("page", String(query.page));
-  if (query.limit) params.set("limit", String(query.limit));
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
 
   const response = await apiGet<AdminReportSummary[] | PaginatedApiResponse<AdminReportSummary>>(
-    `/api/reports/me${params.size ? `?${params.toString()}` : ""}`,
-    "required",
+    `/api/reports/me${params.size ? `?${params.toString()}` : ''}`,
+    'required',
   );
   return getPaginatedPayload<AdminReportSummary>(response);
 }
 
 export async function updateAdminUserRole(userId: string, input: UpdateUserRoleInput) {
   return apiRequest<UpdateUserRoleResult>(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
-    method: "PATCH",
-    auth: "required",
+    method: 'PATCH',
+    auth: 'required',
     body: input,
   });
 }
@@ -862,8 +866,8 @@ export async function hideAdminTrack(trackId: string, input: ModerationNoteInput
   return apiRequest<ModerationToggleResult>(
     `/api/admin/tracks/${encodeURIComponent(trackId)}/hide`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
       body: input,
     },
   );
@@ -873,21 +877,18 @@ export async function restoreAdminTrack(trackId: string) {
   return apiRequest<ModerationToggleResult>(
     `/api/admin/tracks/${encodeURIComponent(trackId)}/restore`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
     },
   );
 }
 
-export async function deleteAdminPlaylist(
-  playlistId: string,
-  input: ModerationNoteInput = {},
-) {
+export async function deleteAdminPlaylist(playlistId: string, input: ModerationNoteInput = {}) {
   return apiRequest<DeletePlaylistResult>(
     `/api/admin/playlists/${encodeURIComponent(playlistId)}`,
     {
-      method: "DELETE",
-      auth: "required",
+      method: 'DELETE',
+      auth: 'required',
       body: input,
     },
   );
@@ -897,8 +898,8 @@ export async function hideAdminComment(commentId: string, input: ModerationNoteI
   return apiRequest<ModerationToggleResult>(
     `/api/admin/comments/${encodeURIComponent(commentId)}/hide`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
       body: input,
     },
   );
@@ -908,8 +909,8 @@ export async function restoreAdminComment(commentId: string) {
   return apiRequest<ModerationToggleResult>(
     `/api/admin/comments/${encodeURIComponent(commentId)}/restore`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
     },
   );
 }
@@ -918,8 +919,8 @@ export async function resolveAdminReport(reportId: string, input: ResolveReportI
   return apiRequest<ResolveReportResult>(
     `/api/admin/reports/${encodeURIComponent(reportId)}/resolve`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
       body: input,
     },
   );
@@ -941,7 +942,7 @@ const appendTags = (formData: FormData, tags?: string[]) => {
   tags?.forEach((tag) => {
     const trimmedTag = tag.trim();
     if (trimmedTag) {
-      formData.append("tags", trimmedTag);
+      formData.append('tags', trimmedTag);
     }
   });
 };
@@ -949,19 +950,19 @@ const appendTags = (formData: FormData, tags?: string[]) => {
 export function buildCreateTrackFormData(input: CreateTrackInput) {
   const formData = new FormData();
 
-  formData.append("audioFile", input.audioFile);
+  formData.append('audioFile', input.audioFile);
   if (input.coverImage) {
-    formData.append("coverImage", input.coverImage);
+    formData.append('coverImage', input.coverImage);
   }
 
-  formData.append("title", input.title);
-  appendOptionalField(formData, "description", input.description);
-  appendOptionalField(formData, "genre", input.genre);
+  formData.append('title', input.title);
+  appendOptionalField(formData, 'description', input.description);
+  appendOptionalField(formData, 'genre', input.genre);
   appendTags(formData, input.tags);
-  appendOptionalField(formData, "privacy", input.privacy);
-  appendOptionalField(formData, "status", input.status);
-  appendOptionalField(formData, "allowDownloads", input.allowDownloads);
-  appendOptionalField(formData, "commentsEnabled", input.commentsEnabled);
+  appendOptionalField(formData, 'privacy', input.privacy);
+  appendOptionalField(formData, 'status', input.status);
+  appendOptionalField(formData, 'allowDownloads', input.allowDownloads);
+  appendOptionalField(formData, 'commentsEnabled', input.commentsEnabled);
 
   return formData;
 }
@@ -982,32 +983,32 @@ export function buildUpdateTrackPayload(input: UpdateTrackInput) {
 }
 
 export async function createPlaylist(input: CreatePlaylistInput) {
-  return apiRequest<PlaylistSummary>("/api/playlists", {
-    method: "POST",
-    auth: "required",
+  return apiRequest<PlaylistSummary>('/api/playlists', {
+    method: 'POST',
+    auth: 'required',
     body: input,
   });
 }
 
 export async function updatePlaylist(idOrSlug: string, input: UpdatePlaylistInput) {
   return apiRequest<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}`, {
-    method: "PATCH",
-    auth: "required",
+    method: 'PATCH',
+    auth: 'required',
     body: input,
   });
 }
 
 export async function deletePlaylist(idOrSlug: string) {
   return apiRequest<DeletePlaylistResult>(`/api/playlists/${encodeURIComponent(idOrSlug)}`, {
-    method: "DELETE",
-    auth: "required",
+    method: 'DELETE',
+    auth: 'required',
   });
 }
 
 export async function addTrackToPlaylist(idOrSlug: string, input: AddTrackToPlaylistInput) {
   return apiRequest<PlaylistSummary>(`/api/playlists/${encodeURIComponent(idOrSlug)}/tracks`, {
-    method: "POST",
-    auth: "required",
+    method: 'POST',
+    auth: 'required',
     body: input,
   });
 }
@@ -1016,21 +1017,18 @@ export async function removeTrackFromPlaylist(idOrSlug: string, trackId: string)
   return apiRequest<PlaylistSummary>(
     `/api/playlists/${encodeURIComponent(idOrSlug)}/tracks/${encodeURIComponent(trackId)}`,
     {
-      method: "DELETE",
-      auth: "required",
+      method: 'DELETE',
+      auth: 'required',
     },
   );
 }
 
-export async function reorderPlaylistTracks(
-  idOrSlug: string,
-  input: ReorderPlaylistTracksInput,
-) {
+export async function reorderPlaylistTracks(idOrSlug: string, input: ReorderPlaylistTracksInput) {
   return apiRequest<PlaylistSummary>(
     `/api/playlists/${encodeURIComponent(idOrSlug)}/tracks/reorder`,
     {
-      method: "PATCH",
-      auth: "required",
+      method: 'PATCH',
+      auth: 'required',
       body: input,
     },
   );

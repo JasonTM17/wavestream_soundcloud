@@ -37,8 +37,8 @@ export function ThemeToggle({ className, size = "icon", variant = "ghost" }: The
           variant={variant}
           size={size}
           className={className}
-          aria-label={t.theme}
-          title={t.theme}
+          aria-label={t.changeTheme}
+          title={t.changeTheme}
         >
           <Icon className="h-4 w-4" />
         </Button>

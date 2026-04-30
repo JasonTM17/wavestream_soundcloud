@@ -6,6 +6,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { getValidatedEnv } from 'src/config/env.validation';
 
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
+const isLoopbackOrigin = (origin: string) => {
+  try {
+    const url = new URL(origin);
+    return LOOPBACK_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
+};
+
 async function bootstrap() {
   const env = getValidatedEnv();
   const app = await NestFactory.create(AppModule);
@@ -14,7 +25,27 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({
-    origin: env.frontendOrigins,
+    origin: (
+      origin: string | undefined,
+      callback: (error: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (env.frontendOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      if (env.allowLoopbackCors && isLoopbackOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS origin ${origin} is not allowed`), false);
+    },
     credentials: true,
   });
   app.useGlobalPipes(

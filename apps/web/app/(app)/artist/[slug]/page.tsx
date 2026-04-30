@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ReportableType } from "@wavestream/shared";
-import { ArrowLeft, Pause, Play, UserPlus2 } from "lucide-react";
+import { ArrowLeft, ListMusic, Pause, Play, ShieldAlert, UserPlus2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { ReportDialog } from "@/components/reports/report-dialog";
@@ -25,8 +25,8 @@ import {
 
 function ArtistSkeleton() {
   return (
-    <div className="space-y-6">
-      <Skeleton className="h-44 w-full rounded-xl" />
+    <div className="space-y-6" data-testid="artist-page">
+      <Skeleton className="h-52 w-full rounded-xl" />
       <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
         <Skeleton className="h-96 w-full rounded-xl" />
         <Skeleton className="h-96 w-full rounded-xl" />
@@ -69,7 +69,10 @@ export default function ArtistPage() {
         <p className="text-lg font-bold text-foreground">{t.notFound}</p>
         <p className="text-sm text-muted-foreground">{t.notFoundDesc}</p>
         <Button asChild variant="outline" className="rounded-full">
-          <Link href="/discover"><ArrowLeft className="h-4 w-4" />{tCommon.discover}</Link>
+          <Link href="/discover">
+            <ArrowLeft className="h-4 w-4" />
+            {tCommon.discover}
+          </Link>
         </Button>
       </div>
     );
@@ -77,6 +80,9 @@ export default function ArtistPage() {
 
   const trackCards = (tracksQuery.data ?? []).map(toTrackCard);
   const playlistCards = (playlistsQuery.data ?? []).map(toPlaylistCard);
+  const initials = artist.displayName.slice(0, 2).toUpperCase();
+  const totalTracksLabel = formatCompactNumber(trackCards.length);
+  const followerLabel = formatCompactNumber(artist.followerCount ?? 0);
 
   const handlePlayAll = () => {
     if (!trackCards.length) return;
@@ -87,7 +93,10 @@ export default function ArtistPage() {
   const handleTrackPlay = (index: number) => {
     const target = trackCards[index];
     if (!target) return;
-    if (currentTrack?.id === target.id) { togglePlay(); return; }
+    if (currentTrack?.id === target.id) {
+      togglePlay();
+      return;
+    }
     setQueue(trackCards);
     playTrack(target);
   };
@@ -113,40 +122,63 @@ export default function ArtistPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" asChild className="w-fit px-0 text-muted-foreground hover:text-foreground hover:bg-transparent">
-        <Link href="/discover"><ArrowLeft className="h-4 w-4" />{tCommon.discover}</Link>
+    <div className="space-y-6" data-testid="artist-page">
+      <Button
+        variant="ghost"
+        asChild
+        className="w-fit px-0 text-muted-foreground hover:text-foreground hover:bg-transparent"
+      >
+        <Link href="/discover">
+          <ArrowLeft className="h-4 w-4" />
+          {tCommon.discover}
+        </Link>
       </Button>
 
-      {/* Artist header */}
-      <div className="overflow-hidden rounded-xl bg-card border border-border">
-        <div className="h-32 bg-linear-to-b from-primary/20 to-card" />
-        <div className="-mt-16 px-6 pb-6 grid gap-4 lg:grid-cols-[auto_1fr_auto]">
-          <Avatar className="h-24 w-24 border-4 border-card shadow-lg">
-            <AvatarFallback className="bg-primary text-white text-2xl font-bold">
-              {artist.displayName.slice(0, 2).toUpperCase()}
+      <div className="overflow-hidden rounded-xl bg-card border border-border" data-testid="artist-hero">
+        <div className="h-36 bg-linear-to-b from-primary/20 via-primary/10 to-card" />
+        <div className="-mt-16 grid gap-5 px-6 pb-6 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+          <Avatar className="h-28 w-28 border-4 border-card shadow-lg">
+            <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
+              {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-2 pt-6">
-            <h1 className="text-3xl font-bold text-foreground">{artist.displayName}</h1>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span>{formatCompactNumber(artist.followerCount ?? 0)} {t.followers}</span>
-              <span>·</span>
-              <span>{formatCompactNumber(trackCards.length)} {tCommon.tracks}</span>
+
+          <div className="min-w-0 space-y-3 pt-8">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.profileLabel}
+              </p>
+              <h1 className="truncate text-3xl font-bold text-foreground">{artist.displayName}</h1>
             </div>
-            {artist.bio && <p className="text-sm text-muted-foreground max-w-2xl">{artist.bio}</p>}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span>
+                {followerLabel} {t.followers}
+              </span>
+              <span>/</span>
+              <span>
+                {totalTracksLabel} {tCommon.tracks}
+              </span>
+            </div>
+            {artist.bio && (
+              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                {artist.bio}
+              </p>
+            )}
           </div>
-          <div className="flex items-start gap-2 pt-6">
+
+          <div className="flex flex-wrap items-start gap-2 pt-8 lg:justify-end">
             {session.isAuthenticated && session.user?.id !== artist.id && (
               <Button
                 variant={following ? "secondary" : "default"}
                 className="rounded-full"
                 onClick={() => {
-                  setFollowing((v) => !v);
+                  setFollowing((value) => !value);
                   followMutation.mutate(!following, {
                     onError: (error) => {
-                      setFollowing((v) => !v);
-                      toast.error(error instanceof Error ? error.message : tCommon.somethingWentWrong);
+                      setFollowing((value) => !value);
+                      toast.error(
+                        error instanceof Error ? error.message : tCommon.somethingWentWrong,
+                      );
                     },
                   });
                 }}
@@ -155,12 +187,23 @@ export default function ArtistPage() {
                 {following ? tCommon.following : tCommon.follow}
               </Button>
             )}
-            <Button onClick={handlePlayAll} disabled={!trackCards.length} variant="outline" className="rounded-full">
+            <Button
+              onClick={handlePlayAll}
+              disabled={!trackCards.length}
+              variant="outline"
+              className="rounded-full"
+            >
               <Play className="h-4 w-4" />
               {tCommon.play}
             </Button>
             {session.user?.id !== artist.id && (
-              <Button variant="ghost" size="sm" className="rounded-full" onClick={openReportDialog}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full text-muted-foreground"
+                onClick={openReportDialog}
+              >
+                <ShieldAlert className="h-4 w-4" />
                 {tCommon.report}
               </Button>
             )}
@@ -169,9 +212,9 @@ export default function ArtistPage() {
       </div>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-        {/* Tracks */}
         <div className="rounded-xl bg-card border border-border overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-border">
+          <div className="flex items-center gap-2 border-b border-border px-5 pb-3 pt-5">
+            <Play className="h-4 w-4 text-primary" />
             <h2 className="text-base font-bold text-foreground">{t.uploadedTracks}</h2>
           </div>
           <div className="py-2">
@@ -189,6 +232,10 @@ export default function ArtistPage() {
               trackCards.map((track, index) => {
                 const isActive = currentTrack?.id === track.id;
                 const isCurrentlyPlaying = isActive && isPlaying;
+                const trackMeta = [track.genreLabel, `${track.playsLabel} ${tCommon.plays}`]
+                  .filter(Boolean)
+                  .join(" / ");
+
                 return (
                   <div
                     key={track.id}
@@ -197,7 +244,7 @@ export default function ArtistPage() {
                     <button
                       onClick={() => handleTrackPlay(index)}
                       aria-label={isCurrentlyPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
-                      className="relative h-10 w-10 shrink-0 rounded overflow-hidden"
+                      className="relative h-10 w-10 shrink-0 rounded overflow-hidden focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <div
                         className="absolute inset-0 bg-muted"
@@ -211,19 +258,33 @@ export default function ArtistPage() {
                             : undefined
                         }
                       />
-                      <div className={`absolute inset-0 flex items-center justify-center transition-all ${isActive ? "bg-black/50 opacity-100" : "bg-black/0 opacity-0 group-hover:opacity-100 group-hover:bg-black/50"}`}>
-                        {isCurrentlyPlaying ? <Pause className="h-4 w-4 text-white" /> : <Play className="h-4 w-4 text-white ml-0.5" />}
+                      <div
+                        className={`absolute inset-0 flex items-center justify-center transition-all ${
+                          isActive
+                            ? "bg-black/50 opacity-100"
+                            : "bg-black/0 opacity-0 group-hover:opacity-100 group-hover:bg-black/50"
+                        }`}
+                      >
+                        {isCurrentlyPlaying ? (
+                          <Pause className="h-4 w-4 text-white" />
+                        ) : (
+                          <Play className="h-4 w-4 text-white ml-0.5" />
+                        )}
                       </div>
                     </button>
                     <Link href={`/track/${track.slug}`} className="min-w-0 flex-1 group/link">
-                      <p className={`truncate text-sm font-medium transition-colors group-hover/link:text-primary ${isActive ? "text-primary" : "text-foreground"}`}>
+                      <p
+                        className={`truncate text-sm font-medium transition-colors group-hover/link:text-primary ${
+                          isActive ? "text-primary" : "text-foreground"
+                        }`}
+                      >
                         {track.title}
                       </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {track.genreLabel}{track.genreLabel ? " · " : ""}{track.playsLabel} {tCommon.plays}
-                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{trackMeta}</p>
                     </Link>
-                    <span className="text-xs text-muted-foreground shrink-0">{track.durationLabel}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {track.durationLabel}
+                    </span>
                   </div>
                 );
               })
@@ -235,9 +296,9 @@ export default function ArtistPage() {
           </div>
         </div>
 
-        {/* Playlists */}
         <div className="rounded-xl bg-card border border-border overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-border">
+          <div className="flex items-center gap-2 border-b border-border px-5 pb-3 pt-5">
+            <ListMusic className="h-4 w-4 text-primary" />
             <h2 className="text-base font-bold text-foreground">{t.playlists}</h2>
           </div>
           <div className="py-2">
@@ -292,7 +353,7 @@ export default function ArtistPage() {
       <ReportDialog
         open={isReportOpen}
         onOpenChange={setIsReportOpen}
-        entityLabel="nghệ sĩ"
+        entityLabel={t.reportEntityLabel}
         entityName={artist.displayName}
         isPending={createReportMutation.isPending}
         onSubmit={handleCreateReport}

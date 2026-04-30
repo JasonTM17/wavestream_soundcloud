@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AUDIO_MIME_TYPES,
   GENRES,
@@ -10,33 +10,45 @@ import {
   MAX_IMAGE_SIZE_BYTES,
   TrackPrivacy,
   TrackStatus,
-} from "@wavestream/shared";
-import { AudioLines, ImagePlus, Info, Music4, UploadCloud } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@wavestream/shared';
+import { AudioLines, ImagePlus, Info, Music4, UploadCloud } from 'lucide-react';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { formatDuration, type CreateTrackInput, type GenreSummary, type TrackSummary, type UpdateTrackInput } from "@/lib/wavestream-api";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import {
+  formatDuration,
+  type CreateTrackInput,
+  type GenreSummary,
+  type TrackSummary,
+  type UpdateTrackInput,
+} from '@/lib/wavestream-api';
 
-const NONE_VALUE = "__none";
+const NONE_VALUE = '__none';
 
 const trackFormSchema = z.object({
-  title: z.string().trim().min(2, "Add a track title.").max(120, "Keep the title under 120 characters."),
-  description: z
+  title: z
     .string()
-    .max(4000, "Description is too long.")
-    .optional()
-    .or(z.literal("")),
+    .trim()
+    .min(2, 'Add a track title.')
+    .max(120, 'Keep the title under 120 characters.'),
+  description: z.string().max(4000, 'Description is too long.').optional().or(z.literal('')),
   genre: z.string().optional(),
-  tagsInput: z.string().max(240, "Keep tags concise.").optional().or(z.literal("")),
+  tagsInput: z.string().max(240, 'Keep tags concise.').optional().or(z.literal('')),
   privacy: z.nativeEnum(TrackPrivacy),
   status: z.nativeEnum(TrackStatus),
   allowDownloads: z.boolean(),
@@ -46,7 +58,7 @@ const trackFormSchema = z.object({
 type TrackFormValues = z.infer<typeof trackFormSchema>;
 
 type CreateTrackFormProps = {
-  mode: "create";
+  mode: 'create';
   genres?: GenreSummary[];
   initialTrack?: TrackSummary | null;
   isPending?: boolean;
@@ -55,7 +67,7 @@ type CreateTrackFormProps = {
 };
 
 type EditTrackFormProps = {
-  mode: "edit";
+  mode: 'edit';
   genres?: GenreSummary[];
   initialTrack?: TrackSummary | null;
   isPending?: boolean;
@@ -79,19 +91,21 @@ const normalizeOptionalText = (value?: string | null) => {
 };
 
 const normalizeTags = (value?: string | null) =>
-  (value ?? "")
-    .split(",")
+  (value ?? '')
+    .split(',')
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-const isSupportedAudioFile = (file: File) => AUDIO_MIME_TYPES.includes(file.type as (typeof AUDIO_MIME_TYPES)[number]);
-const isSupportedImageFile = (file: File) => IMAGE_MIME_TYPES.includes(file.type as (typeof IMAGE_MIME_TYPES)[number]);
+const isSupportedAudioFile = (file: File) =>
+  AUDIO_MIME_TYPES.includes(file.type as (typeof AUDIO_MIME_TYPES)[number]);
+const isSupportedImageFile = (file: File) =>
+  IMAGE_MIME_TYPES.includes(file.type as (typeof IMAGE_MIME_TYPES)[number]);
 
 const getDefaultValues = (track?: TrackSummary | null): TrackFormValues => ({
-  title: track?.title ?? "",
-  description: track?.description ?? "",
-  genre: track?.genre?.name ?? "",
-  tagsInput: track?.tags?.map((tag) => tag.name).join(", ") ?? "",
+  title: track?.title ?? '',
+  description: track?.description ?? '',
+  genre: track?.genre?.name ?? '',
+  tagsInput: track?.tags?.map((tag) => tag.name).join(', ') ?? '',
   privacy: (track?.privacy as TrackPrivacy | undefined) ?? TrackPrivacy.PUBLIC,
   status: (track?.status as TrackStatus | undefined) ?? TrackStatus.PUBLISHED,
   allowDownloads: track?.allowDownloads ?? false,
@@ -111,9 +125,9 @@ function FileSummary({
   className?: string;
 }>) {
   return (
-    <div className={cn("rounded-md bg-[hsl(var(--muted))] p-4", className)}>
+    <div className={cn('rounded-md bg-muted p-4', className)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))] text-black">
+        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
           {icon}
         </div>
         <div className="space-y-1">
@@ -161,7 +175,7 @@ export function TrackForm({
     }
 
     const objectUrl = URL.createObjectURL(audioFile);
-    const audio = document.createElement("audio");
+    const audio = document.createElement('audio');
     const handleLoadedMetadata = () => {
       const duration = Number.isFinite(audio.duration) ? Math.round(audio.duration) : null;
       setAudioDurationSeconds(duration);
@@ -170,9 +184,9 @@ export function TrackForm({
       setAudioDurationSeconds(null);
     };
 
-    audio.preload = "metadata";
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("error", handleError);
+    audio.preload = 'metadata';
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('error', handleError);
     audio.src = objectUrl;
 
     return () => {
@@ -181,15 +195,15 @@ export function TrackForm({
       } catch {
         // JSDOM does not implement media playback controls.
       }
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("error", handleError);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('error', handleError);
       URL.revokeObjectURL(objectUrl);
     };
   }, [audioFile]);
 
   const coverPreviewUrl = React.useMemo(() => {
     if (!coverImage) {
-      return mode === "edit" ? initialTrack?.coverUrl ?? null : null;
+      return mode === 'edit' ? (initialTrack?.coverUrl ?? null) : null;
     }
 
     return URL.createObjectURL(coverImage);
@@ -213,15 +227,15 @@ export function TrackForm({
 
   const validateAudioFile = React.useCallback((file: File | null) => {
     if (!file) {
-      return "Audio file is required";
+      return 'Audio file is required';
     }
 
     if (!isSupportedAudioFile(file)) {
-      return "Unsupported audio format";
+      return 'Unsupported audio format';
     }
 
     if (file.size > MAX_AUDIO_SIZE_BYTES) {
-      return "Audio file exceeds the allowed size";
+      return 'Audio file exceeds the allowed size';
     }
 
     return null;
@@ -233,11 +247,11 @@ export function TrackForm({
     }
 
     if (!isSupportedImageFile(file)) {
-      return "Unsupported image format";
+      return 'Unsupported image format';
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      return "Image exceeds the allowed size";
+      return 'Image exceeds the allowed size';
     }
 
     return null;
@@ -273,7 +287,7 @@ export function TrackForm({
     const tags = normalizeTags(values.tagsInput);
 
     try {
-      if (mode === "create") {
+      if (mode === 'create') {
         const audioValidationError = validateAudioFile(audioFile);
         const coverValidationError = validateCoverFile(coverImage);
 
@@ -311,7 +325,7 @@ export function TrackForm({
         commentsEnabled: values.commentsEnabled,
       });
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Something went wrong.");
+      setSubmitError(error instanceof Error ? error.message : 'Something went wrong.');
     }
   });
 
@@ -320,7 +334,7 @@ export function TrackForm({
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${mode}-track-title`}>Title</Label>
-          <Input id={`${mode}-track-title`} placeholder="Track title" {...form.register("title")} />
+          <Input id={`${mode}-track-title`} placeholder="Track title" {...form.register('title')} />
           {form.formState.errors.title ? (
             <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
           ) : null}
@@ -333,7 +347,7 @@ export function TrackForm({
             render={({ field }) => (
               <Select
                 value={field.value?.trim() ? field.value : NONE_VALUE}
-                onValueChange={(value) => field.onChange(value === NONE_VALUE ? "" : value)}
+                onValueChange={(value) => field.onChange(value === NONE_VALUE ? '' : value)}
               >
                 <SelectTrigger id={`${mode}-genre`}>
                   <SelectValue placeholder="Choose a genre" />
@@ -361,7 +375,7 @@ export function TrackForm({
           id={`${mode}-description`}
           placeholder="Describe the track, collaborators, and release notes."
           className="min-h-32 rounded-md"
-          {...form.register("description")}
+          {...form.register('description')}
         />
         {form.formState.errors.description ? (
           <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>
@@ -374,7 +388,7 @@ export function TrackForm({
           <Input
             id={`${mode}-tags`}
             placeholder="night-drive, synth, demo"
-            {...form.register("tagsInput")}
+            {...form.register('tagsInput')}
           />
           <p className="text-xs text-muted-foreground">Separate tags with commas.</p>
           {form.formState.errors.tagsInput ? (
@@ -388,7 +402,10 @@ export function TrackForm({
               control={form.control}
               name="privacy"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={(value) => field.onChange(value as TrackPrivacy)}>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value as TrackPrivacy)}
+                >
                   <SelectTrigger id={`${mode}-privacy`}>
                     <SelectValue />
                   </SelectTrigger>
@@ -407,7 +424,10 @@ export function TrackForm({
               control={form.control}
               name="status"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={(value) => field.onChange(value as TrackStatus)}>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value as TrackStatus)}
+                >
                   <SelectTrigger id={`${mode}-status`}>
                     <SelectValue />
                   </SelectTrigger>
@@ -424,7 +444,7 @@ export function TrackForm({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="rounded-md bg-[hsl(var(--muted))] border-none">
+        <Card className="rounded-md bg-muted border-none">
           <CardContent className="p-4">
             <Label className="flex items-center justify-between gap-3">
               <span className="space-y-1">
@@ -443,7 +463,7 @@ export function TrackForm({
             </Label>
           </CardContent>
         </Card>
-        <Card className="rounded-md bg-[hsl(var(--muted))] border-none">
+        <Card className="rounded-md bg-muted border-none">
           <CardContent className="p-4">
             <Label className="flex items-center justify-between gap-3">
               <span className="space-y-1">
@@ -464,12 +484,12 @@ export function TrackForm({
         </Card>
       </div>
 
-      {mode === "create" ? (
+      {mode === 'create' ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <FileSummary
             icon={<Music4 className="h-5 w-5" />}
             label="Audio file"
-            hint={`Accepted: ${AUDIO_MIME_TYPES.join(", ")}. Max ${Math.round(MAX_AUDIO_SIZE_BYTES / (1024 * 1024))} MB.`}
+            hint={`Accepted: ${AUDIO_MIME_TYPES.join(', ')}. Max ${Math.round(MAX_AUDIO_SIZE_BYTES / (1024 * 1024))} MB.`}
           >
             <input
               key={audioInputKey}
@@ -487,16 +507,16 @@ export function TrackForm({
                 disabled={isPending}
               >
                 <UploadCloud className="h-4 w-4" />
-                {audioFile ? "Replace audio file" : "Choose audio file"}
+                {audioFile ? 'Replace audio file' : 'Choose audio file'}
               </Button>
               {audioFile ? (
-                <div className="rounded-md bg-[hsl(var(--accent))] p-3">
+                <div className="rounded-md bg-accent p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
                       <p className="font-medium">{audioFile.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {audioFile.type || "Unknown format"} | {formatFileSize(audioFile.size)}
-                        {audioDurationSeconds ? ` | ${formatDuration(audioDurationSeconds)}` : ""}
+                        {audioFile.type || 'Unknown format'} | {formatFileSize(audioFile.size)}
+                        {audioDurationSeconds ? ` | ${formatDuration(audioDurationSeconds)}` : ''}
                       </p>
                     </div>
                     <Badge variant="soft">
@@ -517,7 +537,7 @@ export function TrackForm({
           <FileSummary
             icon={<ImagePlus className="h-5 w-5" />}
             label="Cover image"
-            hint={`Accepted: ${IMAGE_MIME_TYPES.join(", ")}. Max ${Math.round(MAX_IMAGE_SIZE_BYTES / (1024 * 1024))} MB.`}
+            hint={`Accepted: ${IMAGE_MIME_TYPES.join(', ')}. Max ${Math.round(MAX_IMAGE_SIZE_BYTES / (1024 * 1024))} MB.`}
           >
             <input
               key={coverInputKey}
@@ -535,19 +555,21 @@ export function TrackForm({
                 disabled={isPending}
               >
                 <ImagePlus className="h-4 w-4" />
-                {coverImage ? "Replace cover art" : "Choose cover art"}
+                {coverImage ? 'Replace cover art' : 'Choose cover art'}
               </Button>
               {coverPreviewUrl ? (
-                <div className="overflow-hidden rounded-md bg-[hsl(var(--accent))]">
+                <div className="overflow-hidden rounded-md bg-accent">
                   <div
                     className="aspect-[4/3] w-full bg-cover bg-center"
                     style={{ backgroundImage: `url(${coverPreviewUrl})` }}
                   />
                   <div className="flex items-center justify-between gap-3 p-3">
                     <div className="space-y-1">
-                      <p className="font-medium">{coverImage?.name ?? "Cover preview"}</p>
+                      <p className="font-medium">{coverImage?.name ?? 'Cover preview'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {coverImage ? `${coverImage.type || "Unknown format"} | ${formatFileSize(coverImage.size)}` : "Using selected artwork"}
+                        {coverImage
+                          ? `${coverImage.type || 'Unknown format'} | ${formatFileSize(coverImage.size)}`
+                          : 'Using selected artwork'}
                       </p>
                     </div>
                     <Badge variant="soft">Artwork</Badge>
@@ -563,15 +585,16 @@ export function TrackForm({
           </FileSummary>
         </div>
       ) : (
-        <div className="rounded-md bg-[hsl(var(--muted))] p-4">
+        <div className="rounded-md bg-muted p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))] text-black">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Info className="h-5 w-5" />
             </div>
             <div className="space-y-1">
               <p className="font-medium">Editing metadata only</p>
               <p className="text-sm text-muted-foreground">
-                This flow updates title, description, tags, privacy, publishing state, and listener settings without changing the original uploaded media.
+                This flow updates title, description, tags, privacy, publishing state, and listener
+                settings without changing the original uploaded media.
               </p>
             </div>
           </div>
@@ -586,7 +609,13 @@ export function TrackForm({
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isPending}>
-          {isPending ? (mode === "create" ? "Uploading..." : "Saving...") : mode === "create" ? "Publish track" : "Save changes"}
+          {isPending
+            ? mode === 'create'
+              ? 'Uploading...'
+              : 'Saving...'
+            : mode === 'create'
+              ? 'Publish track'
+              : 'Save changes'}
         </Button>
         {onCancel ? (
           <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
@@ -594,15 +623,14 @@ export function TrackForm({
           </Button>
         ) : null}
         <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="soft">{mode === "create" ? "Multipart upload" : "Metadata patch"}</Badge>
+          <Badge variant="soft">{mode === 'create' ? 'Multipart upload' : 'Metadata patch'}</Badge>
           <span>
-            {mode === "create"
-              ? "Audio streams through the existing track API once the upload completes."
-              : "Changes refresh your uploads, analytics, and discovery surfaces after save."}
+            {mode === 'create'
+              ? 'Audio streams through the existing track API once the upload completes.'
+              : 'Changes refresh your uploads, analytics, and discovery surfaces after save.'}
           </span>
         </div>
       </div>
     </form>
   );
 }
-

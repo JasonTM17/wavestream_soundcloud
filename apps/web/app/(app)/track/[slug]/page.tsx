@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { ReportableType } from "@wavestream/shared";
+import * as React from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { ReportableType } from '@wavestream/shared';
 import {
   ArrowLeft,
   Heart,
@@ -13,34 +13,34 @@ import {
   Play,
   ShieldAlert,
   UserPlus2,
-} from "lucide-react";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { toast } from 'sonner';
 
-import { ReportDialog } from "@/components/reports/report-dialog";
-import { AddToPlaylistDialog } from "@/components/playlists/add-to-playlist-dialog";
+import { ReportDialog } from '@/components/reports/report-dialog';
+import { AddToPlaylistDialog } from '@/components/playlists/add-to-playlist-dialog';
 import {
   PlaylistEditorDialog,
   type PlaylistEditorValues,
-} from "@/components/playlists/playlist-editor-dialog";
-import { ShareActionButton } from "@/components/playlists/share-action-button";
-import { WaveformBar } from "@/components/player/waveform-bar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
-import { useAuthSession } from "@/lib/auth-store";
-import { usePlayerStore } from "@/lib/player-store";
-import { useT } from "@/lib/i18n";
-import { ApiError } from "@/lib/api";
+} from '@/components/playlists/playlist-editor-dialog';
+import { ShareActionButton } from '@/components/playlists/share-action-button';
+import { WaveformBar } from '@/components/player/waveform-bar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuthSession } from '@/lib/auth-store';
+import { usePlayerStore } from '@/lib/player-store';
+import { useT } from '@/lib/i18n';
+import { ApiError } from '@/lib/api';
 import {
   formatCompactNumber,
   formatDuration,
   toPlaylistCard,
   toTrackCard,
-} from "@/lib/wavestream-api";
+} from '@/lib/wavestream-api';
 import {
   useAddTrackToPlaylistMutation,
   useCreateCommentMutation,
@@ -52,7 +52,7 @@ import {
   useToggleTrackReactionMutation,
   useTrackCommentsQuery,
   useTrackQuery,
-} from "@/lib/wavestream-queries";
+} from '@/lib/wavestream-queries';
 
 function RepostIcon({ className }: { className?: string }) {
   return (
@@ -92,17 +92,17 @@ function TrackSkeleton() {
 const toPlaylistPayload = (values: PlaylistEditorValues) => ({
   title: values.title,
   description: values.description.trim() ? values.description.trim() : null,
-  isPublic: values.visibility === "public",
+  isPublic: values.visibility === 'public',
 });
 
 export default function TrackPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const session = useAuthSession();
-  const t = useT("track");
-  const tCommon = useT("common");
-  const tDialogs = useT("dialogs");
-  const trackSlug = typeof params.slug === "string" ? params.slug : "";
+  const t = useT('track');
+  const tCommon = useT('common');
+  const tDialogs = useT('dialogs');
+  const trackSlug = typeof params.slug === 'string' ? params.slug : '';
   const trackQuery = useTrackQuery(trackSlug);
   const commentsQuery = useTrackCommentsQuery(trackSlug);
   const relatedQuery = useRelatedTracksQuery(trackSlug);
@@ -119,12 +119,12 @@ export default function TrackPage() {
   const [liked, setLiked] = React.useState(false);
   const [reposted, setReposted] = React.useState(false);
   const [following, setFollowing] = React.useState(false);
-  const [commentBody, setCommentBody] = React.useState("");
-  const [timestamp, setTimestamp] = React.useState("");
+  const [commentBody, setCommentBody] = React.useState('');
+  const [timestamp, setTimestamp] = React.useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = React.useState(false);
   const [isReportOpen, setIsReportOpen] = React.useState(false);
-  const [selectedPlaylistId, setSelectedPlaylistId] = React.useState<string>("");
+  const [selectedPlaylistId, setSelectedPlaylistId] = React.useState<string>('');
 
   const currentTrack = trackQuery.data;
   const relatedTracks = relatedQuery.data ?? [];
@@ -147,9 +147,9 @@ export default function TrackPage() {
     [myPlaylistsQuery.data],
   );
 
-  const likeMutation = useToggleTrackReactionMutation(trackSlug, "like");
-  const repostMutation = useToggleTrackReactionMutation(trackSlug, "repost");
-  const followMutation = useToggleFollowMutation(currentTrack?.artist.id ?? "");
+  const likeMutation = useToggleTrackReactionMutation(trackSlug, 'like');
+  const repostMutation = useToggleTrackReactionMutation(trackSlug, 'repost');
+  const followMutation = useToggleFollowMutation(currentTrack?.artist.id ?? '');
   const commentMutation = useCreateCommentMutation(trackSlug);
   const createPlaylistMutation = useCreatePlaylistMutation();
   const addTrackToPlaylistMutation = useAddTrackToPlaylistMutation(selectedPlaylistId);
@@ -196,27 +196,52 @@ export default function TrackPage() {
     : (card.durationSeconds ?? currentTrack.duration);
   const progressPercent =
     activeDuration > 0 ? Math.min((activeProgress / activeDuration) * 100, 100) : 0;
+  const optimisticLikeCount = Math.max(
+    0,
+    currentTrack.likeCount +
+      (liked && !currentTrack.isLiked ? 1 : 0) -
+      (!liked && currentTrack.isLiked ? 1 : 0),
+  );
+  const optimisticRepostCount = Math.max(
+    0,
+    currentTrack.repostCount +
+      (reposted && !currentTrack.isReposted ? 1 : 0) -
+      (!reposted && currentTrack.isReposted ? 1 : 0),
+  );
 
   const playNow = () => {
-    if (isActiveTrack) { togglePlay(); return; }
+    if (isActiveTrack) {
+      togglePlay();
+      return;
+    }
     setQueue(queue);
     playTrack(card);
   };
 
   const handleWaveformSeek = (seconds: number) => {
-    if (!isActiveTrack) { setQueue(queue); playTrack(card); }
+    if (!isActiveTrack) {
+      setQueue(queue);
+      playTrack(card);
+    }
     setProgress(seconds);
   };
 
   const submitComment = () => {
-    if (!commentBody.trim()) { toast.error(t.addComment); return; }
+    if (!commentBody.trim()) {
+      toast.error(t.addComment);
+      return;
+    }
     const parsedTimestamp = Number(timestamp);
     const timestampSeconds =
       timestamp.trim() && !Number.isNaN(parsedTimestamp) ? parsedTimestamp : undefined;
     commentMutation.mutate(
       { body: commentBody, timestampSeconds },
       {
-        onSuccess: () => { toast.success(t.commentPosted); setCommentBody(""); setTimestamp(""); },
+        onSuccess: () => {
+          toast.success(t.commentPosted);
+          setCommentBody('');
+          setTimestamp('');
+        },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 401) {
             router.push(`/sign-in?next=${encodeURIComponent(`/track/${trackSlug}`)}`);
@@ -240,14 +265,20 @@ export default function TrackPage() {
 
   const handleCreatePlaylist = async (values: PlaylistEditorValues) => {
     const createdPlaylist = await createPlaylistMutation.mutateAsync(toPlaylistPayload(values));
+    await addTrackToPlaylistMutation.mutateAsync({
+      trackId: currentTrack.id,
+      playlistIdOrSlug: createdPlaylist.id,
+    });
     setSelectedPlaylistId(createdPlaylist.id);
     setIsCreatePlaylistOpen(false);
-    setIsAddDialogOpen(true);
     toast.success(t.playlistCreatedAndAdded);
   };
 
   const handleAddToPlaylist = async (playlistId: string) => {
-    await addTrackToPlaylistMutation.mutateAsync({ trackId: currentTrack.id });
+    await addTrackToPlaylistMutation.mutateAsync({
+      trackId: currentTrack.id,
+      playlistIdOrSlug: playlistId,
+    });
     setSelectedPlaylistId(playlistId);
     setIsAddDialogOpen(false);
     toast.success(t.addedToPlaylist);
@@ -287,7 +318,10 @@ export default function TrackPage() {
       </Button>
 
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+      <div
+        className="relative overflow-hidden rounded-xl border border-border bg-card"
+        data-testid="track-hero"
+      >
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start">
           {/* Cover art */}
           <div
@@ -296,8 +330,8 @@ export default function TrackPage() {
               card.coverUrl
                 ? {
                     backgroundImage: `url(${card.coverUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                   }
                 : undefined
             }
@@ -313,7 +347,7 @@ export default function TrackPage() {
               )}
               <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{card.title}</h1>
               <Link
-                href={`/artist/${card.artistHandle?.replace("@", "")}`}
+                href={`/artist/${card.artistHandle?.replace('@', '')}`}
                 className="text-base text-muted-foreground hover:text-primary transition-colors"
               >
                 {card.artistName}
@@ -354,6 +388,16 @@ export default function TrackPage() {
                 )}
                 {isActiveTrack && playerIsPlaying ? tCommon.pause : tCommon.play}
               </Button>
+              {isActiveTrack && !playerIsPlaying && activeProgress > 5 && (
+                <Button
+                  variant="outline"
+                  onClick={playNow}
+                  className="rounded-full border-border hover:border-foreground"
+                >
+                  <Play className="h-4 w-4" />
+                  {t.resumeFrom} {formatDuration(activeProgress)}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => {
@@ -375,12 +419,10 @@ export default function TrackPage() {
                     },
                   });
                 }}
-                className={`rounded-full border-border hover:border-foreground ${liked ? "border-primary text-primary" : ""}`}
+                className={`rounded-full border-border hover:border-foreground ${liked ? 'border-primary text-primary' : ''}`}
               >
-                <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-                {liked
-                  ? formatCompactNumber(currentTrack.likeCount + 1)
-                  : formatCompactNumber(currentTrack.likeCount)}
+                <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+                {formatCompactNumber(optimisticLikeCount)}
               </Button>
               <Button
                 variant="outline"
@@ -403,12 +445,10 @@ export default function TrackPage() {
                     },
                   });
                 }}
-                className={`rounded-full border-border hover:border-foreground ${reposted ? "border-primary text-primary" : ""}`}
+                className={`rounded-full border-border hover:border-foreground ${reposted ? 'border-primary text-primary' : ''}`}
               >
                 <RepostIcon className="h-4 w-4" />
-                {reposted
-                  ? formatCompactNumber(currentTrack.repostCount + 1)
-                  : formatCompactNumber(currentTrack.repostCount)}
+                {formatCompactNumber(optimisticRepostCount)}
               </Button>
               <Button
                 variant="outline"
@@ -420,10 +460,10 @@ export default function TrackPage() {
               </Button>
               <ShareActionButton
                 title={card.title}
-                text={`Nghe ${card.title} của ${card.artistName} trên WaveStream.`}
+                text={`${t.shareTextPrefix} ${card.title} ${t.shareTextBy} ${card.artistName} ${t.shareTextSuffix}`}
                 successLabel={tCommon.share}
                 onSuccess={(method) => {
-                  toast.success(method === "native" ? tCommon.sharedNative : tCommon.linkCopied);
+                  toast.success(method === 'native' ? tCommon.sharedNative : tCommon.linkCopied);
                 }}
                 onError={(error) => toast.error(error.message)}
               >
@@ -443,7 +483,7 @@ export default function TrackPage() {
           </div>
         </div>
 
-        {/* Waveform section — full width, prominent */}
+        {/* Waveform section, full width and prominent */}
         <div className="border-t border-border px-5 py-4">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[10px] text-muted-foreground tabular-nums w-9 text-right">
@@ -575,7 +615,7 @@ export default function TrackPage() {
                   <Input
                     id="timestamp"
                     inputMode="numeric"
-                    placeholder="Giây (tùy chọn)"
+                    placeholder={t.timestampPlaceholder}
                     value={timestamp}
                     onChange={(e) => setTimestamp(e.target.value)}
                     className="h-8 text-xs bg-muted border-border max-w-[140px]"
@@ -622,7 +662,7 @@ export default function TrackPage() {
             </div>
             {session.isAuthenticated && !isOwner && (
               <Button
-                variant={following ? "secondary" : "outline"}
+                variant={following ? 'secondary' : 'outline'}
                 onClick={() => {
                   const next = !following;
                   setFollowing(next);
@@ -643,8 +683,13 @@ export default function TrackPage() {
                 {following ? tCommon.following : tCommon.follow}
               </Button>
             )}
-            <Button asChild variant="ghost" size="sm" className="mt-2 w-full rounded-full text-muted-foreground">
-              <Link href={`/artist/${card.artistHandle?.replace("@", "")}`}>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="mt-2 w-full rounded-full text-muted-foreground"
+            >
+              <Link href={`/artist/${card.artistHandle?.replace('@', '')}`}>
                 {tCommon.viewProfile}
               </Link>
             </Button>
@@ -681,8 +726,8 @@ export default function TrackPage() {
                           related.coverUrl
                             ? {
                                 backgroundImage: `url(${related.coverUrl})`,
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
                               }
                             : undefined
                         }
@@ -691,7 +736,9 @@ export default function TrackPage() {
                         <p className="truncate text-xs font-medium text-foreground group-hover:text-primary transition-colors">
                           {related.title}
                         </p>
-                        <p className="truncate text-[10px] text-muted-foreground">{related.artistName}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {related.artistName}
+                        </p>
                       </div>
                     </Link>
                   );
@@ -716,7 +763,7 @@ export default function TrackPage() {
         selectedPlaylistId={selectedPlaylistId}
         onSelectedPlaylistIdChange={setSelectedPlaylistId}
         isPending={addTrackToPlaylistMutation.isPending}
-        emptyStateDescription="Tạo playlist trước, sau đó thêm bài nhạc vào."
+        emptyStateDescription={t.addToPlaylistEmptyDesc}
         onConfirm={handleAddToPlaylist}
         onCreatePlaylist={() => {
           setIsAddDialogOpen(false);
@@ -738,7 +785,7 @@ export default function TrackPage() {
       <ReportDialog
         open={isReportOpen}
         onOpenChange={setIsReportOpen}
-        entityLabel="bài nhạc"
+        entityLabel={t.trackEntityLabel}
         entityName={card.title}
         isPending={createReportMutation.isPending}
         onSubmit={handleCreateReport}

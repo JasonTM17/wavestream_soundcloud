@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { ListMusic, Plus, Music4 } from "lucide-react";
+import * as React from 'react';
+import { ListMusic, Plus, Music4 } from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +12,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 export type PlaylistPick = {
   id: string;
@@ -81,9 +81,9 @@ export function AddToPlaylistDialog({
   selectedPlaylistId,
   defaultSelectedPlaylistId,
   isPending = false,
-  confirmLabel = "Add to playlist",
-  emptyStateTitle = "No playlists yet",
-  emptyStateDescription = "Create a playlist first, then add this track to it.",
+  confirmLabel = 'Add to playlist',
+  emptyStateTitle = 'No playlists yet',
+  emptyStateDescription = 'Create a playlist first, then add this track to it.',
   onSelectedPlaylistIdChange,
   onConfirm,
   onCreatePlaylist,
@@ -122,25 +122,26 @@ export function AddToPlaylistDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[min(92vw,42rem)]">
         <DialogHeader>
-          <div className="mb-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))] text-black">
+          <div className="mb-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <ListMusic className="h-5 w-5" />
           </div>
           <DialogTitle>Add to playlist</DialogTitle>
           <DialogDescription>
             Add <span className="font-medium text-foreground">{trackTitle}</span>
-            {trackArtistName ? ` by ${trackArtistName}` : ""} to one of your saved playlists.
+            {trackArtistName ? ` by ${trackArtistName}` : ''} to one of your saved playlists.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md bg-[hsl(var(--muted))] p-4">
+        <div className="rounded-md bg-muted p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))] text-black">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Music4 className="h-4 w-4" />
             </div>
             <div className="space-y-1">
               <p className="font-medium">{trackTitle}</p>
               <p className="text-sm text-muted-foreground">
-                {trackDescription ?? "Choose a destination playlist and the page can refresh the collection immediately after confirmation."}
+                {trackDescription ??
+                  'Choose a destination playlist and the page can refresh the collection immediately after confirmation.'}
               </p>
             </div>
           </div>
@@ -157,20 +158,20 @@ export function AddToPlaylistDialog({
                     type="button"
                     onClick={() => setSelection(playlist.id)}
                     className={cn(
-                      "flex w-full items-center gap-4 rounded-md border-none p-4 text-left transition-colors",
+                      'flex w-full items-center gap-4 rounded-md border-none p-4 text-left transition-colors',
                       isSelected
-                        ? "bg-[hsl(var(--accent))] text-white"
-                        : "bg-[hsl(var(--muted))] hover:bg-[hsl(var(--accent))]",
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-muted text-foreground hover:bg-accent',
                     )}
                   >
                     <div
-                      className="h-14 w-14 rounded-md bg-[hsl(var(--accent))] shrink-0"
+                      className="h-14 w-14 rounded-md bg-accent shrink-0"
                       style={
                         playlist.coverUrl
                           ? {
                               backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.18), rgba(7, 11, 24, 0.48)), url(${playlist.coverUrl})`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
                             }
                           : undefined
                       }
@@ -178,16 +179,16 @@ export function AddToPlaylistDialog({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="truncate font-medium">{playlist.title}</p>
-                        <Badge variant={playlist.isPublic ? "soft" : "outline"}>
-                          {playlist.isPublic ? "Public" : "Private"}
+                        <Badge variant={playlist.isPublic ? 'soft' : 'outline'}>
+                          {playlist.isPublic ? 'Public' : 'Private'}
                         </Badge>
                       </div>
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                        {playlist.description ?? "No description yet."}
+                        {playlist.description ?? 'No description yet.'}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1 text-right">
-                      <Badge variant={isSelected ? "default" : "outline"}>
+                      <Badge variant={isSelected ? 'default' : 'outline'}>
                         {playlist.trackCount ?? 0} tracks
                       </Badge>
                       {playlist.totalDurationLabel ? (
@@ -202,9 +203,9 @@ export function AddToPlaylistDialog({
             </div>
           </ScrollArea>
         ) : (
-          <div className="rounded-md bg-[hsl(var(--muted))] p-6 text-sm text-[hsl(var(--muted-foreground))]">
+          <div className="rounded-md bg-muted p-6 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--accent))] text-white">
+              <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
                 <Plus className="h-4 w-4" />
               </div>
               <div className="space-y-1">
@@ -222,21 +223,26 @@ export function AddToPlaylistDialog({
               Create playlist
             </Button>
           ) : null}
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Close
           </Button>
           <Button type="button" onClick={handleConfirm} disabled={isPending || !selection}>
-            {isPending ? "Adding..." : confirmLabel}
+            {isPending ? 'Adding...' : confirmLabel}
           </Button>
         </DialogFooter>
 
         {selectedPlaylist ? (
           <p className="text-xs text-muted-foreground">
-            Selected destination: <span className="font-medium text-foreground">{selectedPlaylist.title}</span>
+            Selected destination:{' '}
+            <span className="font-medium text-foreground">{selectedPlaylist.title}</span>
           </p>
         ) : null}
       </DialogContent>
     </Dialog>
   );
 }
-

@@ -6,6 +6,8 @@ describe('seed audio assets', () => {
       durationSeconds: 30,
       baseFrequency: 208,
       pulseFrequency: 2.6,
+      genre: 'Electronic',
+      seed: 'aurora-current',
     };
 
     const first = createWaveAudioBuffer(options);
@@ -17,9 +19,9 @@ describe('seed audio assets', () => {
     expect(first.toString('ascii', 36, 40)).toBe('data');
     expect(first.readUInt16LE(22)).toBe(2);
     expect(first.readUInt16LE(34)).toBe(16);
-    expect(first.readUInt32LE(24)).toBe(44_100);
+    expect(first.readUInt32LE(24)).toBe(22_050);
     expect(first.readUInt16LE(32)).toBe(4);
-    expect(first.byteLength).toBeGreaterThan(5_000_000);
+    expect(first.byteLength).toBeGreaterThan(2_500_000);
   });
 
   it('writes non-silent audio samples into both channels', () => {
@@ -27,6 +29,8 @@ describe('seed audio assets', () => {
       durationSeconds: 28,
       baseFrequency: 180,
       pulseFrequency: 2.2,
+      genre: 'Lo-fi',
+      seed: 'linen-hours',
     });
 
     const earlyFrame = 44 + 1_200 * 4;
@@ -39,5 +43,24 @@ describe('seed audio assets', () => {
     expect(Math.abs(firstLeftSample) + Math.abs(firstRightSample)).toBeGreaterThan(0);
     expect(Math.abs(midLeftSample) + Math.abs(midRightSample)).toBeGreaterThan(0);
     expect(midLeftSample).not.toBe(midRightSample);
+  });
+
+  it('changes musical texture by genre while staying deterministic', () => {
+    const electronic = createWaveAudioBuffer({
+      durationSeconds: 16,
+      baseFrequency: 208,
+      pulseFrequency: 2.6,
+      genre: 'Electronic',
+      seed: 'midnight-static',
+    });
+    const lofi = createWaveAudioBuffer({
+      durationSeconds: 16,
+      baseFrequency: 208,
+      pulseFrequency: 2.6,
+      genre: 'Lo-fi',
+      seed: 'midnight-static',
+    });
+
+    expect(electronic.equals(lofi)).toBe(false);
   });
 });

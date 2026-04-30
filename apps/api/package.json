@@ -108,6 +108,8 @@
       "**/*.(t|j)s"
     ],
     "moduleNameMapper": {
+      "^@wavestream/shared$": "<rootDir>/../../../packages/shared/src",
+      "^@wavestream/shared/(.*)$": "<rootDir>/../../../packages/shared/src/$1",
       "^src/(.*)$": "<rootDir>/$1"
     },
     "coverageDirectory": "../coverage",

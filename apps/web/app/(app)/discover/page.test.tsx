@@ -17,7 +17,15 @@ vi.mock("@/lib/wavestream-queries", () => ({
 }));
 
 vi.mock("@/lib/player-store", () => ({
-  usePlayerStore: (selector: (state: { setQueue: () => void; playTrack: () => void; currentTrack: null; isPlaying: boolean; togglePlay: () => void }) => unknown) =>
+  usePlayerStore: (
+    selector: (state: {
+      setQueue: () => void;
+      playTrack: () => void;
+      currentTrack: null;
+      isPlaying: boolean;
+      togglePlay: () => void;
+    }) => unknown,
+  ) =>
     selector({
       setQueue: vi.fn(),
       playTrack: vi.fn(),
@@ -96,22 +104,19 @@ describe("DiscoverPage", () => {
   it("renders trending tracks section without AI dashboard patterns", () => {
     render(<DiscoverPage />);
 
-    // Page heading is translated to Vietnamese
     expect(screen.getByRole("heading", { name: "Khám phá" })).toBeInTheDocument();
-    // Trending tracks section heading (i18n)
     expect(screen.getByText("Đang thịnh hành")).toBeInTheDocument();
-    // No synthetic pulse/progress
     expect(screen.queryByText("Listening pulse")).not.toBeInTheDocument();
   });
 
   it("routes guests toward sign-in for creator tools", () => {
     render(<DiscoverPage />);
 
-    // CTA for unauthenticated users links to sign-in for creator tools
     const allLinks = screen.getAllByRole("link");
     const creatorLink = allLinks.find(
-      (l) => l.getAttribute("href") === "/sign-in?next=%2Fcreator",
+      (link) => link.getAttribute("href") === "/sign-in?next=%2Fcreator",
     );
+
     expect(creatorLink).toBeDefined();
     expect(creatorLink?.getAttribute("href")).toBe("/sign-in?next=%2Fcreator");
   });

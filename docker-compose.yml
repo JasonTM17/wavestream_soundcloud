@@ -2,6 +2,7 @@ name: wavestream
 
 x-api-env: &api-env
   NODE_ENV: production
+  ALLOW_WEAK_LOCAL_SECRETS: ${ALLOW_WEAK_LOCAL_SECRETS:-true}
   PORT: 4000
   DB_HOST: postgres
   DB_PORT: 5432
@@ -32,7 +33,7 @@ x-api-env: &api-env
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: public.ecr.aws/docker/library/postgres:16-alpine
     container_name: wavestream-db
     restart: unless-stopped
     ports:
@@ -50,7 +51,7 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: public.ecr.aws/docker/library/redis:7-alpine
     container_name: wavestream-redis
     restart: unless-stopped
     ports:
@@ -64,7 +65,7 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: wavestream-minio
     restart: unless-stopped
     ports:
@@ -78,7 +79,7 @@ services:
     command: server /data --console-address ":9001"
 
   minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:latest
     container_name: wavestream-minio-init
     depends_on:
       minio:
@@ -92,7 +93,7 @@ services:
       ]
 
   mailpit:
-    image: axllent/mailpit:latest
+    image: ghcr.io/axllent/mailpit:latest
     container_name: wavestream-mailpit
     restart: unless-stopped
     ports:
@@ -171,6 +172,8 @@ services:
     ports:
       - '${WEB_PORT:-3000}:3000'
     environment:
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-4000}
       INTERNAL_API_URL: http://api:4000
       NEXT_PUBLIC_MINIO_URL: http://localhost:${MINIO_API_PORT:-9000}
@@ -183,7 +186,7 @@ services:
           'CMD',
           'node',
           '-e',
-          "fetch('http://' + process.env.HOSTNAME + ':3000').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "fetch('http://127.0.0.1:3000').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
       interval: 15s
       timeout: 5s

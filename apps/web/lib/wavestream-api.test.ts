@@ -246,6 +246,65 @@ describe("wavestream api helpers", () => {
     expect(formData.get("coverImage")).toBeInstanceOf(File);
   });
 
+  it("unwraps nested paginated data for public track and playlist listings", async () => {
+    const tracks = [makeTrack({ id: "track-ambient", slug: "blue-hour-tide", title: "Blue Hour Tide" })];
+    const playlists = [makePlaylist({ id: "playlist-public", slug: "ambient-cuts", title: "Ambient Cuts" })];
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+
+      if (url.endsWith("/api/tracks?genre=ambient&limit=5")) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              data: tracks,
+              meta: { page: 1, limit: 5, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
+            },
+          }),
+          {
+            status: 200,
+            headers: {
+              "content-type": "application/json",
+            },
+          },
+        );
+      }
+
+      if (url.endsWith("/api/playlists?ownerId=artist-1&limit=6")) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              data: playlists,
+              meta: { page: 1, limit: 6, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
+            },
+          }),
+          {
+            status: 200,
+            headers: {
+              "content-type": "application/json",
+            },
+          },
+        );
+      }
+
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    await expect(apiModule.getTracks({ genre: "ambient", limit: 5 })).resolves.toEqual(tracks);
+    await expect(apiModule.getPlaylists({ ownerId: "artist-1", limit: 6 })).resolves.toEqual(
+      playlists,
+    );
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
   it("builds partial update payloads without leaking undefined fields", () => {
     const payload = apiModule.buildUpdateTrackPayload({
       title: "Afterglow",

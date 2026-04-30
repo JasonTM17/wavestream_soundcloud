@@ -30,5 +30,7 @@ export const createPaginationMeta = (
     totalPages,
     hasNext: page < totalPages,
     hasPrev: page > 1,
+    hasNextPage: page < totalPages,
+    hasPreviousPage: page > 1,
   };
 };

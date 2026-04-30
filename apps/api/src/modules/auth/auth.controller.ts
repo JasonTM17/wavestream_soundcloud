@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { CookieOptions, Request, Response } from 'express';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserEntity } from 'src/database/entities/user.entity';
@@ -22,7 +23,10 @@ const getRefreshToken = (request: Request) => {
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -85,7 +89,9 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
     await this.authService.logout(getRefreshToken(request));
-    response.clearCookie(REFRESH_COOKIE);
+    const clearOptions = this.getRefreshCookieOptions();
+    delete clearOptions.maxAge;
+    response.clearCookie(REFRESH_COOKIE, clearOptions);
 
     return { loggedOut: true };
   }
@@ -110,12 +116,18 @@ export class AuthController {
   }
 
   private setRefreshCookie(response: Response, refreshToken: string) {
-    response.cookie(REFRESH_COOKIE, refreshToken, {
+    response.cookie(REFRESH_COOKIE, refreshToken, this.getRefreshCookieOptions());
+  }
+
+  private getRefreshCookieOptions(): CookieOptions {
+    const frontendUrl = this.configService.getOrThrow<string>('app.frontendUrl');
+
+    return {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false,
+      secure: frontendUrl.startsWith('https://'),
       maxAge: 1000 * 60 * 60 * 24 * 7,
       path: '/',
-    });
+    };
   }
 }

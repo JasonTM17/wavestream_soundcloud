@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { UserRole } from "@wavestream/shared";
-import { toast } from "sonner";
+import * as React from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { UserRole } from '@wavestream/shared';
+import { toast } from 'sonner';
 
-import { useAuthSession } from "@/lib/auth-store";
+import { useAuthSession } from '@/lib/auth-store';
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  requireRole?: "creator" | "admin";
+  requireRole?: 'creator' | 'admin';
 };
 
 function buildReturnTo(pathname: string, searchParams: { toString(): string }) {
@@ -20,32 +20,31 @@ function buildReturnTo(pathname: string, searchParams: { toString(): string }) {
 function sanitizeNextTarget(nextValue: string | null, fallback: string) {
   const candidate = nextValue?.trim();
 
-  if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//") || candidate.includes("://")) {
+  if (
+    !candidate ||
+    !candidate.startsWith('/') ||
+    candidate.startsWith('//') ||
+    candidate.includes('://')
+  ) {
     return fallback;
   }
 
-  if (candidate === "/sign-in" || candidate === "/sign-up") {
+  if (candidate === '/sign-in' || candidate === '/sign-up') {
     return fallback;
   }
 
   return candidate;
 }
 
-function GateScreen({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function GateScreen({ title, description }: { title: string; description: string }) {
   return (
     <div className="flex min-h-[calc(100vh-2rem)] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-md bg-[hsl(var(--card))] p-6">
+      <div className="w-full max-w-md rounded-md border border-border bg-card p-6">
         <div className="space-y-2">
-          <p className="text-lg font-bold text-white">{title}</p>
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">{description}</p>
+          <p className="text-lg font-bold text-foreground">{title}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
+        <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-accent">
           <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
         </div>
       </div>
@@ -70,15 +69,15 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   );
   const hasAdminAccess = user?.role === UserRole.ADMIN;
   const hasCreatorAccess = user?.role === UserRole.CREATOR || user?.role === UserRole.ADMIN;
-  const requiresCreatorAccess = requireRole === "creator";
-  const requiresAdminAccess = requireRole === "admin";
+  const requiresCreatorAccess = requireRole === 'creator';
+  const requiresAdminAccess = requireRole === 'admin';
 
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
 
   React.useEffect(() => {
-    if (!hasMounted || status === "booting" || redirectingRef.current) {
+    if (!hasMounted || status === 'booting' || redirectingRef.current) {
       return;
     }
 
@@ -90,15 +89,15 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
 
     if (requiresAdminAccess && !hasAdminAccess) {
       redirectingRef.current = true;
-      toast.error("Admin access required.");
-      router.replace("/discover");
+      toast.error('Admin access required.');
+      router.replace('/discover');
       return;
     }
 
     if (requiresCreatorAccess && !hasCreatorAccess) {
       redirectingRef.current = true;
-      toast.error("Creator access required.");
-      router.replace("/discover");
+      toast.error('Creator access required.');
+      router.replace('/discover');
     }
   }, [
     hasAdminAccess,
@@ -158,7 +157,7 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
   const [hasMounted, setHasMounted] = React.useState(false);
   const redirectingRef = React.useRef(false);
   const nextTarget = React.useMemo(
-    () => sanitizeNextTarget(searchParams.get("next"), "/discover"),
+    () => sanitizeNextTarget(searchParams.get('next'), '/discover'),
     [searchParams],
   );
 
@@ -167,7 +166,7 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
   }, []);
 
   React.useEffect(() => {
-    if (!hasMounted || status !== "authenticated" || redirectingRef.current) {
+    if (!hasMounted || status !== 'authenticated' || redirectingRef.current) {
       return;
     }
 
@@ -175,7 +174,7 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
     router.replace(nextTarget);
   }, [hasMounted, nextTarget, router, status]);
 
-  if (!hasMounted || status === "booting") {
+  if (!hasMounted || status === 'booting') {
     return (
       <GateScreen
         title="Restoring your session"
@@ -195,4 +194,3 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
-

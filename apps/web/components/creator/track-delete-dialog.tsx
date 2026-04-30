@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 type TrackDeleteDialogProps = {
   open: boolean;
@@ -38,10 +38,10 @@ export function TrackDeleteDialog({
           <DialogDescription>
             {trackTitle
               ? `This will remove "${trackTitle}" from your public catalog and dashboard analytics views.`
-              : "This will remove the selected track from your public catalog and dashboard analytics views."}
+              : 'This will remove the selected track from your public catalog and dashboard analytics views.'}
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
+        <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
           The delete is safe and owner-checked on the backend, but listeners will no longer be able
           to access this track from discovery or your profile.
         </div>
@@ -55,11 +55,10 @@ export function TrackDeleteDialog({
             Cancel
           </Button>
           <Button type="button" onClick={() => void onConfirm()} disabled={isPending}>
-            {isPending ? "Deleting..." : "Delete track"}
+            {isPending ? 'Deleting...' : 'Delete track'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

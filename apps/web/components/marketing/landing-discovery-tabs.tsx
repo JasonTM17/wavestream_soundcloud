@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { LoaderCircle, Pause, Play } from "lucide-react";
+import * as React from 'react';
+import Link from 'next/link';
+import { LoaderCircle, Pause, Play } from 'lucide-react';
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { usePlayerStore } from "@/lib/player-store";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { usePlayerStore } from '@/lib/player-store';
 import {
   formatCompactNumber,
   formatDuration,
@@ -15,7 +15,7 @@ import {
   type PlaylistSummary,
   type TrackSummary,
   type UserSummary,
-} from "@/lib/wavestream-api";
+} from '@/lib/wavestream-api';
 
 type LandingDiscoveryTabsProps = {
   trendingTracks: TrackSummary[];
@@ -78,12 +78,12 @@ export function LandingDiscoveryTabs({
             return (
               <div
                 key={track.id}
-                className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
+                className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-accent"
               >
                 <button
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105"
                   onClick={() => handleTrackPlay(track.id)}
-                  aria-label={`${isActiveTrack && isPlaying ? "Pause" : "Play"} ${track.title}`}
+                  aria-label={`${isActiveTrack && isPlaying ? 'Pause' : 'Play'} ${track.title}`}
                 >
                   {isActiveTrack && isBuffering ? (
                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -100,26 +100,26 @@ export function LandingDiscoveryTabs({
                   className="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
-                    className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.6)]"
+                    className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-primary to-primary/60"
                     style={
                       track.coverUrl
                         ? {
                             backgroundImage: `url(${track.coverUrl})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                           }
                         : undefined
                     }
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white group-hover:text-[hsl(var(--primary))] transition-colors">
+                    <p className="truncate text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                       {track.title}
                     </p>
-                    <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
-                      {track.artist.displayName} • {track.genre?.name ?? "Uncategorized"}
+                    <p className="truncate text-xs text-muted-foreground">
+                      {track.artist.displayName} / {track.genre?.name ?? 'Uncategorized'}
                     </p>
                   </div>
-                  <div className="shrink-0 text-right text-xs text-[hsl(var(--muted-foreground))]">
+                  <div className="shrink-0 text-right text-xs text-muted-foreground">
                     <p>{formatDuration(track.duration)}</p>
                     <p>{formatCompactNumber(track.playCount)} plays</p>
                   </div>
@@ -128,7 +128,7 @@ export function LandingDiscoveryTabs({
             );
           })
         ) : (
-          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
+          <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
             Trending tracks will appear once discovery data is available.
           </div>
         )}
@@ -140,25 +140,25 @@ export function LandingDiscoveryTabs({
             <Link
               key={artist.id}
               href={`/artist/${artist.username}`}
-              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
+              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-accent"
             >
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-[hsl(var(--primary))] text-black text-xs font-bold">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                   {artist.displayName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{artist.displayName}</p>
-                <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
-                  @{artist.username} • {formatCompactNumber(artist.followerCount ?? 0)} followers
+                <p className="truncate text-sm font-medium text-foreground">{artist.displayName}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  @{artist.username} / {formatCompactNumber(artist.followerCount ?? 0)} followers
                 </p>
               </div>
               <Badge variant="outline">{formatCompactNumber(artist.trackCount ?? 0)} tracks</Badge>
             </Link>
           ))
         ) : (
-          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
-            Featured creators will appear once the public feed is seeded.
+          <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
+            Featured creators will appear here as the community starts publishing tracks.
           </div>
         )}
       </TabsContent>
@@ -169,36 +169,35 @@ export function LandingDiscoveryTabs({
             <Link
               key={playlist.id}
               href={`/playlist/${playlist.slug}`}
-              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-[hsl(var(--accent))]"
+              className="group flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-accent"
             >
               <div
-                className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--muted))]"
+                className="h-10 w-10 shrink-0 rounded-md bg-gradient-to-br from-accent to-muted"
                 style={
                   playlist.coverUrl
                     ? {
                         backgroundImage: `url(${playlist.coverUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                       }
                     : undefined
                 }
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{playlist.title}</p>
-                <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
-                  {playlist.description || "Curated from live public data."}
+                <p className="truncate text-sm font-medium text-foreground">{playlist.title}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {playlist.description || 'Curated from live public data.'}
                 </p>
               </div>
               <Badge variant="outline">{playlist.trackCount ?? 0} tracks</Badge>
             </Link>
           ))
         ) : (
-          <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
-            Featured playlists will appear once the discovery endpoint returns data.
+          <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
+            Featured playlists will appear here as listeners build public collections.
           </div>
         )}
       </TabsContent>
     </Tabs>
   );
 }
-

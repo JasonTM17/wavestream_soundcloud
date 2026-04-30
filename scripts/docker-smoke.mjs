@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const DEFAULTS = {
-  webUrl: "http://127.0.0.1:3000",
-  apiUrl: "http://127.0.0.1:4000",
+  webUrl: "http://localhost:3000",
+  apiUrl: "http://localhost:4000",
   privateOwnerEmail: "miko@wavestream.demo",
   privateOwnerPassword: "DemoPass123!",
 };

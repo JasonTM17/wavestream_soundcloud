@@ -1,27 +1,24 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { LoaderCircle, Pause, Play } from "lucide-react";
+import * as React from 'react';
+import { LoaderCircle, Pause, Play } from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { usePlayerStore } from "@/lib/player-store";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { usePlayerStore } from '@/lib/player-store';
 import {
   formatCompactNumber,
   formatDuration,
   toTrackCard,
   type TrackSummary,
-} from "@/lib/wavestream-api";
+} from '@/lib/wavestream-api';
 
 type LandingHeroPlayButtonProps = {
   spotlightTrack: TrackSummary | null;
   queueTracks: TrackSummary[];
 };
 
-function getPlayableQueue(
-  spotlightTrack: TrackSummary | null,
-  queueTracks: TrackSummary[],
-) {
+function getPlayableQueue(spotlightTrack: TrackSummary | null, queueTracks: TrackSummary[]) {
   const source = queueTracks.length ? queueTracks : spotlightTrack ? [spotlightTrack] : [];
   const seen = new Set<string>();
 
@@ -37,10 +34,7 @@ function getPlayableQueue(
     .map((track) => toTrackCard(track));
 }
 
-export function LandingHeroPlayButton({
-  spotlightTrack,
-  queueTracks,
-}: LandingHeroPlayButtonProps) {
+export function LandingHeroPlayButton({ spotlightTrack, queueTracks }: LandingHeroPlayButtonProps) {
   const setQueue = usePlayerStore((state) => state.setQueue);
   const playTrack = usePlayerStore((state) => state.playTrack);
   const togglePlay = usePlayerStore((state) => state.togglePlay);
@@ -53,22 +47,22 @@ export function LandingHeroPlayButton({
     [queueTracks, spotlightTrack],
   );
   const spotlightCard = React.useMemo(
-    () => (spotlightTrack ? toTrackCard(spotlightTrack) : playableQueue[0] ?? null),
+    () => (spotlightTrack ? toTrackCard(spotlightTrack) : (playableQueue[0] ?? null)),
     [playableQueue, spotlightTrack],
   );
 
   const isActiveTrack = currentTrack?.id === spotlightCard?.id;
   const buttonLabel = !spotlightCard
-    ? "No live track"
+    ? 'Play spotlight'
     : isActiveTrack
       ? isBuffering
-        ? "Buffering spotlight"
+        ? 'Buffering spotlight'
         : isPlaying
-          ? "Pause spotlight"
-          : "Resume spotlight"
-      : "Play spotlight";
+          ? 'Pause spotlight'
+          : 'Resume spotlight'
+      : 'Play spotlight';
   const statusLabel = !spotlightCard
-    ? "Seeded public audio will appear here once discovery data is available."
+    ? 'Fresh public tracks will appear here as soon as discovery has music to feature.'
     : `${spotlightTrack?.artist.displayName ?? spotlightCard.artistName} / ${formatDuration(
         spotlightTrack?.duration ?? spotlightCard.durationSeconds ?? 0,
       )} / ${formatCompactNumber(spotlightTrack?.playCount ?? 0)} plays`;
@@ -92,12 +86,7 @@ export function LandingHeroPlayButton({
 
   return (
     <div className="w-full space-y-3">
-      <Button
-        size="lg"
-        className="w-full"
-        onClick={handlePlay}
-        disabled={!spotlightCard}
-      >
+      <Button size="lg" className="w-full" onClick={handlePlay} disabled={!spotlightCard}>
         {isActiveTrack && isBuffering ? (
           <LoaderCircle className="h-4 w-4 animate-spin" />
         ) : isActiveTrack && isPlaying ? (
@@ -107,13 +96,12 @@ export function LandingHeroPlayButton({
         )}
         {buttonLabel}
       </Button>
-      <div className="flex flex-wrap items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-        <Badge variant={spotlightCard ? "soft" : "outline"}>
-          {isActiveTrack ? (isPlaying ? "Now playing" : "Ready in player") : "Live spotlight"}
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <Badge variant={spotlightCard ? 'soft' : 'outline'}>
+          {isActiveTrack ? (isPlaying ? 'Now playing' : 'Ready in player') : 'Live spotlight'}
         </Badge>
         <span className="text-xs">{statusLabel}</span>
       </div>
     </div>
   );
 }
-

@@ -3,10 +3,40 @@ import {
   getAccessToken,
   setAuthenticatedSession,
   type AuthSessionValue,
-} from "@/lib/auth-session";
+} from '@/lib/auth-session';
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
+const DEFAULT_API_URL = 'http://localhost:4000';
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
+const isLoopbackHost = (hostname: string) => LOOPBACK_HOSTS.has(hostname);
+
+export function getApiBaseUrl() {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ?? DEFAULT_API_URL;
+
+  if (typeof window === 'undefined') {
+    return configuredUrl;
+  }
+
+  try {
+    const apiUrl = new URL(configuredUrl);
+    const currentUrl = new URL(window.location.origin);
+
+    if (
+      isLoopbackHost(apiUrl.hostname) &&
+      isLoopbackHost(currentUrl.hostname) &&
+      apiUrl.hostname !== currentUrl.hostname
+    ) {
+      apiUrl.hostname = currentUrl.hostname;
+      return apiUrl.origin;
+    }
+
+    return apiUrl.origin;
+  } catch {
+    return configuredUrl;
+  }
+}
+
+export const API_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
   status: number;
@@ -14,18 +44,18 @@ export class ApiError extends Error {
 
   constructor(message: string, status = 500, details?: unknown) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
     this.status = status;
     this.details = details;
   }
 }
 
-type RequestOptions = Omit<RequestInit, "body"> & {
+type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
-  auth?: "optional" | "required" | "none";
+  auth?: 'optional' | 'required' | 'none';
 };
 
-export type RequestAuthMode = RequestOptions["auth"];
+export type RequestAuthMode = RequestOptions['auth'];
 
 export type ApiEnvelope<T> = {
   success?: boolean;
@@ -35,21 +65,21 @@ export type ApiEnvelope<T> = {
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === "object";
+  Boolean(value) && typeof value === 'object';
 
 const isApiEnvelope = <T>(value: unknown): value is ApiEnvelope<T> =>
-  isObject(value) && "success" in value && "data" in value;
+  isObject(value) && 'success' in value && 'data' in value;
 
 async function parseResponse(response: Response) {
-  const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.includes("application/json")) {
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
     return response.json().catch(() => null);
   }
 
-  return response.text().catch(() => "");
+  return response.text().catch(() => '');
 }
 
-const AUTH_ENDPOINT_PREFIX = "/api/auth/";
+const AUTH_ENDPOINT_PREFIX = '/api/auth/';
 
 const isAuthEndpoint = (path: string) => path.startsWith(AUTH_ENDPOINT_PREFIX);
 
@@ -61,55 +91,63 @@ const requestWithAuth = async (path: string, options: RequestOptions) => {
       ? (options.body as BodyInit | undefined)
       : JSON.stringify(options.body);
 
-  if (body !== undefined && !isFormDataBody && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
+  if (body !== undefined && !isFormDataBody && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
   }
 
-  const accessToken = options.auth === "none" ? null : getAccessToken();
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+  const accessToken = options.auth === 'none' ? null : getAccessToken();
+  if (accessToken && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
-  return fetch(`${API_URL}${path}`, {
+  return fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers: Object.fromEntries(headers.entries()),
     body,
-    credentials: "include",
-    cache: "no-store",
+    credentials: 'include',
+    cache: 'no-store',
   }).catch((error: unknown) => {
     throw new ApiError(
-      "WaveStream API is not reachable yet. The frontend shell still compiles safely.",
+      'WaveStream API is not reachable yet. The frontend shell still compiles safely.',
       503,
       error,
     );
   });
 };
 
+const unwrapApiPayload = <T>(payload: unknown) => {
+  if (isApiEnvelope<T>(payload)) {
+    return (payload.data ?? payload) as T;
+  }
+
+  return payload as T;
+};
+
 let refreshSessionPromise: Promise<AuthSessionValue | null> | null = null;
 
 async function readAuthSession(response: Response): Promise<AuthSessionValue | null> {
   const payload = await parseResponse(response);
-  const session = isObject(payload) && "data" in payload ? payload.data : payload;
+  const session = isObject(payload) && 'data' in payload ? payload.data : payload;
 
   if (!isObject(session) || !isObject((session as Record<string, unknown>).user)) {
     return null;
   }
 
-  const user = (session as { user: AuthSessionValue["user"] }).user;
+  const user = (session as { user: AuthSessionValue['user'] }).user;
   const tokenSource = session as
     | {
         tokens?: { accessToken?: string };
         accessToken?: string;
-        user: AuthSessionValue["user"];
+        user: AuthSessionValue['user'];
       }
     | undefined;
 
   const accessToken =
-    tokenSource && typeof tokenSource.accessToken === "string"
+    tokenSource && typeof tokenSource.accessToken === 'string'
       ? tokenSource.accessToken
       : tokenSource?.tokens?.accessToken;
 
-  if (typeof accessToken !== "string" || !accessToken) {
+  if (typeof accessToken !== 'string' || !accessToken) {
     return null;
   }
 
@@ -126,12 +164,13 @@ export async function refreshAuthSession() {
 
   refreshSessionPromise = (async () => {
     try {
-      const response = await fetch(`${API_URL}/api/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-        cache: "no-store",
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
         headers: {
-          Accept: "application/json",
+          Accept: 'application/json',
         },
       }).catch(() => null);
 
@@ -166,7 +205,7 @@ export async function refreshAuthSession() {
 
 function createApiErrorFromResponse(response: Response, details: unknown) {
   return new ApiError(
-    isObject(details) && "message" in details
+    isObject(details) && 'message' in details
       ? String((details as { message: string }).message)
       : `Request failed with status ${response.status}`,
     response.status,
@@ -175,19 +214,15 @@ function createApiErrorFromResponse(response: Response, details: unknown) {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}) {
-  const authMode = options.auth ?? "optional";
-  const shouldAttemptRefresh = authMode !== "none" && !isAuthEndpoint(path);
+  const authMode = options.auth ?? 'optional';
+  const shouldAttemptRefresh = authMode !== 'none' && !isAuthEndpoint(path);
 
   const execute = async (allowRefresh: boolean) => {
     const response = await requestWithAuth(path, options);
 
     if (response.ok) {
       const payload = await parseResponse(response);
-      if (isApiEnvelope<T>(payload)) {
-        return (payload.data ?? payload) as T;
-      }
-
-      return payload as T;
+      return unwrapApiPayload<T>(payload);
     }
 
     if (response.status === 401 && allowRefresh && shouldAttemptRefresh) {
@@ -196,15 +231,26 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}) 
         const retryResponse = await requestWithAuth(path, options);
         if (retryResponse.ok) {
           const retryPayload = await parseResponse(retryResponse);
-          if (isApiEnvelope<T>(retryPayload)) {
-            return (retryPayload.data ?? retryPayload) as T;
-          }
-
-          return retryPayload as T;
+          return unwrapApiPayload<T>(retryPayload);
         }
 
         const retryDetails = await parseResponse(retryResponse);
         throw createApiErrorFromResponse(retryResponse, retryDetails);
+      }
+
+      if (authMode === 'optional') {
+        const anonymousResponse = await requestWithAuth(path, {
+          ...options,
+          auth: 'none',
+        });
+
+        if (anonymousResponse.ok) {
+          const anonymousPayload = await parseResponse(anonymousResponse);
+          return unwrapApiPayload<T>(anonymousPayload);
+        }
+
+        const anonymousDetails = await parseResponse(anonymousResponse);
+        throw createApiErrorFromResponse(anonymousResponse, anonymousDetails);
       }
     }
 
@@ -215,12 +261,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}) 
   try {
     return await execute(true);
   } catch (error) {
-    if (error instanceof ApiError || authMode === "none") {
+    if (error instanceof ApiError || authMode === 'none') {
       throw error;
     }
 
     throw new ApiError(
-      "WaveStream API is not reachable yet. The frontend shell still compiles safely.",
+      'WaveStream API is not reachable yet. The frontend shell still compiles safely.',
       503,
       error,
     );

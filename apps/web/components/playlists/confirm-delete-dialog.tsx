@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 export type ConfirmDeleteDialogProps = {
   open: boolean;
@@ -28,7 +28,7 @@ export function ConfirmDeleteDialog({
   open,
   onOpenChange,
   entityName,
-  entityLabel = "item",
+  entityLabel = 'item',
   dialogTitle,
   dialogDescription,
   confirmLabel,
@@ -53,21 +53,25 @@ export function ConfirmDeleteDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md bg-[hsl(var(--muted))] p-4 text-sm text-[hsl(var(--muted-foreground))]">
+        <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
           Confirming this action should only be possible for the current owner or an authorized
           moderator. The component itself stays generic so the caller can enforce those rules.
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancel
           </Button>
           <Button type="button" onClick={() => void onConfirm()} disabled={isPending}>
-            {isPending ? "Deleting..." : confirmLabel ?? `Delete ${entityLabel}`}
+            {isPending ? 'Deleting...' : (confirmLabel ?? `Delete ${entityLabel}`)}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

@@ -63,6 +63,7 @@ const resetPlayerState = () =>
   usePlayerStore.setState({
     currentTrack: null,
     queue: [],
+    recentTracks: [],
     isPlaying: false,
     volume: 0.8,
     muted: false,
@@ -71,10 +72,14 @@ const resetPlayerState = () =>
     repeat: "off",
     progress: 18,
     duration: 218,
+    isBuffering: false,
+    error: null,
+    seekTarget: null,
   });
 
 afterEach(() => {
   resetPlayerState();
+  usePlayerStore.persist.clearStorage();
 });
 
 describe("player store", () => {
@@ -99,6 +104,87 @@ describe("player store", () => {
 
     store.previousTrack();
     expect(usePlayerStore.getState().currentTrack?.id).toBe("track-1");
+  });
+
+  it("deduplicates queue entries and can play a queue index directly", () => {
+    const queueWithDuplicate = [
+      { ...queue[0], durationSeconds: 245 },
+      { ...queue[0], durationSeconds: 245 },
+      { ...queue[1], durationSeconds: 192 },
+    ];
+
+    usePlayerStore.getState().setQueue(queueWithDuplicate);
+    expect(usePlayerStore.getState().queue.map((track) => track.id)).toEqual([
+      "track-1",
+      "track-2",
+    ]);
+
+    usePlayerStore.getState().playQueueIndex(1);
+    expect(usePlayerStore.getState().currentTrack?.id).toBe("track-2");
+    expect(usePlayerStore.getState().isPlaying).toBe(true);
+    expect(usePlayerStore.getState().recentTracks.map((track) => track.id)).toEqual(["track-2"]);
+
+    usePlayerStore.getState().playQueueIndex(99);
+    expect(usePlayerStore.getState().currentTrack?.id).toBe("track-2");
+  });
+
+  it("clears queue while preserving recents and playback preferences", () => {
+    const queueWithDuration = queue.map((track, index) => ({
+      ...track,
+      durationSeconds: index === 0 ? 245 : 192,
+    }));
+
+    usePlayerStore.getState().setQueue(queueWithDuration);
+    usePlayerStore.getState().playTrack(queueWithDuration[1]);
+    usePlayerStore.getState().setVolume(0.45);
+    usePlayerStore.getState().setPlaybackRate(1.25);
+    usePlayerStore.getState().setRepeat("all");
+    usePlayerStore.getState().clearQueue();
+
+    expect(usePlayerStore.getState().currentTrack).toBeNull();
+    expect(usePlayerStore.getState().queue).toEqual([]);
+    expect(usePlayerStore.getState().isPlaying).toBe(false);
+    expect(usePlayerStore.getState().recentTracks.map((track) => track.id)).toEqual(["track-2"]);
+    expect(usePlayerStore.getState().volume).toBe(0.45);
+    expect(usePlayerStore.getState().playbackRate).toBe(1.25);
+    expect(usePlayerStore.getState().repeat).toBe("all");
+  });
+
+  it("removes queue tracks and advances from the current track when possible", () => {
+    const queueWithDuration = queue.map((track, index) => ({
+      ...track,
+      durationSeconds: index === 0 ? 245 : 192,
+    }));
+
+    usePlayerStore.getState().setQueue(queueWithDuration);
+    usePlayerStore.getState().playTrack(queueWithDuration[0]);
+    usePlayerStore.getState().removeFromQueue("track-1");
+
+    expect(usePlayerStore.getState().queue.map((track) => track.id)).toEqual(["track-2"]);
+    expect(usePlayerStore.getState().currentTrack?.id).toBe("track-2");
+    expect(usePlayerStore.getState().isPlaying).toBe(true);
+    expect(usePlayerStore.getState().progress).toBe(0);
+
+    usePlayerStore.getState().removeFromQueue("track-2");
+    expect(usePlayerStore.getState().queue).toEqual([]);
+    expect(usePlayerStore.getState().currentTrack).toBeNull();
+    expect(usePlayerStore.getState().isPlaying).toBe(false);
+  });
+
+  it("stops playback but keeps remaining queue when removing the current last track", () => {
+    const queueWithDuration = queue.map((track, index) => ({
+      ...track,
+      durationSeconds: index === 0 ? 245 : 192,
+    }));
+
+    usePlayerStore.getState().setQueue(queueWithDuration);
+    usePlayerStore.getState().playTrack(queueWithDuration[1]);
+    usePlayerStore.getState().removeFromQueue("track-2");
+
+    expect(usePlayerStore.getState().queue.map((track) => track.id)).toEqual(["track-1"]);
+    expect(usePlayerStore.getState().currentTrack).toBeNull();
+    expect(usePlayerStore.getState().isPlaying).toBe(false);
+    expect(usePlayerStore.getState().duration).toBe(0);
   });
 
   it("tracks seek targets, buffering, and repeated playback states", () => {
@@ -183,5 +269,60 @@ describe("player store", () => {
     expect(usePlayerStore.getState().shuffle).toBe(true);
     expect(usePlayerStore.getState().repeat).toBe("all");
     expect(usePlayerStore.getState().progress).toBe(83);
+  });
+
+  it("persists queue, playback progress, and user controls without forcing autoplay", () => {
+    const queueWithDuration = queue.map((track, index) => ({
+      ...track,
+      durationSeconds: index === 0 ? 245 : 192,
+    }));
+
+    usePlayerStore.getState().setQueue(queueWithDuration);
+    usePlayerStore.getState().playTrack(queueWithDuration[1]);
+    usePlayerStore.getState().setVolume(0.35);
+    usePlayerStore.getState().setPlaybackRate(1.25);
+    usePlayerStore.getState().setRepeat("all");
+    usePlayerStore.getState().syncProgress(71);
+
+    const persistedRaw = localStorage.getItem("wavestream-player");
+    expect(persistedRaw).toBeTruthy();
+
+    const persisted = JSON.parse(String(persistedRaw)) as {
+      state?: {
+        currentTrack?: { id?: string };
+        queue?: Array<{ id: string }>;
+        recentTracks?: Array<{ id: string }>;
+        volume?: number;
+        playbackRate?: number;
+        repeat?: string;
+        progress?: number;
+      };
+    };
+
+    expect(persisted.state?.currentTrack?.id).toBe("track-2");
+    expect(persisted.state?.queue?.map((track) => track.id)).toEqual(["track-1", "track-2"]);
+    expect(persisted.state?.recentTracks?.map((track) => track.id)).toEqual(["track-2"]);
+    expect(persisted.state?.volume).toBe(0.35);
+    expect(persisted.state?.playbackRate).toBe(1.25);
+    expect(persisted.state?.repeat).toBe("all");
+    expect(persisted.state?.progress).toBe(71);
+    expect(usePlayerStore.getState().isPlaying).toBe(true);
+  });
+
+  it("keeps a deduplicated recently played list when switching tracks", () => {
+    const queueWithDuration = queue.map((track, index) => ({
+      ...track,
+      durationSeconds: index === 0 ? 245 : 192,
+    }));
+
+    usePlayerStore.getState().setQueue(queueWithDuration);
+    usePlayerStore.getState().playTrack(queueWithDuration[0]);
+    usePlayerStore.getState().playTrack(queueWithDuration[1]);
+    usePlayerStore.getState().playTrack(queueWithDuration[0]);
+
+    expect(usePlayerStore.getState().recentTracks.map((track) => track.id)).toEqual([
+      "track-1",
+      "track-2",
+    ]);
   });
 });
