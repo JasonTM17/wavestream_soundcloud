@@ -1,0 +1,179 @@
+name: wavestream-production
+
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE:-10m}
+    max-file: ${LOG_MAX_FILE:-5}
+
+x-api-env: &api-env
+  NODE_ENV: production
+  REQUIRE_STRONG_SECRETS: 'true'
+  ALLOW_WEAK_LOCAL_SECRETS: 'false'
+  ALLOW_LOOPBACK_CORS: 'false'
+  PORT: 4000
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_USER: ${DB_USER:?Set DB_USER}
+  DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+  DB_NAME: ${DB_NAME:?Set DB_NAME}
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  MINIO_ENDPOINT: minio
+  MINIO_PORT: 9000
+  MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+  MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+  MINIO_USE_SSL: 'false'
+  MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:?Set MINIO_PUBLIC_URL}
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET}
+  JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
+  JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+  FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL}
+  SMTP_HOST: ${SMTP_HOST:?Set SMTP_HOST}
+  SMTP_PORT: ${SMTP_PORT:?Set SMTP_PORT}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:?Set SMTP_FROM}
+  ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+  ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-WaveStream Admin}
+  ADMIN_USERNAME: ${ADMIN_USERNAME:-wavestream-admin}
+  DEFAULT_CREATOR_ROLE: ${DEFAULT_CREATOR_ROLE:-creator}
+
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:?Set DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:?Set DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  redis:
+    image: public.ecr.aws/docker/library/redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  minio:
+    image: quay.io/minio/minio:latest
+    restart: unless-stopped
+    ports:
+      - '${MINIO_BIND:-127.0.0.1}:${MINIO_API_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_BIND:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001'
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ':9001'
+    logging: *default-logging
+
+  minio-init:
+    image: quay.io/minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_started
+    restart: on-failure
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+    entrypoint:
+      [
+        '/bin/sh',
+        '-ec',
+        'until mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"; do echo "Waiting for MinIO..."; sleep 2; done; mc mb --ignore-existing local/wavestream-audio; mc mb --ignore-existing local/wavestream-images; mc anonymous set download local/wavestream-audio; mc anonymous set download local/wavestream-images; echo "MinIO buckets initialized";',
+      ]
+    logging: *default-logging
+
+  api-migrate:
+    image: ghcr.io/jasontm17/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
+    profiles: ['maintenance']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment: *api-env
+    command: ['node', 'apps/api/dist/apps/api/src/database/typeorm/scripts/run-migrations.js']
+    logging: *default-logging
+
+  api:
+    image: ghcr.io/jasontm17/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
+    restart: unless-stopped
+    ports:
+      - '${API_BIND:-127.0.0.1}:${API_PORT:-4000}:4000'
+    environment: *api-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  web:
+    image: ghcr.io/jasontm17/wavestream-web:${WAVESTREAM_IMAGE_TAG:-main}
+    restart: unless-stopped
+    ports:
+      - '${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3000}:3000'
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?Set NEXT_PUBLIC_API_URL}
+      INTERNAL_API_URL: http://api:4000
+      NEXT_PUBLIC_MINIO_URL: ${NEXT_PUBLIC_MINIO_URL:?Set NEXT_PUBLIC_MINIO_URL}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+volumes:
+  postgres_data:
+    name: wavestream-production-postgres-data
+  redis_data:
+    name: wavestream-production-redis-data
+  minio_data:
+    name: wavestream-production-minio-data

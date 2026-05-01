@@ -21,6 +21,18 @@ That stack starts:
 - NestJS API.
 - Next.js web app.
 
+For production hosts, use the image-based compose file:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml pull
+docker compose --env-file .env.production -f docker-compose.prod.yml --profile maintenance run --rm api-migrate
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+```
+
+Start from `.env.production.example`, keep real values in a private secret store, and see
+[Production Operations](./PRODUCTION_OPERATIONS.md) for branch protection, monitoring, log retention,
+backup, and rollback details.
+
 ## Required Environment
 
 Start from `.env.example` and supply real values for production.
@@ -77,6 +89,8 @@ The repository uses Mailpit for local development. For production:
 - Make sure the API and web origins are both included in `FRONTEND_URL` when CORS and cookie flows need to work across environments.
 - Review upload limits, object retention policies, and reverse proxy size caps before exposing creator uploads publicly.
 - Monitor the health endpoints after deployment and wire them into your container platform or load balancer.
+- Use the GitHub protected `main` branch as the release source; required checks should stay green before promoting GHCR images.
+- Update the GitHub repository website field to the real deployed web URL once a public production origin exists.
 
 ## Recovery And Maintenance
 

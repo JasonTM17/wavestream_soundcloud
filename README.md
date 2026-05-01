@@ -151,6 +151,7 @@ See `.env.example` for all values with descriptions.
 
 For a cleaner local setup matrix, loopback-host guidance, Docker notes, and Playwright runtime details, see [docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md).
 For production release readiness, use [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
+For production host operations, branch protection, monitoring, logs, backups, and rollback, use [docs/PRODUCTION_OPERATIONS.md](./docs/PRODUCTION_OPERATIONS.md).
 For a public-facing product and architecture summary, see [docs/ABOUT.md](./docs/ABOUT.md).
 For the first public release copy, see [docs/RELEASE_NOTES_v1.0.0.md](./docs/RELEASE_NOTES_v1.0.0.md).
 

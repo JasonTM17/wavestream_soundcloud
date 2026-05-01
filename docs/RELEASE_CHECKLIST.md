@@ -113,14 +113,16 @@ Expected result:
 
 ## 8. Deployment Steps
 
-1. Build or pull the web and API images for the release SHA.
-2. Apply environment variables and secrets.
-3. Run database migrations.
-4. Start or roll the API service.
-5. Start or roll the web service.
-6. Confirm API health at `/api/health`.
-7. Confirm web root returns `200`.
-8. Run smoke checks before opening traffic widely.
+1. Confirm `main` branch protection is enabled and the required checks are green.
+2. Build or pull the web and API images for the release SHA.
+3. Apply environment variables and secrets from `.env.production.example` or your platform secret manager.
+4. Run database migrations with `docker-compose.prod.yml` or the platform migration job.
+5. Start or roll the API service.
+6. Start or roll the web service.
+7. Confirm API health at `/api/health`.
+8. Confirm web root returns `200`.
+9. Run smoke checks before opening traffic widely.
+10. If a public web URL exists, update the GitHub repository website field to that deployed origin.
 
 ## 9. Manual Browser Smoke
 
@@ -152,3 +154,6 @@ Open the deployed web app in a fresh browser session and verify:
 - Check storage read failures.
 - Confirm password reset email delivery.
 - Review admin report and audit-log pages after the first production moderation action.
+
+Use [Production Operations](./PRODUCTION_OPERATIONS.md) for the deploy command sequence, reverse proxy
+shape, Docker log retention, backup scope, and rollback flow.

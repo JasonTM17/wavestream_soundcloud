@@ -21,6 +21,18 @@ Stack đó khởi động các dịch vụ sau:
 - NestJS API.
 - Next.js web app.
 
+Với host production, dùng compose chạy từ image đã publish:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml pull
+docker compose --env-file .env.production -f docker-compose.prod.yml --profile maintenance run --rm api-migrate
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+```
+
+Bắt đầu từ `.env.production.example`, giữ giá trị thật trong secret store riêng, và xem
+[Production Operations](./PRODUCTION_OPERATIONS.md) để nắm branch protection, monitoring, log retention,
+backup và rollback.
+
 ## Biến Môi Trường Bắt Buộc
 
 Bắt đầu từ `.env.example` và điền giá trị thật cho môi trường production.
@@ -77,6 +89,8 @@ Repository dùng Mailpit cho phát triển local. Khi lên production:
 - Đảm bảo cả origin của API và web đều có trong `FRONTEND_URL` khi CORS và cookie flow phải hoạt động giữa nhiều môi trường.
 - Rà lại giới hạn upload, chính sách giữ dữ liệu object và giới hạn kích thước của reverse proxy trước khi mở creator uploads ra công khai.
 - Theo dõi health endpoints sau khi deploy và gắn chúng vào container platform hoặc load balancer.
+- Dùng branch `main` đã bật protection trên GitHub làm nguồn release; các required checks cần xanh trước khi promote GHCR images.
+- Cập nhật website field của GitHub repository sang URL production thật sau khi có public web origin.
 
 ## Khôi Phục Và Bảo Trì
 
