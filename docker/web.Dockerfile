@@ -7,6 +7,7 @@ FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/uuid-compat/package.json ./packages/uuid-compat/
 RUN pnpm install --frozen-lockfile || pnpm install
 
 # Build shared
