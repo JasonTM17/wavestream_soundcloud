@@ -50,6 +50,9 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Security audit
+        run: pnpm run audit
+
   build:
     name: Build
     needs: code-quality

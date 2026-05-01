@@ -139,6 +139,7 @@ Xem `.env.example` để biết tất cả các giá trị kèm mô tả.
 Đọc [docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md) để nắm rõ Docker local, loopback host, Playwright và troubleshooting.
 Trước khi deploy thật, dùng [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md) để kiểm tra secrets, storage, SMTP, backup, smoke test và rollback.
 Đọc [docs/PRODUCTION_OPERATIONS.md](./docs/PRODUCTION_OPERATIONS.md) để vận hành production host, branch protection, monitoring, logs, backup và rollback.
+Đọc [docs/SECURITY_AUDIT.md](./docs/SECURITY_AUDIT.md) để nắm chính sách dependency audit và ngoại lệ TypeORM UUID hiện tại.
 Nội dung release public đầu tiên nằm ở [docs/RELEASE_NOTES_v1.0.0.md](./docs/RELEASE_NOTES_v1.0.0.md).
 
 ---
