@@ -18,6 +18,8 @@ const apiStackServices = [
   "api",
 ];
 const imagePullServices = ["postgres", "redis", "minio", "minio-init", "mailpit"];
+const dockerPullAttempts = process.env.CI ? 5 : 3;
+const dockerStackAttempts = process.env.CI ? 4 : 3;
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,12 +53,10 @@ async function waitForApiHealth() {
   return false;
 }
 
-async function dockerComposeWithRetry(args, label) {
-  const attempts = 3;
-
+async function dockerComposeWithRetry(args, label, attempts = 3) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if (attempt > 1) {
-      const delayMs = attempt * 30_000;
+      const delayMs = Math.min(30_000 * 2 ** (attempt - 1), 240_000);
       console.log(`[wavestream:e2e] Retrying ${label} in ${delayMs / 1000}s...`);
       await sleep(delayMs);
     }
@@ -74,6 +74,18 @@ async function dockerComposeWithRetry(args, label) {
   return false;
 }
 
+async function pullDockerImages() {
+  for (const service of imagePullServices) {
+    const label = `Docker image pull for ${service}`;
+
+    if (!(await dockerComposeWithRetry(["pull", service], label, dockerPullAttempts))) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function main() {
   if (await isHealthy()) {
     console.log(`[wavestream:e2e] API already healthy at ${healthUrl}`);
@@ -82,12 +94,18 @@ async function main() {
 
   console.log("[wavestream:e2e] Starting Docker API stack for Playwright...");
 
-  if (!(await dockerComposeWithRetry(["pull", ...imagePullServices], "Docker image pulls"))) {
+  if (!(await pullDockerImages())) {
     process.exitCode = 1;
     return;
   }
 
-  if (!(await dockerComposeWithRetry(["up", "-d", ...apiStackServices], "Docker API stack"))) {
+  if (
+    !(await dockerComposeWithRetry(
+      ["up", "-d", ...apiStackServices],
+      "Docker API stack",
+      dockerStackAttempts,
+    ))
+  ) {
     process.exitCode = 1;
     return;
   }
