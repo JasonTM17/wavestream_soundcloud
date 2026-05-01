@@ -3,6 +3,8 @@
   "rootDir": ".",
   "testEnvironment": "node",
   "moduleNameMapper": {
+    "^@wavestream/shared$": "<rootDir>/../../../packages/shared/src",
+    "^@wavestream/shared/(.*)$": "<rootDir>/../../../packages/shared/src/$1",
     "^src/(.*)$": "<rootDir>/../src/$1",
     "^test/(.*)$": "<rootDir>/$1"
   },

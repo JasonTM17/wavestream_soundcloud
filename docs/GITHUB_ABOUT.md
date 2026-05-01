@@ -11,7 +11,7 @@ Full-stack SoundCloud-inspired music platform built with Next.js 16, NestJS 11, 
 Use the repository README until a deployed production URL is available:
 
 ```text
-https://github.com/JasonTM17/wavestream_soundcloud#readme
+https://github.com/JasonTM17/Wavestream_Soundcloud#readme
 ```
 
 ## Topics

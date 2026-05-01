@@ -1,13 +1,13 @@
 # WaveStream
 
-[![CI](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml)
-[![CD](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml)
+[![CI](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/ci.yml)
+[![CD](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/cd.yml/badge.svg)](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/cd.yml)
 
 [English](./README.md) | Tiếng Việt
 
 WaveStream là một nền tảng streaming nhạc cấp độ portfolio — bản clone full-stack của SoundCloud được xây dựng từ đầu dưới dạng pnpm monorepo. Dự án kết hợp frontend Next.js 16 App Router, API NestJS 11, PostgreSQL, Redis, MinIO và Mailpit thành một stack Docker-first cảm giác gần với sản phẩm production thực sự.
 
-> **Dự án portfolio của [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/wavestream_soundcloud)
+> **Dự án portfolio của [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/Wavestream_Soundcloud)
 
 ---
 
@@ -72,8 +72,8 @@ Xem [docs/ABOUT.md](./docs/ABOUT.md) để đọc hồ sơ dự án đầy đủ
 
 ```bash
 # 1. Clone và cài đặt
-git clone https://github.com/JasonTM17/wavestream_soundcloud.git
-cd wavestream_soundcloud
+git clone https://github.com/JasonTM17/Wavestream_Soundcloud.git
+cd Wavestream_Soundcloud
 pnpm install
 
 # 2. Cấu hình môi trường

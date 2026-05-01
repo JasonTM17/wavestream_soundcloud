@@ -253,7 +253,7 @@ export function AboutContent() {
             </Button>
             <Button asChild variant="outline" className="rounded-full">
               <a
-                href="https://github.com/JasonTM17/wavestream_soundcloud"
+                href="https://github.com/JasonTM17/Wavestream_Soundcloud"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -368,7 +368,7 @@ export function AboutContent() {
           </ul>
           <Button asChild variant="outline" size="sm" className="mt-5 rounded-full">
             <a
-              href="https://github.com/JasonTM17/wavestream_soundcloud#readme"
+              href="https://github.com/JasonTM17/Wavestream_Soundcloud#readme"
               target="_blank"
               rel="noopener noreferrer"
             >

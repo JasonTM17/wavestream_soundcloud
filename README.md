@@ -1,13 +1,13 @@
 # WaveStream
 
-[![CI](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/ci.yml)
-[![CD](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml/badge.svg)](https://github.com/JasonTM17/wavestream_soundcloud/actions/workflows/cd.yml)
+[![CI](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/ci.yml)
+[![CD](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/cd.yml/badge.svg)](https://github.com/JasonTM17/Wavestream_Soundcloud/actions/workflows/cd.yml)
 
 English | [Tiếng Việt](./README.vi.md)
 
 WaveStream is a portfolio-grade music streaming platform — a full-stack SoundCloud clone built from scratch as a pnpm monorepo. It combines a Next.js 16 App Router frontend, a NestJS 11 API, PostgreSQL, Redis, MinIO, and Mailpit into a Docker-first local stack that feels close to a real production product.
 
-> **Portfolio project by [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/wavestream_soundcloud)
+> **Portfolio project by [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/Wavestream_Soundcloud)
 
 ---
 
@@ -74,8 +74,8 @@ See [docs/ABOUT.md](./docs/ABOUT.md) for the full project profile and
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/JasonTM17/wavestream_soundcloud.git
-cd wavestream_soundcloud
+git clone https://github.com/JasonTM17/Wavestream_Soundcloud.git
+cd Wavestream_Soundcloud
 pnpm install
 
 # 2. Configure environment
