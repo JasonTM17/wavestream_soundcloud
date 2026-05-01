@@ -26,6 +26,25 @@ The compatibility package is intentionally narrow:
 
 Application identifiers still come from PostgreSQL `uuid_generate_v4()` through TypeORM entities and migrations. WaveStream application code does not call `uuid` directly.
 
+## Risk Boundary
+
+This is not a general-purpose UUID library replacement for application code. It is a private compatibility layer for TypeORM's current CommonJS dependency path.
+
+The boundary is intentionally enforced by project convention:
+
+- Keep application UUID generation in PostgreSQL and TypeORM entity metadata.
+- Do not import `uuid` directly from application source.
+- If application code needs UUID helpers in the future, use the official upstream `uuid` package directly after the TypeORM compatibility path is removed or isolated.
+
+## Current Verification
+
+The current release has:
+
+- No ignored audit advisories.
+- `pnpm run audit` passing with no moderate-or-higher advisories.
+- `pnpm --filter uuid test` covering CommonJS import, ESM import, UUID validation, parse/stringify round-trip, valid buffer writes, and out-of-range buffer rejection.
+- Docker API builds copying `packages/uuid-compat` into the image so TypeORM can resolve the override during migrations and runtime.
+
 ## Maintenance Policy
 
 Revisit this patch when any of the following changes:

@@ -16,6 +16,7 @@ const targetRoots = [
   'apps/web/components',
   'apps/web/e2e',
   'apps/web/lib/i18n',
+  'packages/uuid-compat/README.md',
 ];
 const targetExtensions = new Set(['.md', '.ts', '.tsx']);
 
