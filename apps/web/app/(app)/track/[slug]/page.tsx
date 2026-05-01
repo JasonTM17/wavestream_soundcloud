@@ -379,7 +379,7 @@ export default function TrackPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
                 onClick={playNow}
-                className="rounded-full bg-primary hover:bg-primary/90 text-white"
+                className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {isActiveTrack && playerIsPlaying ? (
                   <Pause className="h-4 w-4" />
@@ -623,7 +623,7 @@ export default function TrackPage() {
                   <Button
                     onClick={submitComment}
                     disabled={commentMutation.isPending}
-                    className="rounded-full bg-primary hover:bg-primary/90 text-white"
+                    className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     <MessageSquare className="h-4 w-4" />
                     {commentMutation.isPending ? t.posting : t.postComment}
@@ -649,7 +649,7 @@ export default function TrackPage() {
             <h3 className="text-sm font-bold text-foreground mb-3">{tCommon.artist}</h3>
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
-                <AvatarFallback className="bg-primary/80 text-white font-bold">
+                <AvatarFallback className="bg-primary/80 text-primary-foreground font-bold">
                   {card.artistName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>

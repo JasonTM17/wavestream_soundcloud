@@ -266,9 +266,9 @@ export default function ArtistPage() {
                         }`}
                       >
                         {isCurrentlyPlaying ? (
-                          <Pause className="h-4 w-4 text-white" />
+                          <Pause className="h-4 w-4 text-primary-foreground" />
                         ) : (
-                          <Play className="h-4 w-4 text-white ml-0.5" />
+                          <Play className="h-4 w-4 text-primary-foreground ml-0.5" />
                         )}
                       </div>
                     </button>
