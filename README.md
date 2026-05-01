@@ -5,11 +5,27 @@
 
 English | [Tiếng Việt](./README.vi.md)
 
-![WaveStream discover page](./docs/assets/wavestream-discover.png)
+![WaveStream landing page](./docs/assets/wavestream-home.png)
 
 WaveStream is a portfolio-grade music streaming platform — a full-stack SoundCloud clone built from scratch as a pnpm monorepo. It combines a Next.js 16 App Router frontend, a NestJS 11 API, PostgreSQL, Redis, MinIO, and Mailpit into a Docker-first local stack that feels close to a real production product.
 
 > **Portfolio project by [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/Wavestream_Soundcloud)
+
+---
+
+## Product Screenshots
+
+| Discovery experience | Ambient search |
+| --- | --- |
+| ![WaveStream discovery page](./docs/assets/wavestream-discover.png) | ![WaveStream ambient search results](./docs/assets/wavestream-search-ambient.png) |
+
+| Track detail | Playlist detail |
+| --- | --- |
+| ![WaveStream track detail page](./docs/assets/wavestream-track-aurora.png) | ![WaveStream playlist detail page](./docs/assets/wavestream-playlist-global-beats.png) |
+
+<p align="center">
+  <img src="./docs/assets/wavestream-mobile-discover.png" alt="WaveStream mobile discovery view" width="360" />
+</p>
 
 ---
 

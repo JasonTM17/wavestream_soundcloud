@@ -5,11 +5,27 @@
 
 [English](./README.md) | Tiếng Việt
 
-![Trang khám phá WaveStream](./docs/assets/wavestream-discover.png)
+![Trang landing WaveStream](./docs/assets/wavestream-home.png)
 
 WaveStream là một nền tảng streaming nhạc cấp độ portfolio — bản clone full-stack của SoundCloud được xây dựng từ đầu dưới dạng pnpm monorepo. Dự án kết hợp frontend Next.js 16 App Router, API NestJS 11, PostgreSQL, Redis, MinIO và Mailpit thành một stack Docker-first cảm giác gần với sản phẩm production thực sự.
 
 > **Dự án portfolio của [Nguyễn Sơn](mailto:jasonbmt06@gmail.com)** · [GitHub](https://github.com/JasonTM17/Wavestream_Soundcloud)
+
+---
+
+## Ảnh sản phẩm
+
+| Trải nghiệm khám phá | Tìm kiếm Ambient |
+| --- | --- |
+| ![Trang khám phá WaveStream](./docs/assets/wavestream-discover.png) | ![Kết quả tìm kiếm Ambient trên WaveStream](./docs/assets/wavestream-search-ambient.png) |
+
+| Chi tiết bài hát | Chi tiết playlist |
+| --- | --- |
+| ![Trang chi tiết bài hát WaveStream](./docs/assets/wavestream-track-aurora.png) | ![Trang chi tiết playlist WaveStream](./docs/assets/wavestream-playlist-global-beats.png) |
+
+<p align="center">
+  <img src="./docs/assets/wavestream-mobile-discover.png" alt="Giao diện mobile khám phá của WaveStream" width="360" />
+</p>
 
 ---
 
