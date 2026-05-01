@@ -31,7 +31,8 @@
   "pnpm": {
     "overrides": {
       "fast-xml-parser": "^5.7.2",
-      "postcss": "^8.5.13"
+      "postcss": "^8.5.13",
+      "typeorm>uuid": "link:packages/uuid-compat"
     }
   }
 }

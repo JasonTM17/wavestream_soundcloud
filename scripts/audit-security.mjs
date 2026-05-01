@@ -1,17 +1,22 @@
 import { spawnSync } from "node:child_process";
 
-const ignoredAdvisories = new Set(["GHSA-w5hq-g745-h8pq"]);
+const auditCommand =
+  process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : "pnpm";
+const auditArgs =
+  process.platform === "win32"
+    ? ["/d", "/s", "/c", "pnpm audit --audit-level moderate --json"]
+    : ["audit", "--audit-level", "moderate", "--json"];
 
-const audit = spawnSync(
-  "pnpm",
-  ["audit", "--audit-level", "moderate", "--json"],
-  {
-    encoding: "utf8",
-    shell: process.platform === "win32",
-  },
-);
+const audit = spawnSync(auditCommand, auditArgs, {
+  encoding: "utf8",
+});
 
-const output = audit.stdout.trim();
+if (audit.error) {
+  process.stderr.write(`Unable to run pnpm audit: ${audit.error.message}\n`);
+  process.exit(1);
+}
+
+const output = audit.stdout?.trim() ?? "";
 
 if (!output) {
   process.stderr.write(audit.stderr || "pnpm audit did not return JSON output.\n");
@@ -30,21 +35,12 @@ try {
 }
 
 const advisories = Object.values(report.advisories ?? {});
-const actionable = advisories.filter((advisory) => {
-  const advisoryIds = [
-    advisory.github_advisory_id,
-    ...(Array.isArray(advisory.cves) ? advisory.cves : []),
-  ].filter(Boolean);
-
-  return !advisoryIds.some((id) => ignoredAdvisories.has(id));
-});
-
-if (actionable.length > 0) {
+if (advisories.length > 0) {
   process.stderr.write(
-    `Security audit failed with ${actionable.length} actionable advisory/advisories.\n`,
+    `Security audit failed with ${advisories.length} moderate-or-higher advisory/advisories.\n`,
   );
 
-  for (const advisory of actionable) {
+  for (const advisory of advisories) {
     const id = advisory.github_advisory_id ?? advisory.id ?? "unknown";
     process.stderr.write(
       `- ${id} ${advisory.severity ?? "unknown"} ${advisory.module_name}: ${advisory.title}\n`,
@@ -52,15 +48,6 @@ if (actionable.length > 0) {
   }
 
   process.exit(1);
-}
-
-if (audit.status !== 0 && advisories.length > 0) {
-  process.stdout.write(
-    `Security audit passed with ${advisories.length} documented exception(s): ${[
-      ...ignoredAdvisories,
-    ].join(", ")}.\n`,
-  );
-  process.exit(0);
 }
 
 if (audit.status !== 0) {

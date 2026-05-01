@@ -58,8 +58,7 @@
     "socket.io": "^4.8.1",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.27",
-    "typeorm-ts-node-commonjs": "^0.3.20",
-    "uuid": "^14.0.0"
+    "typeorm-ts-node-commonjs": "^0.3.20"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

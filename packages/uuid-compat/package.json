@@ -1,0 +1,22 @@
+{
+  "name": "uuid",
+  "version": "14.0.0",
+  "private": true,
+  "description": "WaveStream CommonJS-compatible UUID v4 shim for TypeORM until upstream supports uuid 14.",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.cjs",
+      "default": "./index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "node --check index.cjs && node --check index.mjs && node --check index.test.mjs",
+    "test": "node --test index.test.mjs",
+    "typecheck": "node --check index.cjs && node --check index.mjs"
+  }
+}
