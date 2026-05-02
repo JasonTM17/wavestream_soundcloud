@@ -54,7 +54,7 @@ See [docs/ABOUT.md](./docs/ABOUT.md) for the full project profile and
 | **Creator**        | Upload & manage tracks, creator dashboard with analytics                                             |
 | **Admin**          | Report queue, content moderation (hide/restore), audit log, user role management                     |
 | **Auth**           | JWT access tokens, refresh-cookie rotation, password reset via email, protected routes               |
-| **Infrastructure** | Docker Compose full stack, GitHub Actions CI/CD, GHCR image publishing                               |
+| **Infrastructure** | Docker Compose full stack, GitHub Actions CI/CD, Docker Hub and GHCR image publishing                |
 
 ---
 
@@ -78,7 +78,7 @@ See [docs/ABOUT.md](./docs/ABOUT.md) for the full project profile and
 
 **Backend** · NestJS 11, TypeORM, PostgreSQL 16, Redis 7, BullMQ, Socket.IO, JWT/Passport
 
-**Storage & Infra** · MinIO (S3-compatible), Docker, GitHub Actions, GHCR
+**Storage & Infra** · MinIO (S3-compatible), Docker, GitHub Actions, Docker Hub, GHCR
 
 ---
 
@@ -170,6 +170,7 @@ See `.env.example` for all values with descriptions.
 For a cleaner local setup matrix, loopback-host guidance, Docker notes, and Playwright runtime details, see [docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md).
 For production release readiness, use [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
 For production host operations, branch protection, monitoring, logs, backups, and rollback, use [docs/PRODUCTION_OPERATIONS.md](./docs/PRODUCTION_OPERATIONS.md).
+For Docker Hub and GHCR image names, use [docs/CONTAINER_REGISTRIES.md](./docs/CONTAINER_REGISTRIES.md).
 For dependency-audit policy and the TypeORM UUID compatibility patch, see [docs/SECURITY_AUDIT.md](./docs/SECURITY_AUDIT.md).
 For a public-facing product and architecture summary, see [docs/ABOUT.md](./docs/ABOUT.md).
 For the first public release copy, see [docs/RELEASE_NOTES_v1.0.0.md](./docs/RELEASE_NOTES_v1.0.0.md).
@@ -179,9 +180,14 @@ For the first public release copy, see [docs/RELEASE_NOTES_v1.0.0.md](./docs/REL
 ## CI/CD
 
 - **CI** (`.github/workflows/ci.yml`): install → lint → typecheck → unit test → build → Playwright E2E → Docker smoke
-- **CD** (`.github/workflows/cd.yml`): publishes Docker images to GHCR on merge to `main`
+- **CD** (`.github/workflows/cd.yml`): publishes GHCR images on merge to `main`; Docker Hub publishing runs when `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are configured
 
-Container images:
+Docker Hub images:
+
+- `nguyenson1710/wavestream-web`
+- `nguyenson1710/wavestream-api`
+
+GitHub Packages / GHCR images:
 
 - `ghcr.io/jasontm17/wavestream-web`
 - `ghcr.io/jasontm17/wavestream-api`

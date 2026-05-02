@@ -19,7 +19,7 @@ WaveStream v1.0.0 is the first portfolio-ready release of the project: a full-st
 - API: NestJS 11, TypeORM, PostgreSQL 16, Redis 7, BullMQ, JWT / Passport.
 - Shared package: workspace DTOs, enums, and typed contracts.
 - Storage and mail: MinIO/S3-compatible object storage and Mailpit locally, with SMTP-ready production configuration.
-- Delivery: Docker Compose, GitHub Actions, GHCR web/API packages, Playwright e2e, visual snapshots, and Docker smoke checks.
+- Delivery: Docker Compose, GitHub Actions, Docker Hub and GHCR web/API packages, Playwright e2e, visual snapshots, and Docker smoke checks.
 
 ## Release Hardening
 
@@ -56,6 +56,13 @@ Manual browser smoke targets:
 ## Packages
 
 Published package/image targets:
+
+Docker Hub:
+
+- `nguyenson1710/wavestream-api`
+- `nguyenson1710/wavestream-web`
+
+GitHub Packages / GHCR:
 
 - `ghcr.io/jasontm17/wavestream-api`
 - `ghcr.io/jasontm17/wavestream-web`

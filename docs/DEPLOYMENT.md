@@ -89,7 +89,7 @@ The repository uses Mailpit for local development. For production:
 - Make sure the API and web origins are both included in `FRONTEND_URL` when CORS and cookie flows need to work across environments.
 - Review upload limits, object retention policies, and reverse proxy size caps before exposing creator uploads publicly.
 - Monitor the health endpoints after deployment and wire them into your container platform or load balancer.
-- Use the GitHub protected `main` branch as the release source; required checks should stay green before promoting GHCR images.
+- Use the GitHub protected `main` branch as the release source; required checks should stay green before promoting Docker Hub or GHCR images.
 - Update the GitHub repository website field to the real deployed web URL once a public production origin exists.
 
 ## Recovery And Maintenance

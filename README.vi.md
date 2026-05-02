@@ -52,7 +52,7 @@ Xem [docs/ABOUT.md](./docs/ABOUT.md) để đọc hồ sơ dự án đầy đủ
 | **Creator**  | Upload & quản lý bài hát, dashboard analytics                                              |
 | **Admin**    | Hàng đợi báo cáo, kiểm duyệt nội dung (ẩn/khôi phục), audit log, quản lý role người dùng   |
 | **Auth**     | JWT access token, refresh-cookie rotation, đặt lại mật khẩu qua email, route được bảo vệ   |
-| **Hạ tầng**  | Docker Compose full stack, GitHub Actions CI/CD, publish image lên GHCR                    |
+| **Hạ tầng**  | Docker Compose full stack, GitHub Actions CI/CD, publish image lên Docker Hub và GHCR      |
 
 ---
 
@@ -76,7 +76,7 @@ Xem [docs/ABOUT.md](./docs/ABOUT.md) để đọc hồ sơ dự án đầy đủ
 
 **Backend** · NestJS 11, TypeORM, PostgreSQL 16, Redis 7, BullMQ, Socket.IO, JWT/Passport
 
-**Storage & Hạ tầng** · MinIO (S3-compatible), Docker, GitHub Actions, GHCR
+**Storage & Hạ tầng** · MinIO (S3-compatible), Docker, GitHub Actions, Docker Hub, GHCR
 
 ---
 
@@ -157,6 +157,7 @@ Xem `.env.example` để biết tất cả các giá trị kèm mô tả.
 Đọc [docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md) để nắm rõ Docker local, loopback host, Playwright và troubleshooting.
 Trước khi deploy thật, dùng [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md) để kiểm tra secrets, storage, SMTP, backup, smoke test và rollback.
 Đọc [docs/PRODUCTION_OPERATIONS.md](./docs/PRODUCTION_OPERATIONS.md) để vận hành production host, branch protection, monitoring, logs, backup và rollback.
+Đọc [docs/CONTAINER_REGISTRIES.md](./docs/CONTAINER_REGISTRIES.md) để phân biệt image Docker Hub và GitHub Packages / GHCR.
 Đọc [docs/SECURITY_AUDIT.md](./docs/SECURITY_AUDIT.md) để nắm chính sách dependency audit và bản vá tương thích TypeORM UUID hiện tại.
 Nội dung release public đầu tiên nằm ở [docs/RELEASE_NOTES_v1.0.0.md](./docs/RELEASE_NOTES_v1.0.0.md).
 
@@ -165,9 +166,14 @@ Nội dung release public đầu tiên nằm ở [docs/RELEASE_NOTES_v1.0.0.md](
 ## CI/CD
 
 - **CI** (`.github/workflows/ci.yml`): install → lint → typecheck → unit test → build → Playwright E2E → Docker smoke
-- **CD** (`.github/workflows/cd.yml`): publish Docker images lên GHCR khi merge vào `main`
+- **CD** (`.github/workflows/cd.yml`): publish image lên GHCR khi merge vào `main`; Docker Hub sẽ publish khi đã cấu hình `DOCKERHUB_USERNAME` và `DOCKERHUB_TOKEN`
 
-Container images:
+Docker Hub images:
+
+- `nguyenson1710/wavestream-web`
+- `nguyenson1710/wavestream-api`
+
+GitHub Packages / GHCR images:
 
 - `ghcr.io/jasontm17/wavestream-web`
 - `ghcr.io/jasontm17/wavestream-api`

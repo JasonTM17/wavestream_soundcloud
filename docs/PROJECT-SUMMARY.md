@@ -29,7 +29,7 @@ WaveStream is a full-stack audio platform demo with real discovery, playback, up
 - Frontend: Next.js App Router, TypeScript, Tailwind CSS, React Query, Zustand
 - Backend: NestJS, TypeORM, JWT auth, modular REST API
 - Data and infrastructure: PostgreSQL, Redis, MinIO, Mailpit, Docker Compose
-- Quality and delivery: Vitest, Playwright, integration testing, GitHub Actions, GHCR publishing
+- Quality and delivery: Vitest, Playwright, integration testing, GitHub Actions, Docker Hub and GHCR publishing
 
 ## What This Project Demonstrates
 

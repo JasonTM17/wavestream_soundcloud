@@ -85,7 +85,7 @@ The most valuable work in WaveStream was not just building features, but closing
 - making public and private playback reliable across route changes
 - replacing empty-state “demo shell” language with product-facing copy
 - ensuring artist, track, and playlist cards deep-link to real populated pages instead of fake endpoints
-- getting CI and CD into a green, release-ready state with Docker smoke coverage and GHCR publishing
+- getting CI and CD into a green, release-ready state with Docker smoke coverage and container publishing
 
 Those changes matter because portfolio reviewers usually notice polish gaps faster than feature counts.
 
@@ -97,7 +97,7 @@ WaveStream was built with the assumption that a convincing project has to surviv
 - Playwright covers core cross-page behavior
 - Docker Compose is used to verify the full local stack
 - GitHub Actions validates CI on every main branch push
-- GitHub Container Registry publishing is wired through CD for the web and API images
+- GHCR publishing is wired through CD for the web and API images, with Docker Hub publishing enabled when Docker Hub secrets are configured
 
 This turns the repo into something that is easier to review, easier to run, and easier to trust.
 

@@ -1,6 +1,6 @@
 # WaveStream Production Operations
 
-This runbook covers the production-ready path after CI/CD is green and GHCR images are published.
+This runbook covers the production-ready path after CI/CD is green and registry images are published.
 
 ## Repository Guardrails
 
@@ -28,7 +28,7 @@ After a real deployed URL exists, update the GitHub repository website field fro
 
 ## Docker Production Stack
 
-Use `docker-compose.prod.yml` when deploying from published GHCR images instead of rebuilding from source on the server.
+Use `docker-compose.prod.yml` when deploying from published Docker Hub images instead of rebuilding from source on the server. GHCR images are also available as repository-attached packages; see [Container Registries](./CONTAINER_REGISTRIES.md).
 
 1. Create a private env file from `.env.production.example`.
 2. Fill every secret with production values.
@@ -113,7 +113,7 @@ Test restore in a non-production environment before relying on backups. A comple
 
 ## Rollback
 
-1. Keep the previous `WAVESTREAM_IMAGE_TAG` available in GHCR.
+1. Keep the previous `WAVESTREAM_IMAGE_TAG` available in the registry you deploy from.
 2. If no irreversible migration ran, switch the image tag back and restart web/API.
 3. If data changed incompatibly, stop writes and restore PostgreSQL plus MinIO from the matching backup pair.
 4. Run health checks and manual browser smoke before reopening traffic.

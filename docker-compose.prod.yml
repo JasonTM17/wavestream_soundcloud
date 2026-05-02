@@ -103,7 +103,7 @@ services:
     logging: *default-logging
 
   api-migrate:
-    image: ghcr.io/jasontm17/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
+    image: nguyenson1710/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
     profiles: ['maintenance']
     depends_on:
       postgres:
@@ -117,7 +117,7 @@ services:
     logging: *default-logging
 
   api:
-    image: ghcr.io/jasontm17/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
+    image: nguyenson1710/wavestream-api:${WAVESTREAM_IMAGE_TAG:-main}
     restart: unless-stopped
     ports:
       - '${API_BIND:-127.0.0.1}:${API_PORT:-4000}:4000'
@@ -143,7 +143,7 @@ services:
     logging: *default-logging
 
   web:
-    image: ghcr.io/jasontm17/wavestream-web:${WAVESTREAM_IMAGE_TAG:-main}
+    image: nguyenson1710/wavestream-web:${WAVESTREAM_IMAGE_TAG:-main}
     restart: unless-stopped
     ports:
       - '${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3000}:3000'

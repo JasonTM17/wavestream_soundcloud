@@ -44,7 +44,7 @@ The seeded catalog includes generated WAV audio and artwork stored through MinIO
 | Shared contracts | Workspace package with DTOs, enums, and typed contracts               |
 | Storage          | MinIO/S3-compatible object storage for audio and artwork              |
 | Mail             | Mailpit locally, SMTP provider in production                          |
-| Delivery         | Docker Compose, GitHub Actions, GHCR image publishing                 |
+| Delivery         | Docker Compose, GitHub Actions, Docker Hub and GHCR image publishing  |
 | Tests            | Vitest, Jest, Playwright e2e, visual snapshots, Docker smoke          |
 
 ## Quality Signals
@@ -63,6 +63,7 @@ The seeded catalog includes generated WAV audio and artwork stored through MinIO
 - [README.vi.md](../README.vi.md): Vietnamese setup and project overview.
 - [docs/LOCAL_RUN.md](./LOCAL_RUN.md): local Docker/dev guidance and troubleshooting.
 - [docs/RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md): production release checklist.
+- [docs/CONTAINER_REGISTRIES.md](./CONTAINER_REGISTRIES.md): Docker Hub and GHCR image names.
 - [docs/GITHUB_ABOUT.md](./GITHUB_ABOUT.md): copy-ready GitHub repository profile.
 
 ## Vietnamese Summary

@@ -53,6 +53,9 @@ Production rules:
 
 ## 3. Secret Hardening
 
+- Confirm GHCR packages use the GitHub repository owner namespace: `ghcr.io/jasontm17/wavestream-web` and `ghcr.io/jasontm17/wavestream-api`.
+- Confirm Docker Hub images use the Docker Hub account namespace: `nguyenson1710/wavestream-web` and `nguyenson1710/wavestream-api`.
+- Confirm GitHub Actions has `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets if Docker Hub publishing should run automatically.
 - Generate unique `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` values with at least 32 characters.
 - Rotate secrets after demos, screen recordings, accidental logs, or shared `.env` files.
 - Use a strong `ADMIN_PASSWORD`; never keep the local demo password in production.
@@ -114,7 +117,7 @@ Expected result:
 ## 8. Deployment Steps
 
 1. Confirm `main` branch protection is enabled and the required checks are green.
-2. Build or pull the web and API images for the release SHA.
+2. Build or pull the web and API images for the release SHA from Docker Hub or GHCR.
 3. Apply environment variables and secrets from `.env.production.example` or your platform secret manager.
 4. Run database migrations with `docker-compose.prod.yml` or the platform migration job.
 5. Start or roll the API service.

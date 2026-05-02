@@ -89,7 +89,7 @@ Repository dùng Mailpit cho phát triển local. Khi lên production:
 - Đảm bảo cả origin của API và web đều có trong `FRONTEND_URL` khi CORS và cookie flow phải hoạt động giữa nhiều môi trường.
 - Rà lại giới hạn upload, chính sách giữ dữ liệu object và giới hạn kích thước của reverse proxy trước khi mở creator uploads ra công khai.
 - Theo dõi health endpoints sau khi deploy và gắn chúng vào container platform hoặc load balancer.
-- Dùng branch `main` đã bật protection trên GitHub làm nguồn release; các required checks cần xanh trước khi promote GHCR images.
+- Dùng branch `main` đã bật protection trên GitHub làm nguồn release; các required checks cần xanh trước khi promote Docker Hub hoặc GHCR images.
 - Cập nhật website field của GitHub repository sang URL production thật sau khi có public web origin.
 
 ## Khôi Phục Và Bảo Trì
