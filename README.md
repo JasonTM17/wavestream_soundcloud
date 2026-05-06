@@ -208,3 +208,5 @@ GitHub Packages / GHCR images:
 ## License
 
 MIT — built for learning and portfolio purposes. Feedback and contributions are welcome.
+/ /   A u d i o   o p t i m i z a t i o n   2 0 2 6 - 0 5 - 0 6  
+ 
