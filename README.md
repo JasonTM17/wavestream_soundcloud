@@ -15,12 +15,12 @@ WaveStream is a portfolio-grade music streaming platform — a full-stack SoundC
 
 ## Product Screenshots
 
-| Discovery experience | Ambient search |
-| --- | --- |
+| Discovery experience                                                | Ambient search                                                                    |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | ![WaveStream discovery page](./docs/assets/wavestream-discover.png) | ![WaveStream ambient search results](./docs/assets/wavestream-search-ambient.png) |
 
-| Track detail | Playlist detail |
-| --- | --- |
+| Track detail                                                               | Playlist detail                                                                        |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | ![WaveStream track detail page](./docs/assets/wavestream-track-aurora.png) | ![WaveStream playlist detail page](./docs/assets/wavestream-playlist-global-beats.png) |
 
 <p align="center">
@@ -172,6 +172,8 @@ For production release readiness, use [docs/RELEASE_CHECKLIST.md](./docs/RELEASE
 For production host operations, branch protection, monitoring, logs, backups, and rollback, use [docs/PRODUCTION_OPERATIONS.md](./docs/PRODUCTION_OPERATIONS.md).
 For Docker Hub and GHCR image names, use [docs/CONTAINER_REGISTRIES.md](./docs/CONTAINER_REGISTRIES.md).
 For dependency-audit policy and the TypeORM UUID compatibility patch, see [docs/SECURITY_AUDIT.md](./docs/SECURITY_AUDIT.md).
+For contribution standards and English commit conventions, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+For private vulnerability reporting, see [SECURITY.md](./SECURITY.md).
 For a public-facing product and architecture summary, see [docs/ABOUT.md](./docs/ABOUT.md).
 For the first public release copy, see [docs/RELEASE_NOTES_v1.0.0.md](./docs/RELEASE_NOTES_v1.0.0.md).
 
