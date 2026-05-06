@@ -3,7 +3,29 @@
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@10.33.0",
-  "description": "WaveStream - A modern music streaming platform",
+  "description": "A production-style SoundCloud-inspired music streaming platform built with Next.js, NestJS, PostgreSQL, Redis, MinIO, and Docker.",
+  "license": "MIT",
+  "author": "Nguyen Son <jasonbmt06@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JasonTM17/Wavestream_Soundcloud.git"
+  },
+  "homepage": "https://github.com/JasonTM17/Wavestream_Soundcloud#readme",
+  "bugs": {
+    "url": "https://github.com/JasonTM17/Wavestream_Soundcloud/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "nestjs",
+    "typescript",
+    "soundcloud-clone",
+    "music-streaming",
+    "postgresql",
+    "redis",
+    "minio",
+    "docker",
+    "portfolio-project"
+  ],
   "scripts": {
     "dev": "turbo run dev --parallel",
     "dev:web": "pnpm --filter web dev",
@@ -13,6 +35,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "pnpm --filter api test:e2e && pnpm --filter web test:e2e",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm docs:check",
     "audit": "node ./scripts/audit-security.mjs",
     "docs:check": "node ./scripts/check-docs-text.mjs",
     "smoke:docker": "node ./scripts/docker-smoke.mjs",
